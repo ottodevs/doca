@@ -1,0 +1,21 @@
+{
+  "name": "aqua-defi-engine",
+  "description": "Pluggable observe/decide/execute strategy engine for 1inch Aqua shared liquidity",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "viem": "^2.55.8"
+  }
+}
