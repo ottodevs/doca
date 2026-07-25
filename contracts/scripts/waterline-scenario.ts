@@ -83,6 +83,8 @@ async function main() {
         token1: tokenBAddr,
         reference0: LIQUIDITY,
         reference1: LIQUIDITY,
+        budget0: 0n,
+        budget1: 0n,
         baseFeeBps: BASE_FEE,
         maxFeeBps: MAX_FEE,
         kink: KINK,

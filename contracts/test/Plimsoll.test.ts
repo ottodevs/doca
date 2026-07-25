@@ -101,6 +101,8 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
             token1: await tokenB.getAddress(),
             reference0: reference,
             reference1: reference,
+            budget0: 0n,
+            budget1: 0n,
             baseFeeBps: BASE_FEE,
             maxFeeBps: MAX_FEE,
             kink: KINK,

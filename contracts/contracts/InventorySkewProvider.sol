@@ -36,12 +36,14 @@ contract InventorySkewProvider is IProtocolFeeProvider {
     /// @param maker Liquidity provider that shipped the strategy
     /// @param token0 First token of the pair
     /// @param token1 Second token of the pair
-    /// @param reference0 Inventory of token0 at ship time, the denominator for depletion
-    /// @param reference1 Inventory of token1 at ship time
-    /// @param baseFeeBps Fee charged while inventory is above the kink
-    /// @param maxFeeBps Fee charged at or below the waterline
-    /// @param kink Remaining inventory fraction (of 1e4) where the ramp starts
-    /// @param waterlineFrac Remaining inventory fraction (of 1e4) where maxFeeBps is reached
+    /// @param reference0 Virtual balance of token0 promised at ship time, used to measure consumption
+    /// @param reference1 Virtual balance of token1 promised at ship time
+    /// @param budget0 How much token0 this strategy may consume before the waterline (0 = reference0)
+    /// @param budget1 How much token1 this strategy may consume before the waterline (0 = reference1)
+    /// @param baseFeeBps Fee charged while the budget is largely unspent
+    /// @param maxFeeBps Fee charged once the budget is exhausted
+    /// @param kink Remaining budget fraction (of 1e4) where the ramp starts
+    /// @param waterlineFrac Remaining budget fraction (of 1e4) where maxFeeBps is reached
     /// @param harvestTo Recipient of the depletion surcharge, normally the maker's own wallet
     struct Waterline {
         address maker;
@@ -49,6 +51,8 @@ contract InventorySkewProvider is IProtocolFeeProvider {
         address token1;
         uint128 reference0;
         uint128 reference1;
+        uint128 budget0;
+        uint128 budget1;
         uint32 baseFeeBps;
         uint32 maxFeeBps;
         uint16 kink;
@@ -86,6 +90,7 @@ contract InventorySkewProvider is IProtocolFeeProvider {
         if (w.harvestTo == address(0)) revert InvalidCurve();
         if (w.maxFeeBps < w.baseFeeBps || w.maxFeeBps > _BPS) revert InvalidCurve();
         if (w.kink > _FRAC || w.waterlineFrac > w.kink) revert InvalidCurve();
+        if (w.budget0 > w.reference0 || w.budget1 > w.reference1) revert InvalidCurve();
 
         _waterlines[orderHash] = w;
         emit WaterlineSet(orderHash, w.maker, w.baseFeeBps, w.maxFeeBps, w.kink, w.waterlineFrac);
@@ -133,13 +138,27 @@ contract InventorySkewProvider is IProtocolFeeProvider {
         address token
     ) private view returns (uint256) {
         uint256 shipped;
-        if (token == w.token0) shipped = w.reference0;
-        else if (token == w.token1) shipped = w.reference1;
-        else return _FRAC;
+        uint256 budget;
+        if (token == w.token0) {
+            shipped = w.reference0;
+            budget = w.budget0 == 0 ? shipped : w.budget0;
+        } else if (token == w.token1) {
+            shipped = w.reference1;
+            budget = w.budget1 == 0 ? shipped : w.budget1;
+        } else {
+            return _FRAC;
+        }
 
         (uint248 balance, ) = AQUA.rawBalances(w.maker, APP, orderHash, token);
         if (balance >= shipped) return _FRAC;
-        return (uint256(balance) * _FRAC) / shipped;
+
+        // A promise may exceed the wallet, which is the point of Aqua. A budget may not: the maker
+        // sizes each strategy's budget so the budgets sum to what is actually held, which is what
+        // keeps every promise honorable. Depletion is therefore measured as budget consumed, not as
+        // balance remaining.
+        uint256 consumed = shipped - balance;
+        if (consumed >= budget) return 0;
+        return ((budget - consumed) * _FRAC) / budget;
     }
 
     /// @dev Convex ramp: flat above the kink, quadratic between kink and waterline, capped below it.
