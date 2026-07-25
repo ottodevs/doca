@@ -12,8 +12,30 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
   networks: {
+    // FORK_BASE=1 runs against a fork of Base, where the canonical Aqua and SwapVM are live, so
+    // scripts exercise 1inch's real deployed contracts and real tokens without spending anything.
+    // Off by default so the unit tests stay fast and offline.
+    hardhat: process.env.FORK_BASE
+      ? {
+          forking: {
+            url: process.env.BASE_RPC_URL || "https://mainnet.base.org",
+            blockNumber: process.env.BASE_FORK_BLOCK ? Number(process.env.BASE_FORK_BLOCK) : undefined,
+          },
+          chainId: 8453,
+          hardfork: "cancun",
+          // Hardhat has no built-in hardfork history for Base, so calls at forked blocks fail
+          // with "No known hardfork for execution on historical block" until this is declared.
+          chains: {
+            8453: { hardforkHistory: { cancun: 0 } },
+          },
+        }
+      : {},
     localhost: {
       url: "http://127.0.0.1:8545",
+    },
+    base: {
+      url: process.env.BASE_RPC_URL || "https://mainnet.base.org",
+      accounts: process.env.PRIVATE_KEY ? ["0x" + process.env.PRIVATE_KEY] : [],
     },
     sepolia: {
       url: process.env.SEPOLIA_RPC_URL || "",
