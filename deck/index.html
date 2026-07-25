@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plimsoll — ETHGlobal Lisbon 2026</title>
+<style>
+  :root {
+    --bg: #05080d; --text: #e8eef5; --muted: #7e8ea0; --faint: #55647a;
+    --accent: #3dd6f5; --good: #34d399; --warn: #fbbf24; --bad: #f87171;
+    --line: rgba(148, 190, 233, 0.16);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1100px 480px at 70% -10%, rgba(31,118,170,0.16), transparent 60%),
+                radial-gradient(900px 500px at 0% 110%, rgba(20,60,110,0.18), transparent 55%), var(--bg);
+    color: var(--text);
+    font: 20px/1.5 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    justify-content: center; padding: 7vh 9vw; gap: 3.2vh;
+  }
+  .slide.on { display: flex; animation: fade 0.35s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+  .kicker { color: var(--accent); font-size: 2.1vh; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 650; }
+  h1 { font-size: 8.2vh; line-height: 1.06; letter-spacing: -0.025em; font-weight: 680; }
+  h2 { font-size: 5.6vh; line-height: 1.12; letter-spacing: -0.02em; font-weight: 660; max-width: 78vw; }
+  .sub { color: var(--muted); font-size: 2.9vh; max-width: 68vw; }
+  .quote {
+    border-left: 3px solid var(--accent); padding: 2vh 3vw; max-width: 74vw;
+    font-size: 3.4vh; line-height: 1.45; color: var(--text); background: rgba(61,214,245,0.05);
+    border-radius: 0 14px 14px 0;
+  }
+  .quote cite { display: block; margin-top: 1.4vh; color: var(--faint); font-size: 2vh; font-style: normal; }
+  .quote em { color: var(--accent); font-style: normal; font-weight: 650; }
+  .cols { display: flex; gap: 3vw; }
+  .box { flex: 1; border: 1px solid var(--line); background: #0a1017; border-radius: 16px; padding: 3vh 2.4vw; }
+  .box h3 { font-size: 2.4vh; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.4vh; }
+  .box p { color: var(--muted); font-size: 2.5vh; }
+  .box strong { color: var(--text); }
+  .big { font-size: 12vh; font-weight: 680; letter-spacing: -0.03em; line-height: 1; }
+  .big small { font-size: 3vh; color: var(--muted); font-weight: 500; display: block; margin-top: 1.4vh; letter-spacing: 0; }
+  table { border-collapse: collapse; font-size: 2.7vh; }
+  th, td { padding: 1.2vh 2.2vw; text-align: right; border-bottom: 1px solid var(--line); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--faint); font-size: 2vh; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .good { color: var(--good); font-weight: 650; }
+  .bad { color: var(--bad); font-weight: 650; }
+  .mark { color: var(--accent); filter: drop-shadow(0 0 14px rgba(61,214,245,0.4)); }
+  .brand { display: flex; align-items: center; gap: 2vw; }
+  .foot { position: absolute; bottom: 3.4vh; left: 9vw; right: 9vw; display: flex; justify-content: space-between; color: var(--faint); font-size: 1.9vh; }
+  .num { color: var(--faint); }
+  a { color: var(--accent); text-decoration: none; }
+  .demo-cue { border: 1px dashed rgba(61,214,245,0.5); color: var(--accent); border-radius: 14px; padding: 2.4vh 3vw; font-size: 3.2vh; max-width: 60vw; }
+  ul.plain { list-style: none; display: grid; gap: 1.8vh; font-size: 3vh; }
+  ul.plain li::before { content: "— "; color: var(--accent); }
+  ul.plain li { color: var(--muted); } ul.plain li strong { color: var(--text); font-weight: 620; }
+</style>
+</head>
+<body>
+
+<!-- 1 · title -->
+<section class="slide on">
+  <div class="brand">
+    <svg class="mark" width="110" height="110" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="1" y1="16" x2="31" y2="16" stroke="currentColor" stroke-width="2.4"/></svg>
+    <h1>Plimsoll</h1>
+  </div>
+  <h2>Keep your wallet.<br/>Put it to work anyway.</h2>
+  <p class="sub">Non-custodial market making on 1inch Aqua — with budgets that keep every promise honest.</p>
+</section>
+
+<!-- 2 · problem -->
+<section class="slide">
+  <div class="kicker">The problem — 1inch's own numbers, one week old</div>
+  <div class="big">85% <small>of concentrated liquidity sat idle in H1 2026 — $1.6B of it in wallets managed by hand<br/>(1inch-commissioned research, July 18)</small></div>
+  <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em>by design</em> — and when flow turns directional, quotes go phantom.</p>
+</section>
+
+<!-- 3 · whitepaper -->
+<section class="slide">
+  <div class="kicker">Not speculative — it is in the Aqua whitepaper, §3</div>
+  <blockquote class="quote">
+    "While Aqua doesn't automatically pause illiquid positions, Makers are strongly recommended to
+    <em>manually dock</em> strategies that become chronically underfunded…"
+    <cite>Aqua whitepaper 1.0, §3 — the prescribed fix is a human, awake at 3am</cite>
+  </blockquote>
+  <h2>Nobody docks by hand at 3am.</h2>
+</section>
+
+<!-- 4 · what it is -->
+<section class="slide">
+  <div class="kicker">Plimsoll — one invariant, three pieces</div>
+  <h2>A <span style="color:var(--accent)">promise</span> may exceed your wallet.<br/>A <span style="color:var(--good)">budget</span> may not.</h2>
+  <div class="cols">
+    <div class="box"><h3>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional — takers get paid to rebalance you.</p></div>
+    <div class="box"><h3>Harbormaster</h3><p>An <strong>autopilot</strong> that docks any strategy crossing its line and re-ships against what the wallet really holds. The whitepaper's advice, automated.</p></div>
+    <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend any time.</p></div>
+  </div>
+</section>
+
+<!-- 5 · demo cue -->
+<section class="slide">
+  <div class="kicker">Live demo</div>
+  <h2>One balance, quoting in three markets.</h2>
+  <div class="demo-cue">→ switch to the app · canonical Aqua registry, real WETH/USDC, fork of Base</div>
+</section>
+
+<!-- 6 · measured -->
+<section class="slide">
+  <div class="kicker">Measured, with a paired control — one instruction of difference</div>
+  <div class="cols" style="align-items:flex-start">
+    <div>
+      <table>
+        <tr><th>30 fills, same flow</th><th>plain</th><th>skewed</th></tr>
+        <tr><td>Inventory left</td><td>6.3%</td><td class="good">8.1% (+29%)</td></tr>
+        <tr><td>Realized price</td><td>16.00</td><td class="good">16.32 (+1.99%)</td></tr>
+      </table>
+    </div>
+    <div>
+      <table>
+        <tr><th>4× amplification</th><th>unmanaged</th><th>managed</th></tr>
+        <tr><td>Unhonorable fills</td><td class="bad">43 of 86</td><td class="good">0</td></tr>
+        <tr><td>LP value vs hold</td><td class="bad">−21.8%</td><td class="good">−19.7% (+2.7%)</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="sub">At 1× and 2× the mechanism costs nothing — budgets never exhaust. It only bites when it is needed.</p>
+</section>
+
+<!-- 7 · close -->
+<section class="slide">
+  <div class="kicker">What is real</div>
+  <ul class="plain">
+    <li><strong>Canonical Aqua registry</strong> on a Base fork, official router code unmodified, real WETH/USDC transfers.</li>
+    <li><strong>7 tests green</strong> — curve asserted against its closed form, retention proven with real balance changes.</li>
+    <li><strong>Every number reproducible</strong> from a script in the repo.</li>
+  </ul>
+  <div class="brand" style="margin-top:2vh">
+    <svg class="mark" width="64" height="64" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="1" y1="16" x2="31" y2="16" stroke="currentColor" stroke-width="2.4"/></svg>
+    <div><h2 style="font-size:4.4vh">github.com/ottodevs/plimsoll</h2><p class="sub" style="font-size:2.3vh">Otto · Henrik — ETHGlobal Lisbon 2026 · built on 1inch Aqua + SwapVM</p></div>
+  </div>
+</section>
+
+<div class="foot"><span>Plimsoll — ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  let i = 0;
+  const pg = document.getElementById('pg');
+  const show = (n) => {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    pg.textContent = (i + 1) + ' / ' + slides.length;
+  };
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) show(i + 1);
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+    if (e.key === 'Home') show(0);
+  });
+  addEventListener('click', () => show(i + 1));
+  show(0);
+</script>
+</body>
+</html>
