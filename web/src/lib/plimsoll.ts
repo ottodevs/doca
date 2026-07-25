@@ -36,6 +36,7 @@ const ERC20_ABI = [
     "function balanceOf(address) view returns (uint256)",
     "function transfer(address,uint256) returns (bool)",
     "function approve(address,uint256) returns (bool)",
+    "function deposit() payable", // WETH only; used when seeding a connected wallet on the fork
 ];
 
 export const d = deployment;
@@ -55,12 +56,60 @@ export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
 export const makerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.maker, provider));
 export const takerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.taker, provider));
 
-const aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, makerSigner);
+// The maker side is swappable: demo mode signs with the dev key, wallet mode with the user's
+// own wallet (EIP-1193). The taker stays on the dev key — it plays the market, not the user.
+export type Session = { mode: "demo" | "wallet"; maker: string };
+export const session: Session = { mode: "demo", maker: deployment.maker };
+
+let maker: ethers.Signer = makerSigner;
+
+let aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, maker);
 const router = new ethers.Contract(deployment.router, ROUTER_ABI, takerSigner);
 const app = new ethers.Contract(deployment.plimsollApp, APP_ABI, provider);
-const skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, makerSigner);
-const weth = new ethers.Contract(deployment.weth, ERC20_ABI, makerSigner);
-const usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, makerSigner);
+let skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, maker);
+let weth = new ethers.Contract(deployment.weth, ERC20_ABI, maker);
+let usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, maker);
+
+function rebind(signer: ethers.Signer) {
+    maker = signer;
+    aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, maker);
+    skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, maker);
+    weth = new ethers.Contract(deployment.weth, ERC20_ABI, maker);
+    usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, maker);
+}
+
+export function hasInjectedWallet(): boolean {
+    return typeof window !== "undefined" && !!(window as any).ethereum;
+}
+
+/// Connects the user's own wallet and makes it the maker. Demo state is per-address on-chain,
+/// so switching accounts simply starts a fresh book.
+export async function connectWallet(): Promise<string> {
+    const injected = (window as any).ethereum;
+    if (!injected) throw new Error("no injected wallet");
+    const browser = new ethers.BrowserProvider(injected);
+    const signer = await browser.getSigner();
+    const addr = await signer.getAddress();
+    rebind(signer);
+    session.mode = "wallet";
+    session.maker = addr;
+    return addr;
+}
+
+/// Demo-network helper: on an anvil fork we can hand the connected wallet real WETH/USDC and the
+/// approvals it needs. Fails loudly anywhere else — this is a fork-only convenience.
+export async function seedConnectedWallet(): Promise<void> {
+    const client: string = await provider.send("web3_clientVersion", []);
+    if (!client.toLowerCase().includes("anvil")) throw new Error("seeding only works on the anvil fork");
+    const addr = session.maker;
+    await provider.send("anvil_setBalance", [addr, "0x21E19E0C9BAB2400000"]); // 10,000 ETH of gas money
+    const usdcSlot = ethers.keccak256(
+        ethers.AbiCoder.defaultAbiCoder().encode(["address", "uint256"], [addr, 9n]));
+    await provider.send("anvil_setStorageAt", [deployment.usdc, usdcSlot, ethers.toBeHex(8_000_000_000n, 32)]);
+    await (await (weth as any).deposit({ value: ethers.parseEther("2") })).wait();
+    await (await weth.approve(deployment.aqua, ethers.MaxUint256)).wait();
+    await (await usdc.approve(deployment.aqua, ethers.MaxUint256)).wait();
+}
 
 export type Order = { maker: string; traits: bigint; data: string };
 export type Strategy = {
@@ -88,13 +137,13 @@ export const PRESETS: Preset[] = [
 const CURVE = { baseFeeBps: 0n, maxFeeBps: BPS / 5n, kink: 4_000n, waterlineFrac: 1_000n };
 
 export async function readWallet(): Promise<Wallet> {
-    const [w, u] = await Promise.all([weth.balanceOf(d.maker), usdc.balanceOf(d.maker)]);
+    const [w, u] = await Promise.all([weth.balanceOf(session.maker), usdc.balanceOf(session.maker)]);
     return { weth: BigInt(w), usdc: BigInt(u) };
 }
 
 export async function readStrategy(s: { hash: string; order: Order; promisedWeth: bigint; promisedUsdc: bigint; budgetWeth: bigint }): Promise<Strategy> {
     const [raw, remaining, fee] = await Promise.all([
-        aqua.rawBalances(d.maker, d.router, s.hash, d.weth),
+        aqua.rawBalances(session.maker, d.router, s.hash, d.weth),
         skew.remainingFraction(s.hash, d.weth),
         skew.feeBpsFor(s.hash, d.weth),
     ]);
@@ -110,7 +159,7 @@ export async function shipStrategy(
     budgetUsdc: bigint,
 ): Promise<Strategy> {
     const built = await app.buildProgram(
-        d.maker, d.weth, d.usdc, 3_000_000n, 0n, 0n, 0n, d.skewProvider, salt, 0n,
+        session.maker, d.weth, d.usdc, 3_000_000n, 0n, 0n, 0n, d.skewProvider, salt, 0n,
     );
     const order: Order = { maker: built.maker, traits: built.traits, data: built.data };
 
@@ -121,7 +170,7 @@ export async function shipStrategy(
 
     const hash: string = await router.hash(order);
     await (await skew.setWaterline(hash, {
-        maker: d.maker,
+        maker: session.maker,
         token0: d.weth,
         token1: d.usdc,
         reference0: promisedWeth,

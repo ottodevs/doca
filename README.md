@@ -129,6 +129,14 @@ Three findings, in order of strength:
 At 1x and 2x the mechanism does nothing at all. That is correct: the budgets are never exhausted, so
 it costs nothing when it is not needed.
 
+## Using it with a real wallet
+
+The app is not locked to the demo signer. If an injected wallet (MetaMask, Rabby, …) is present,
+a **Connect wallet** button appears in the header: your account becomes the maker, and every
+`ship`, `dock` and waterline configuration is signed by your wallet. On the anvil fork the app
+offers one-click seeding (WETH + USDC + approvals) so any empty account can try the whole journey.
+The demo signer remains the default when no wallet is installed, so the recorded flow is reproducible.
+
 ## Running it
 
 Everything runs against a fork of Base, where the canonical Aqua is live and WETH and USDC are the

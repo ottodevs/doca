@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     d, provider, readWallet, readStrategy, start, dock, marketFill, spendWeth, shipStrategy, resetNonces,
+    hasInjectedWallet, connectWallet, seedConnectedWallet,
     PRESETS, fmtWeth, fmtPct, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/plimsoll";
@@ -111,7 +112,27 @@ export default function App() {
     const [event, setEvent] = useState<{ title: string; detail: string } | null>(null);
     const [storm, setStorm] = useState(false);
     const [receipt, setReceipt] = useState<{ markets: number; fills: number; protections: number } | null>(null);
+    const [account, setAccount] = useState<string | null>(null);
     const saltRef = useRef(1);
+
+    const onConnect = async () => {
+        try {
+            const addr = await connectWallet();
+            setAccount(addr);
+            const w = await readWallet();
+            setWallet(w);
+            if (w.weth === 0n && w.usdc === 0n) {
+                say("connected wallet is empty on this fork — seeding demo funds (sign the prompts)", "info");
+                await seedConnectedWallet();
+                setWallet(await readWallet());
+                say("seeded: 2 WETH + 8,000 USDC, approvals set", "info");
+            } else {
+                say(`connected ${addr.slice(0, 6)}…${addr.slice(-4)} — your wallet is now the maker`, "info");
+            }
+        } catch (e: any) {
+            say(`wallet connect failed: ${String(e?.shortMessage ?? e?.message ?? e).slice(0, 70)}`, "warn");
+        }
+    };
 
     const say = useCallback((text: string, kind: Entry["kind"] = "info") => {
         const at = new Date().toLocaleTimeString();
@@ -296,7 +317,12 @@ export default function App() {
                 </div>
                 <div className="chain">
                     <span><span className="dot" />Base fork · block {block ? block.toLocaleString() : d.forkBlock.toLocaleString()}</span><br />
-                    <code>Aqua {d.aqua.slice(0, 10)}… · canonical registry</code>
+                    <code>Aqua {d.aqua.slice(0, 10)}… · canonical registry</code><br />
+                    {account
+                        ? <span className="acct">⛵ {account.slice(0, 6)}…{account.slice(-4)}</span>
+                        : hasInjectedWallet()
+                            ? <button className="connect" onClick={onConnect}>Connect wallet</button>
+                            : <span className="acct dim">demo signer</span>}
                 </div>
             </header>
 
