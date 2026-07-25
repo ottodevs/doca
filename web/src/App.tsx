@@ -82,7 +82,7 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
                     <label>auto-dock line</label><i /><b />
                 </div>
                 <div className="hull-head">
-                    <strong>Berth {idx + 1}</strong>
+                    <strong>Strategy {idx + 1}</strong>
                     <span className={`chip ${state}`}>{CHIP[state]}</span>
                 </div>
                 <div className="hull-foot">
@@ -158,10 +158,10 @@ export default function App() {
             setStorm(true);
             setTimeout(() => setStorm(false), 3000);
             try {
-                say(`berth ${fresh.indexOf(sinking) + 1} went below its load line — docking`, "agent");
+                say(`strategy ${fresh.indexOf(sinking) + 1} went below its line — docking`, "agent");
                 await dock(sinking);
                 const w = await readWallet();
-                // The new budget is whatever the other berths have not already reserved,
+                // The new budget is whatever the other strategies have not already reserved,
                 // so the sum of live budgets never exceeds the wallet.
                 const others = fresh.filter((s) => s.hash !== sinking.hash);
                 const othersBudgetLeft = others.reduce((a, s) => a + (s.budgetWeth * s.remaining) / FRAC, 0n);
@@ -172,9 +172,9 @@ export default function App() {
                     setRebalances((n) => n + 1);
                     setEvent({
                         title: "Harbormaster protected your wallet",
-                        detail: `Berth ${fresh.indexOf(sinking) + 1} crossed its dock line → docked. No free balance to re-promise — one berth fewer, every remaining quote still honorable.`,
+                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked. No free balance to re-ship — one strategy fewer, every remaining quote still honorable.`,
                     });
-                    say("docked — no free balance to re-promise, one less berth", "agent");
+                    say("docked — no free balance to re-promise, one less strategy", "agent");
                 } else {
                     const replacement = await shipStrategy(
                         BigInt(1000 + saltRef.current++),
@@ -184,7 +184,7 @@ export default function App() {
                     setRebalances((n) => n + 1);
                     setEvent({
                         title: "Harbormaster protected your wallet",
-                        detail: `Berth ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-promised with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`,
+                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`,
                     });
                     say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget — what is really free`, "agent");
                 }
@@ -220,9 +220,9 @@ export default function App() {
                 const r = await marketFill(target, FILL_SIZE);
                 if (r.ok) {
                     setFills((f) => f + 1);
-                    say(`fill: ${Number(FILL_SIZE) / 1e6} USDC in, WETH out of berth ${(i % strategies.length) + 1}`, "fill");
+                    say(`fill: ${Number(FILL_SIZE) / 1e6} USDC in, WETH out of strategy ${(i % strategies.length) + 1}`, "fill");
                 } else {
-                    say(`a fill on berth ${(i % strategies.length) + 1} could not be honored`, "warn");
+                    say(`a fill on strategy ${(i % strategies.length) + 1} could not be honored`, "warn");
                 }
                 // Refresh as each fill lands so the water visibly rises during the sequence.
                 const updated = await readStrategy(target);
@@ -274,7 +274,7 @@ export default function App() {
     };
 
     const promisedWeth = strategies.reduce((a, s) => a + s.promisedWeth, 0n);
-    // What the berths may still consume: each budget scaled by how much of it is left.
+    // What the strategies may still consume: each budget scaled by how much of it is left.
     const budgetLeftWeth = strategies.reduce((a, s) => a + (s.budgetWeth * s.remaining) / FRAC, 0n);
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
     const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
@@ -371,7 +371,7 @@ export default function App() {
                         <div className="tile hero">
                             <span>Market coverage</span>
                             <strong>{fmtWeth(promisedWeth)} WETH</strong>
-                            <em>{amplification.toFixed(2)}× your balance, promised from one wallet</em>
+                            <em>SLAC {amplification.toFixed(2)}× — amplified from one wallet</em>
                         </div>
                         <div className="tile">
                             <span>In your wallet</span>
@@ -405,10 +405,10 @@ export default function App() {
                         <div className="harbor">
                             <span className={`beacon ${agentOn ? "on" : ""}`} />
                             <div className="harbor-txt">
-                                <strong>Harbormaster</strong>
+                                <strong>Harbormaster <em className="role">· autopilot</em></strong>
                                 <span>
                                     {agentOn
-                                        ? `watching ${strategies.length} berths — docks anything below its load line, re-promises against real balances`
+                                        ? `watching ${strategies.length} strategies — docks anything below its line, re-ships against real balances`
                                         : "off — nobody is watching your promises"}
                                 </span>
                             </div>
