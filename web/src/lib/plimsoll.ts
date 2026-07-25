@@ -171,8 +171,15 @@ export async function marketFill(s: Strategy, usdcAmount: bigint): Promise<{ ok:
         await (await router.swap(s.order, usdcAmount, takerData)).wait();
         return { ok: true };
     } catch (e: any) {
+        takerSigner.reset(); // a failed populate can desync the cached nonce
         return { ok: false, reason: String(e?.shortMessage ?? e?.message ?? e).slice(0, 90) };
     }
+}
+
+/// Clears cached nonces after a reverted send so follow-up transactions do not hang.
+export function resetNonces() {
+    makerSigner.reset();
+    takerSigner.reset();
 }
 
 /// The user spending from the same wallet while it is earning. Nothing needs to be withdrawn first.
