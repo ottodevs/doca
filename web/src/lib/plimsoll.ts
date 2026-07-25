@@ -40,7 +40,13 @@ const ERC20_ABI = [
 
 export const d = deployment;
 
-export const provider = new ethers.JsonRpcProvider(deployment.rpcUrl, deployment.chainId, {
+// In a browser the node lives on whatever host served the page, so the app works over localhost
+// and over the tailnet without reconfiguring. Scripts fall back to the deployed value.
+const rpcUrl = typeof window !== "undefined"
+    ? `http://${window.location.hostname}:8545`
+    : deployment.rpcUrl;
+
+export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
     staticNetwork: true,
 });
 
