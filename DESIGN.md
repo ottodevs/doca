@@ -1,6 +1,6 @@
 # Plimsoll — design rationale
 
-Full illustrated dossier: ask Otto for the shared link. This is the terse in-repo version.
+Full illustrated dossier: [docs/dossier.html](docs/dossier.html). This is the terse in-repo version.
 
 ## Narrative
 
