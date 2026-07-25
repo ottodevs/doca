@@ -73,13 +73,16 @@ Everything settling value is 1inch's own live code. We deploy two small contract
 | `InventorySkewProvider` | 159 lines | ours |
 | `PlimsollApp` | 93 lines, builds the SwapVM program | ours |
 
-The live router at `0x8fdd04dbf6111437b44bbca99c28882434e0958f` answers `eip712Domain()` as
-`AquaSwapVMRouter 1.0.0` and carries the Aqua address as an immutable, so it is the Aqua-backed
-variant. Orders built against the revision `swap-vm-template` pins revert against it with empty
-data, which points at a layout or opcode-table difference between that revision and what is
-deployed. Until we know which commit is live, we deploy the official router code ourselves and wire
-it to the canonical registry, which the bounty permits. **This is our main open question for the
-1inch team.**
+Why our own deployment of the router and not the live one at
+`0x8fdd04dbf6111437b44bbca99c28882434e0958f`? Version skew, and it is documented: the live routers
+(deployed across 12 chains in June, `eip712Domain()` says `1.0.0`) predate the order-data layout the
+hackathon template targets. On July 24 — the morning of day 1 — 1inch updated `swap-vm-template` to
+pin `swap-vm#b44977a1` (release-1.2 line), which prefixes order data with the 40-byte token pair and
+adds new taker flags, so orders built with the current template revert against the June router by
+design. The template's own deploy flow ships a fresh router. We do exactly what the official
+template does: deploy the unmodified official router code and wire it to the canonical live Aqua
+registry, which the bounty explicitly permits. Our extension point is untouched by the skew: opcode
+30 is `_aquaDynamicProtocolFeeAmountInXD` in both revisions.
 
 ## Measurements
 
