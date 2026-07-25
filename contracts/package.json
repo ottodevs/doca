@@ -1,0 +1,50 @@
+{
+  "name": "swap-vm-template",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Degensoft Ltd.",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "precompile": "mkdir -p node_modules/forge-std && rsync -a node_modules/forge-std/src/ node_modules/forge-std/",
+    "build": "npm run precompile && hardhat compile",
+    "test": "npm run precompile && hardhat test",
+    "deploy": "hardhat deploy --network",
+    "deploy:localhost": "hardhat deploy --network localhost",
+    "clean": "rimraf artifacts cache coverage contracts/hardhat-dependency-compiler deployments typechain-types"
+  },
+  "dependencies": {
+    "@1inch/aqua": "https://github.com/1inch/aqua#6f05aa1ac2dcf701b0e086ad5e7606515f1fa454",
+    "@1inch/solidity-utils": "6.9.7",
+    "@1inch/swap-vm": "https://github.com/1inch/swap-vm#b44977a1c7744c9caa6b7974d9b638ed4983cfd3",
+    "@openzeppelin/contracts": "5.4.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.14",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^24.7.2",
+    "chai": "^4.3.8",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.15.0",
+    "hardhat": "^2.22.15",
+    "hardhat-dependency-compiler": "^1.2.1",
+    "hardhat-deploy": "^1.0.4",
+    "hardhat-tracer": "^3.4.0",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typechain": "^8.3.2",
+    "typescript": "^5.9.3"
+  },
+  "resolutions":{
+    "elliptic": "6.6.1",
+    "@1inch/aqua": "https://github.com/1inch/aqua#6f05aa1ac2dcf701b0e086ad5e7606515f1fa454",
+    "@1inch/solidity-utils": "6.9.7",
+    "@openzeppelin/contracts": "5.4.0"
+  }
+}
