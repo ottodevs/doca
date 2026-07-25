@@ -12,10 +12,10 @@ const SPEND = 250_000_000_000_000_000n; // 0.25 WETH
 type Entry = { at: string; text: string; kind: "info" | "agent" | "warn" | "fill" };
 
 const STEPS = [
-    { n: 1, label: "Idle wallet" },
+    { n: 1, label: "Wallet" },
     { n: 2, label: "Put to work" },
     { n: 3, label: "Live market" },
-    { n: 4, label: "Spend freely" },
+    { n: 4, label: "Protected" },
     { n: 5, label: "Walk away" },
 ];
 
@@ -68,18 +68,22 @@ function Rail({ stage }: { stage: number }) {
     );
 }
 
+const CHIP: Record<string, string> = { ok: "SAFE", warn: "TIGHT", sinking: "DOCKING" };
+
 function Vessel({ s, idx }: { s: Strategy; idx: number }) {
     const consumed = 100 - (Number(s.remaining) / Number(FRAC)) * 100;
     const lineAt = 100 - (Number(WATERLINE) / Number(FRAC)) * 100;
     const state = s.remaining <= WATERLINE ? "sinking" : consumed > 60 ? "warn" : "ok";
     return (
-        <div className={`vessel ${state}`}>
+        <div className={`vessel ${state}`} title={s.hash}>
             <div className="hull">
                 <div className="water" style={{ height: `${Math.min(Math.max(consumed, 2), 100)}%` }} />
-                <div className="loadline" style={{ bottom: `${lineAt}%` }}><i /><b /></div>
+                <div className="loadline" style={{ bottom: `${lineAt}%` }}>
+                    <label>auto-dock line</label><i /><b />
+                </div>
                 <div className="hull-head">
                     <strong>Berth {idx + 1}</strong>
-                    <code>{s.hash.slice(0, 10)}</code>
+                    <span className={`chip ${state}`}>{CHIP[state]}</span>
                 </div>
                 <div className="hull-foot">
                     <div><em>{fmtWeth(s.wethLeft)}</em><span>WETH aboard</span></div>
@@ -87,7 +91,7 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
                 </div>
             </div>
             <div className="feebadge">
-                {state === "sinking" ? "below the load line" : `${fmtFee(s.surchargeBps)}% surcharge`}
+                {state === "sinking" ? "below the line — docking next" : `${fmtFee(s.surchargeBps)}% surcharge`}
             </div>
         </div>
     );
@@ -101,8 +105,12 @@ export default function App() {
     const [agentOn, setAgentOn] = useState(false);
     const [log, setLog] = useState<Entry[]>([]);
     const [rebalances, setRebalances] = useState(0);
+    const [fills, setFills] = useState(0);
     const [stage, setStage] = useState(1);
     const [block, setBlock] = useState<number | null>(null);
+    const [event, setEvent] = useState<{ title: string; detail: string } | null>(null);
+    const [storm, setStorm] = useState(false);
+    const [receipt, setReceipt] = useState<{ markets: number; fills: number; protections: number } | null>(null);
     const saltRef = useRef(1);
 
     const say = useCallback((text: string, kind: Entry["kind"] = "info") => {
@@ -147,6 +155,8 @@ export default function App() {
             const sinking = fresh.find((s) => s.remaining <= WATERLINE);
             if (!sinking) return;
             agentBusyRef.current = true;
+            setStorm(true);
+            setTimeout(() => setStorm(false), 3000);
             try {
                 say(`berth ${fresh.indexOf(sinking) + 1} went below its load line — docking`, "agent");
                 await dock(sinking);
@@ -156,9 +166,14 @@ export default function App() {
                 const others = fresh.filter((s) => s.hash !== sinking.hash);
                 const othersBudgetLeft = others.reduce((a, s) => a + (s.budgetWeth * s.remaining) / FRAC, 0n);
                 const budgetWeth = w.weth > othersBudgetLeft ? w.weth - othersBudgetLeft : 0n;
+                setStage((st) => Math.max(st, 4));
                 if (budgetWeth === 0n) {
                     setStrategies((prev) => prev.filter((s) => s.hash !== sinking.hash));
                     setRebalances((n) => n + 1);
+                    setEvent({
+                        title: "Harbormaster protected your wallet",
+                        detail: `Berth ${fresh.indexOf(sinking) + 1} crossed its dock line → docked. No free balance to re-promise — one berth fewer, every remaining quote still honorable.`,
+                    });
                     say("docked — no free balance to re-promise, one less berth", "agent");
                 } else {
                     const replacement = await shipStrategy(
@@ -167,6 +182,10 @@ export default function App() {
                     );
                     setStrategies((prev) => prev.map((s) => (s.hash === sinking.hash ? replacement : s)));
                     setRebalances((n) => n + 1);
+                    setEvent({
+                        title: "Harbormaster protected your wallet",
+                        detail: `Berth ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-promised with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`,
+                    });
                     say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget — what is really free`, "agent");
                 }
             } catch (e: any) {
@@ -200,6 +219,7 @@ export default function App() {
                 const target = strategies[i % strategies.length]!;
                 const r = await marketFill(target, FILL_SIZE);
                 if (r.ok) {
+                    setFills((f) => f + 1);
                     say(`fill: ${Number(FILL_SIZE) / 1e6} USDC in, WETH out of berth ${(i % strategies.length) + 1}`, "fill");
                 } else {
                     say(`a fill on berth ${(i % strategies.length) + 1} could not be honored`, "warn");
@@ -218,7 +238,6 @@ export default function App() {
         // Spend a quarter WETH when it is there, half of what is left otherwise — never revert a demo.
         const amount = wallet.weth >= SPEND ? SPEND : wallet.weth / 2n;
         setBusy(`sending ${fmtWeth(amount)} WETH out of the same wallet`);
-        setStage(4);
         try {
             await spendWeth(amount);
             say(`spent ${fmtWeth(amount)} WETH while earning — nothing had to be withdrawn first`, "info");
@@ -232,6 +251,7 @@ export default function App() {
     const onStop = async () => {
         setBusy("docking everything");
         setAgentOn(false);
+        const summary = { markets: strategies.length, fills, protections: rebalances };
         try {
             for (const s of strategies) {
                 try {
@@ -242,6 +262,8 @@ export default function App() {
                 }
             }
             setStrategies([]);
+            setEvent(null);
+            setReceipt(summary);
             setStage(5);
             say("everything docked — your full balance is liquid right now", "info");
             await refresh();
@@ -263,7 +285,7 @@ export default function App() {
     const working = strategies.length > 0;
 
     return (
-        <div className="page">
+        <div className={`page ${storm ? "storm" : ""}`}>
             <header>
                 <div className="brand">
                     <Mark />
@@ -284,18 +306,20 @@ export default function App() {
 
             {wallet && !working && (
                 <>
-                    {stage === 5 && (
-                        <div className="banner">
-                            Journey complete — everything docked in one click.{" "}
-                            <span>Your full balance was liquid the entire time; it just also worked.</span>
+                    {stage === 5 && receipt && (
+                        <div className="receipt">
+                            <div><strong>{receipt.markets}</strong><span>markets served</span></div>
+                            <div><strong>{receipt.fills}</strong><span>fills settled</span></div>
+                            <div><strong>{receipt.protections}</strong><span>protections</span></div>
+                            <div><strong>0</strong><span>deposits · positions to unwind</span></div>
                         </div>
                     )}
                     <div className="narr">
                         <h2>{stage === 5 ? "Back to a plain wallet" : "This wallet is idle"}</h2>
                         <p>
                             {stage === 5
-                                ? "Run it again with a different setting, or walk away — there is nothing to unwind, no positions to close, nothing custodied anywhere."
-                                : "Nothing here earns. Put the same balance to work in several places at once — without depositing it anywhere."}
+                                ? "Everything docked in one click. Your balance was liquid the entire time — it just also worked."
+                                : "Put the same balance to work in several places at once, without depositing it anywhere."}
                         </p>
                     </div>
                     <section className="card">
@@ -307,8 +331,8 @@ export default function App() {
                             Nothing leaves this wallet. You are signing price rules, not a deposit.
                         </p>
                         <p className="factline">
-                            $1.6B of DeFi liquidity sits exactly like this — 85% of concentrated liquidity
-                            was idle in H1 2026, most of it in wallets managed by people, not systems.
+                            1inch-commissioned research, July 2026: 85% of concentrated liquidity sat idle
+                            in H1 — $1.6B of it in wallets managed by hand.
                         </p>
 
                         <div className="presets">
@@ -337,36 +361,41 @@ export default function App() {
             {wallet && working && (
                 <>
                     <div className="narr">
-                        <h2>One balance, working in {strategies.length} places</h2>
+                        <h2>One balance, quoting in {strategies.length} markets</h2>
                         <p>
-                            Promises may exceed the wallet — that is Aqua's capital efficiency. Budgets may not —
-                            that is what keeps every quote below honorable. When a berth goes under its load line,
-                            the harbormaster docks it and re-promises what is really there.
+                            Nothing deposited, spend any time — the Harbormaster keeps every promise honest.
                         </p>
                     </div>
 
                     <section className="tiles">
+                        <div className="tile hero">
+                            <span>Market coverage</span>
+                            <strong>{fmtWeth(promisedWeth)} WETH</strong>
+                            <em>{amplification.toFixed(2)}× your balance, promised from one wallet</em>
+                        </div>
                         <div className="tile">
                             <span>In your wallet</span>
                             <strong>{easedWeth.toFixed(4)} WETH</strong>
                             <em>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC</em>
                         </div>
                         <div className="tile">
-                            <span>Promised</span>
-                            <strong>{fmtWeth(promisedWeth)} WETH</strong>
-                            <em>{amplification.toFixed(2)}× your balance</em>
-                        </div>
-                        <div className="tile">
                             <span>Budget left</span>
                             <strong>{fmtWeth(budgetLeftWeth)} WETH</strong>
                             <em>{honorable ? "never more than you hold" : "over budget"}</em>
                         </div>
-                        <div className={`tile ${honorable ? "good" : "bad"}`}>
-                            <span>Quotes you can honor</span>
-                            <strong>{honorable ? "all of them" : "at risk"}</strong>
-                            <em>{rebalances} rebalance{rebalances === 1 ? "" : "s"} by the harbormaster</em>
+                        <div className={`tile thesis ${honorable ? "good" : "bad"}`}>
+                            <span>Promises kept</span>
+                            <strong>{honorable ? "100%" : "at risk"}</strong>
+                            <em>{rebalances} protection{rebalances === 1 ? "" : "s"} by the Harbormaster</em>
                         </div>
                     </section>
+
+                    {event && (
+                        <div className="eventstrip">
+                            <strong>{event.title}</strong>
+                            <span>{event.detail}</span>
+                        </div>
+                    )}
 
                     <section className="card">
                         <div className="vessels">

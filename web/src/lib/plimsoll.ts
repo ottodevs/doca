@@ -79,9 +79,9 @@ export type Preset = { id: string; label: string; hint: string; count: number; p
 
 // Each preset is one decision for the user: how many places their balance works at once.
 export const PRESETS: Preset[] = [
-    { id: "careful", label: "Careful", hint: "2 places, no oversubscription", count: 2, promiseFactor: 0.5 },
-    { id: "balanced", label: "Balanced", hint: "3 places, 2.25x your balance", count: 3, promiseFactor: 0.75 },
-    { id: "busy", label: "Busy", hint: "4 places, 4x your balance", count: 4, promiseFactor: 1 },
+    { id: "careful", label: "Careful", hint: "2 markets · zero oversubscription", count: 2, promiseFactor: 0.5 },
+    { id: "balanced", label: "Balanced", hint: "3 markets · 2.25× coverage", count: 3, promiseFactor: 0.75 },
+    { id: "busy", label: "Busy", hint: "4 markets · maximum coverage", count: 4, promiseFactor: 1 },
 ];
 
 // Curve: nothing while the budget is healthy, prohibitive once it is gone.
