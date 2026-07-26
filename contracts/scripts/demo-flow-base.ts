@@ -64,7 +64,7 @@ async function main() {
     ]);
     const routerAddr = await routerDeployed.getAddress();
 
-    const app: any = await deployContract("PlimsollApp", [BASE.aqua]);
+    const app: any = await deployContract("DocaApp", [BASE.aqua]);
     const skew: any = await deployContract("InventorySkewProvider", [BASE.aqua, routerAddr]);
     const aqua = new ethers.Contract(BASE.aqua, AQUA_ABI, maker);
     const router = new ethers.Contract(routerAddr, ROUTER_ABI, taker);

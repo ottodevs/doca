@@ -65,7 +65,7 @@ let maker: ethers.Signer = makerSigner;
 
 let aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, maker);
 const router = new ethers.Contract(deployment.router, ROUTER_ABI, takerSigner);
-const app = new ethers.Contract(deployment.plimsollApp, APP_ABI, provider);
+const app = new ethers.Contract(deployment.docaApp, APP_ABI, provider);
 let skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, maker);
 let weth = new ethers.Contract(deployment.weth, ERC20_ABI, maker);
 let usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, maker);

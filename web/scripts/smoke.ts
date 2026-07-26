@@ -2,7 +2,7 @@
 import {
     readWallet, readStrategy, start, dock, marketFill, spendWeth,
     PRESETS, fmtWeth, fmtUsdc, fmtPct, fmtFee,
-} from "../src/lib/plimsoll";
+} from "../src/lib/doca";
 
 const w0 = await readWallet();
 console.log(`wallet: ${fmtWeth(w0.weth)} WETH / ${fmtUsdc(w0.usdc)} USDC`);

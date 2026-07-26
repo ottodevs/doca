@@ -17,9 +17,9 @@ import { XYCConcentrateArgsBuilder } from "@1inch/swap-vm/src/instructions/XYCCo
 import { FeeArgsBuilder } from "@1inch/swap-vm/src/instructions/Fee.sol";
 import { ControlsArgsBuilder } from "@1inch/swap-vm/src/instructions/Controls.sol";
 
-/// @title PlimsollApp
+/// @title DocaApp
 /// @notice Builds Aqua-backed SwapVM programs whose spread widens as inventory drains.
-contract PlimsollApp is AquaOpcodes {
+contract DocaApp is AquaOpcodes {
     using ProgramBuilder for Program;
 
     constructor(address aqua) AquaOpcodes(aqua) {}

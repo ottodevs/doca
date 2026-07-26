@@ -56,7 +56,7 @@ async function runArm(managed: boolean, amplification: number) {
     const { tokenA, tokenB } = tokens;
     const { aqua, swapVM, mockTaker } = contracts;
 
-    const app: any = await deployContract("PlimsollApp", [await aqua.getAddress()]);
+    const app: any = await deployContract("DocaApp", [await aqua.getAddress()]);
     const skew: any = await deployContract("InventorySkewProvider", [
         await aqua.getAddress(),
         await swapVM.getAddress(),

@@ -34,7 +34,7 @@ async function main() {
     const { tokenA, tokenB } = tokens;
     const { aqua, swapVM, mockTaker } = contracts;
 
-    const plimsollApp: any = await deployContract("PlimsollApp", [await aqua.getAddress()]);
+    const docaApp: any = await deployContract("DocaApp", [await aqua.getAddress()]);
     const skewProvider: any = await deployContract("InventorySkewProvider", [
         await aqua.getAddress(),
         await swapVM.getAddress(),
@@ -54,7 +54,7 @@ async function main() {
     await tokenB.connect(maker!).approve(await aqua.getAddress(), ethers.MaxUint256);
 
     const buildOrder = async (provider: string, salt: bigint) => {
-        const o = await plimsollApp.buildProgram(
+        const o = await docaApp.buildProgram(
             makerAddr, tokenAAddr, tokenBAddr, 0n, 0n, 0n, 0n, provider, salt, 0n,
         );
         return { maker: o.maker, traits: o.traits, data: o.data };

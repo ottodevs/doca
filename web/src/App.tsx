@@ -4,7 +4,7 @@ import {
     hasInjectedWallet, connectWallet, seedConnectedWallet,
     PRESETS, fmtWeth, fmtPct, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
-} from "./lib/plimsoll";
+} from "./lib/doca";
 
 const WATERLINE = 1_000n;         // must match the curve the provider was configured with
 const FILL_SIZE = 500_000_000n;   // 500 USDC per market fill

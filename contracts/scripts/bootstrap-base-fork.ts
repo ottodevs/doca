@@ -50,9 +50,9 @@ async function main() {
     console.log(`  Aqua   ${BASE.aqua}  (${(code.length - 2) / 2} bytes, live)`);
 
     // Our side: two small contracts. Everything else is 1inch's.
-    const app: any = await deployContract("PlimsollApp", [BASE.aqua]);
+    const app: any = await deployContract("DocaApp", [BASE.aqua]);
     const skew: any = await deployContract("InventorySkewProvider", [BASE.aqua, BASE.swapVM]);
-    console.log(`  PlimsollApp           ${await app.getAddress()}`);
+    console.log(`  DocaApp           ${await app.getAddress()}`);
     console.log(`  InventorySkewProvider ${await skew.getAddress()}`);
 
     // Seed the maker with real tokens: WETH by wrapping ETH, USDC by writing the balance slot.
@@ -86,7 +86,7 @@ async function main() {
         swapVM: BASE.swapVM,
         weth: BASE.weth,
         usdc: BASE.usdc,
-        plimsollApp: await app.getAddress(),
+        docaApp: await app.getAddress(),
         skewProvider: await skew.getAddress(),
         maker: makerAddr,
         taker: await taker.getAddress(),

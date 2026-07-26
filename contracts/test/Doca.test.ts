@@ -20,12 +20,12 @@ const MAX_FEE = BPS / 20n;           // 5% at the waterline
 const KINK = 5_000n;                 // ramp starts once half the shipped inventory is gone
 const WATERLINE = 1_000n;            // full surcharge with 10% of inventory left
 
-describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
+describe("Doca — inventory skew on Aqua/SwapVM", function () {
     async function setupFixture() {
         const base = await deployFixture();
         const { accounts, tokens, contracts } = base;
 
-        const plimsollApp: any = await deployContract("PlimsollApp", [await contracts.aqua.getAddress()]);
+        const docaApp: any = await deployContract("DocaApp", [await contracts.aqua.getAddress()]);
         const skewProvider: any = await deployContract("InventorySkewProvider", [
             await contracts.aqua.getAddress(),
             await contracts.swapVM.getAddress(),
@@ -40,18 +40,18 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
         await tokens.tokenA.connect(accounts.maker).approve(await contracts.aqua.getAddress(), ethers.MaxUint256);
         await tokens.tokenB.connect(accounts.maker).approve(await contracts.aqua.getAddress(), ethers.MaxUint256);
 
-        return { ...base, contracts: { ...contracts, plimsollApp, skewProvider } };
+        return { ...base, contracts: { ...contracts, docaApp, skewProvider } };
     }
 
     async function buildOrder(
-        plimsollApp: any,
+        docaApp: any,
         maker: Signer,
         tokenA: any,
         tokenB: any,
         skewProvider: string,
         salt: bigint,
     ) {
-        const order = await plimsollApp.buildProgram(
+        const order = await docaApp.buildProgram(
             await maker.getAddress(),
             await tokenA.getAddress(),
             await tokenB.getAddress(),
@@ -131,7 +131,7 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
         const { accounts: { maker, feeReceiver }, tokens: { tokenA, tokenB }, contracts } = await loadFixture(setupFixture);
         const liquidity = ether("100");
 
-        const order = await buildOrder(contracts.plimsollApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 1n);
+        const order = await buildOrder(contracts.docaApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 1n);
         const orderHash = await ship(contracts, maker, order, tokenA, tokenB, liquidity);
         await setWaterline(contracts.skewProvider, maker, orderHash, tokenA, tokenB, await feeReceiver.getAddress(), liquidity);
 
@@ -143,7 +143,7 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
         const { accounts: { maker, feeReceiver }, tokens: { tokenA, tokenB }, contracts } = await loadFixture(setupFixture);
         const liquidity = ether("100");
 
-        const order = await buildOrder(contracts.plimsollApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 2n);
+        const order = await buildOrder(contracts.docaApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 2n);
         const orderHash = await ship(contracts, maker, order, tokenA, tokenB, liquidity);
         await setWaterline(contracts.skewProvider, maker, orderHash, tokenA, tokenB, await feeReceiver.getAddress(), liquidity);
 
@@ -171,7 +171,7 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
         const { accounts: { maker, feeReceiver }, tokens: { tokenA, tokenB }, contracts } = await loadFixture(setupFixture);
         const liquidity = ether("100");
 
-        const order = await buildOrder(contracts.plimsollApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 3n);
+        const order = await buildOrder(contracts.docaApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 3n);
         const orderHash = await ship(contracts, maker, order, tokenA, tokenB, liquidity);
         await setWaterline(contracts.skewProvider, maker, orderHash, tokenA, tokenB, await feeReceiver.getAddress(), liquidity);
 
@@ -189,8 +189,8 @@ describe("Plimsoll — inventory skew on Aqua/SwapVM", function () {
         const harvestTo = await feeReceiver.getAddress();
 
         // Same curve, same liquidity, same wallet. The only difference is the skew instruction.
-        const skewed = await buildOrder(contracts.plimsollApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 10n);
-        const plain = await buildOrder(contracts.plimsollApp, maker, tokenA, tokenB, ethers.ZeroAddress, 11n);
+        const skewed = await buildOrder(contracts.docaApp, maker, tokenA, tokenB, await contracts.skewProvider.getAddress(), 10n);
+        const plain = await buildOrder(contracts.docaApp, maker, tokenA, tokenB, ethers.ZeroAddress, 11n);
 
         const skewedHash = await ship(contracts, maker, skewed, tokenA, tokenB, liquidity);
         const plainHash = await ship(contracts, maker, plain, tokenA, tokenB, liquidity);
