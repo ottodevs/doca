@@ -94,8 +94,9 @@ whitepaper's manual recommendation, automated.
 **Trust model.** Demo: a local demo signer lets the Harbormaster act autonomously on camera. Real
 connected wallet: the same actions currently require your signature. Production: a scoped session
 key or smart-account module would authorize only `dock`, `ship` and waterline updates, with token
-limits, budget limits and expiry. MCP: read-only observability (see [`mcp/`](mcp/)), not the
-transaction executor. It is a deterministic risk keeper, not an autonomous AI agent.
+limits, budget limits and expiry — session keys under ERC-4337 accounts with ERC-7715/ERC-7710
+style scoped, expiring, revocable grants. MCP: read-only observability (see [`mcp/`](mcp/)), not
+the transaction executor. It is a deterministic risk keeper, not an autonomous AI agent.
 
 ### The next layer: a BudgetGuard instruction
 
