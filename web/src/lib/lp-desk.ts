@@ -4,11 +4,15 @@
 // via the plain AquaAMM builder: no inventory skew.
 import { ethers, type EventLog, type Log } from "ethers";
 import deployment from "../deployment.json";
+import {
+    provider, makerSigner, takerSigner, session, getMaker, onMakerChange,
+    hasInjectedWallet, connectWallet, seedConnectedWallet,
+} from "./fork-session";
 import { TakerTraitsLib } from "./swapvm-helpers";
 
-const KEYS = {
-    maker: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
-    taker: "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
+export {
+    provider, makerSigner, takerSigner, session,
+    hasInjectedWallet, connectWallet, seedConnectedWallet,
 };
 
 // Function ABI plus the custom errors Aqua/SwapVM can revert with. Without the error
@@ -61,19 +65,7 @@ const ERC20_ABI = [
 
 export const d = deployment as typeof deployment & { aquaAmm: string; taker: string };
 
-// VITE_RPC_URL pins a public endpoint for hosted builds; otherwise the node lives on whatever
-// host served the page, so the app works over localhost and over the tailnet unchanged.
-const rpcUrl = import.meta.env.VITE_RPC_URL
-    || (typeof window !== "undefined" ? `http://${window.location.hostname}:8545` : deployment.rpcUrl);
-
-export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
-    staticNetwork: true,
-});
-
-export const makerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.maker, provider));
-export const takerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.taker, provider));
-
-const aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, makerSigner);
+let aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, getMaker());
 const router = new ethers.Contract(deployment.router, ROUTER_ABI, provider);
 const routerAsTaker = new ethers.Contract(deployment.router, ROUTER_ABI, takerSigner);
 const amm = new ethers.Contract(d.aquaAmm, AMM_ABI, provider);
@@ -81,6 +73,10 @@ const weth = new ethers.Contract(deployment.weth, ERC20_ABI, provider);
 const usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, provider);
 const wethAsTaker = new ethers.Contract(deployment.weth, ERC20_ABI, takerSigner);
 const usdcAsTaker = new ethers.Contract(deployment.usdc, ERC20_ABI, takerSigner);
+
+onMakerChange((signer) => {
+    aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, signer);
+});
 
 const ONE_E18 = 10n ** 18n;
 const ZERO = ethers.ZeroAddress;
@@ -240,14 +236,14 @@ export function linearWidthFromA(a: number): bigint {
 }
 
 export async function readWallet(): Promise<Wallet> {
-    const [w, u] = await Promise.all([weth.balanceOf(d.maker), usdc.balanceOf(d.maker)]);
+    const [w, u] = await Promise.all([weth.balanceOf(session.maker), usdc.balanceOf(session.maker)]);
     return { weth: BigInt(w), usdc: BigInt(u) };
 }
 
 export async function readLive(s: Omit<LiveStrategy, "wethLeft" | "usdcLeft">): Promise<LiveStrategy> {
     const [rawW, rawU] = await Promise.all([
-        aqua.rawBalances(d.maker, d.router, s.hash, d.weth),
-        aqua.rawBalances(d.maker, d.router, s.hash, d.usdc),
+        aqua.rawBalances(session.maker, d.router, s.hash, d.weth),
+        aqua.rawBalances(session.maker, d.router, s.hash, d.usdc),
     ]);
     return { ...s, wethLeft: BigInt(rawW[0]), usdcLeft: BigInt(rawU[0]) };
 }
@@ -256,7 +252,7 @@ async function buildOrder(draft: DraftStrategy, salt: bigint): Promise<Order> {
     if (draft.kind === "pegged") {
         const a = draft.linearWidthA ?? 0.8;
         const built = await amm.buildPeggedProgram(
-            d.maker,
+            session.maker,
             d.weth,
             d.usdc,
             draft.feeBpsIn,
@@ -282,7 +278,7 @@ async function buildOrder(draft: DraftStrategy, salt: bigint): Promise<Order> {
     }
 
     const built = await amm.buildProgram(
-        d.maker,
+        session.maker,
         d.weth,
         d.usdc,
         draft.feeBpsIn,
@@ -345,15 +341,6 @@ export function resetTakerNonce() {
     takerSigner.reset();
 }
 
-export type TradeSide = "buyWeth" | "sellWeth";
-
-export type TradeResult = {
-    ok: boolean;
-    reason?: string;
-    /** True when the revert means the target strategy already docked elsewhere; the caller should refresh. */
-    stale?: boolean;
-};
-
 /**
  * Fork-implied USDC per WETH from Aqua strategy reserves (XYC mid).
  * Prefers a router quote of a small WETH sell when liquidity allows.
@@ -397,8 +384,61 @@ export async function fetchForkSpot(live: LiveStrategy[]): Promise<{ usdcPerWeth
     return { usdcPerWeth: reserveMid };
 }
 
+export type TradeSide = "buyWeth" | "sellWeth";
+
+export type TradeResult = {
+    ok: boolean;
+    reason?: string;
+    /** True when the revert means the target strategy already docked elsewhere; the caller should refresh. */
+    stale?: boolean;
+};
+
+const USDC_BALANCE_SLOT = 9n;
+
+/** Top up the anvil taker via fork cheats — same counterparty Harbor uses for market fills. */
+async function ensureCheatTaker(side: TradeSide, amount: bigint): Promise<void> {
+    const client: string = await provider.send("web3_clientVersion", []);
+    if (!client.toLowerCase().includes("anvil")) {
+        throw new Error("simulated trades need the anvil fork (cheat taker)");
+    }
+    const taker = d.taker;
+    // Gas for approve / deposit / swap.
+    await provider.send("anvil_setBalance", [taker, "0x56BC75E2D63100000"]); // 100 ETH
+
+    if (side === "buyWeth") {
+        const bal = BigInt(await usdc.balanceOf(taker));
+        if (bal < amount) {
+            const slot = ethers.keccak256(
+                ethers.AbiCoder.defaultAbiCoder().encode(["address", "uint256"], [taker, USDC_BALANCE_SLOT]),
+            );
+            // Keep a comfortable cushion so repeated desk trades don't stall the demo.
+            const funded = amount + 50_000_000_000n; // +50k USDC
+            await provider.send("anvil_setStorageAt", [d.usdc, slot, ethers.toBeHex(funded, 32)]);
+        }
+        const allowance = BigInt(await usdc.allowance(taker, d.router));
+        if (allowance < amount) {
+            await (await usdcAsTaker.approve(d.router, ethers.MaxUint256)).wait();
+        }
+        return;
+    }
+
+    const bal = BigInt(await weth.balanceOf(taker));
+    if (bal < amount) {
+        const need = amount - bal + ethers.parseEther("1");
+        const wethWrite = new ethers.Contract(d.weth, [
+            ...ERC20_ABI,
+            "function deposit() payable",
+        ], takerSigner);
+        await (await (wethWrite as any).deposit({ value: need })).wait();
+    }
+    const allowance = BigInt(await weth.allowance(taker, d.router));
+    if (allowance < amount) {
+        await (await wethAsTaker.approve(d.router, ethers.MaxUint256)).wait();
+    }
+}
+
 /**
- * Execute a taker swap against a shipped AquaSwapVM strategy on the local fork.
+ * Harbor-style market fill: anvil cheat taker signs against the fork RPC (no MetaMask).
  * buyWeth  : pay USDC, receive WETH (isAToB=false)
  * sellWeth : pay WETH, receive USDC (isAToB=true)
  */
@@ -414,25 +454,7 @@ export async function tradeAgainst(
     if (amount <= 0n) return { ok: false, reason: "Amount must be > 0" };
 
     try {
-        if (isBuy) {
-            const bal = BigInt(await usdc.balanceOf(d.taker));
-            if (amount > bal) {
-                return { ok: false, reason: `Taker only has ${fmtUsdc(bal)} USDC` };
-            }
-            const allowance = BigInt(await usdc.allowance(d.taker, d.router));
-            if (allowance < amount) {
-                await (await usdcAsTaker.approve(d.router, ethers.MaxUint256)).wait();
-            }
-        } else {
-            const bal = BigInt(await weth.balanceOf(d.taker));
-            if (amount > bal) {
-                return { ok: false, reason: `Taker only has ${fmtWeth(bal)} WETH: buy some first` };
-            }
-            const allowance = BigInt(await weth.allowance(d.taker, d.router));
-            if (allowance < amount) {
-                await (await wethAsTaker.approve(d.router, ethers.MaxUint256)).wait();
-            }
-        }
+        await ensureCheatTaker(side, amount);
 
         const takerData = TakerTraitsLib.build({
             taker: d.taker,
@@ -525,11 +547,11 @@ function decodeOrder(strategy: string): Order {
 }
 
 /**
- * Reload active Aqua strategies for the demo maker from Shipped − Docked logs.
+ * Reload active Aqua strategies for the current maker from Shipped − Docked logs.
  * Balances come from the fork; initial promises from the first Pushed amounts when available.
  */
 export async function loadShippedFromChain(): Promise<LiveStrategy[]> {
-    const maker = d.maker.toLowerCase();
+    const maker = session.maker.toLowerCase();
     const app = d.router.toLowerCase();
     // Only scan from the pinned fork block forward: avoids pulling all Base Aqua history.
     const fromBlock = (d as { forkBlock?: number }).forkBlock ?? 0;

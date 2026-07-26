@@ -264,6 +264,8 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
         ?? (spot != null ? hold.weth * spot + hold.usdc : 0);
     const nowUsd = latest?.positionUsdc
         ?? (spot != null ? position.weth * spot + position.usdc : 0);
+    const depositSpot = depositSample?.spot ?? null;
+    const nowSpot = spot ?? latest?.spot ?? null;
     const pnlUsd = nowUsd - depositUsd;
     const pnlClass = pnlUsd > 0.005 ? "good" : pnlUsd < -0.005 ? "bad" : "";
 
@@ -312,20 +314,38 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
                     <div className="pnl-stat-label">At Deposit</div>
                     <div className="pnl-stat-row">
                         <span>{bases.length ? `${fmtWeth(depositWeth)} WETH` : "-"}</span>
-                        <span className="pnl-stat-sub">{bases.length ? fmtUsd(depositUsd) : ""}</span>
                     </div>
                     <div className="pnl-stat-row">
                         <span>{bases.length ? `${fmtUsdc(depositUsdc)} USDC` : "-"}</span>
+                    </div>
+                    <div className="pnl-stat-row">
+                        <span>Position</span>
+                        <span className="pnl-stat-sub">{bases.length ? fmtUsd(depositUsd) : "-"}</span>
+                    </div>
+                    <div className="pnl-stat-row">
+                        <span>WETH price</span>
+                        <span className="pnl-stat-sub">
+                            {bases.length && depositSpot != null ? `$${depositSpot.toFixed(2)}` : "-"}
+                        </span>
                     </div>
                 </div>
                 <div className="pnl-stat">
                     <div className="pnl-stat-label">Now</div>
                     <div className="pnl-stat-row">
                         <span>{live.length ? `${fmtWeth(liveWeth)} WETH` : "-"}</span>
-                        <span className="pnl-stat-sub">{live.length ? fmtUsd(nowUsd) : ""}</span>
                     </div>
                     <div className="pnl-stat-row">
                         <span>{live.length ? `${fmtUsdc(liveUsdc)} USDC` : "-"}</span>
+                    </div>
+                    <div className="pnl-stat-row">
+                        <span>Position</span>
+                        <span className="pnl-stat-sub">{live.length ? fmtUsd(nowUsd) : "-"}</span>
+                    </div>
+                    <div className="pnl-stat-row">
+                        <span>WETH price</span>
+                        <span className="pnl-stat-sub">
+                            {nowSpot != null ? `$${nowSpot.toFixed(2)}` : "-"}
+                        </span>
                     </div>
                 </div>
                 <div className="pnl-stat">

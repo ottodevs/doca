@@ -5,6 +5,7 @@ import {
     feeFromPercent, percentFromFee, fmtWeth, fmtUsdc, shortHash, KIND_LABEL, friendlyError,
     freeWallet, assertFitsWallet, usdcForWethAtSpot, wethForUsdcAtSpot,
     tradeAgainst, fetchForkSpot, readTakerWallet, resetTakerNonce,
+    hasInjectedWallet, connectWallet, seedConnectedWallet, session,
     type DraftStrategy, type LiveStrategy, type StrategyKind, type Wallet, type TradeSide,
 } from "./lib/lp-desk";
 import { fetchWethUsdcSpot } from "./lib/uniswap-price";
@@ -15,6 +16,9 @@ import {
 } from "./lib/pnl";
 import PnlChart from "./PnlChart";
 import { Mark, TabNav, type ViewId } from "./nav";
+import { ConnectButton } from "thirdweb/react";
+import { base } from "thirdweb/chains";
+import { thirdwebClient, thirdwebWallets } from "./lib/thirdweb";
 
 type FormState = {
     kind: StrategyKind;
@@ -84,6 +88,9 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
     const [tradeSide, setTradeSide] = useState<TradeSide>("buyWeth");
     const [tradeAmount, setTradeAmount] = useState("100");
     const [confirmDockHash, setConfirmDockHash] = useState<string | null>(null);
+    const [account, setAccount] = useState<string | null>(
+        () => (session.mode === "wallet" ? session.maker : null),
+    );
     const seededFormRef = useRef(false);
     const confirmDockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -464,6 +471,65 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
         }
     };
 
+    const reloadForMaker = useCallback(async () => {
+        setLoadingChain(true);
+        setDrafts([]);
+        setLive([]);
+        liveRef.current = [];
+        setForkSpot(null);
+        setTradeHash("");
+        try {
+            const persisted = loadPersistedBases();
+            basesRef.current = persisted;
+            setBases(persisted);
+            await Promise.all([refreshWallet(), refreshHistory()]);
+            const fromChain = await loadShippedFromChain();
+            liveRef.current = fromChain;
+            setLive(fromChain);
+            const spotNow = await fetchWethUsdcSpot().catch((e) => {
+                setPriceError(String(e?.message ?? e).slice(0, 160));
+                return null;
+            });
+            if (spotNow) {
+                setSpot(spotNow.usdcPerWeth);
+                spotRef.current = spotNow.usdcPerWeth;
+            }
+            const nextBases = reconcileBases(fromChain, basesRef.current);
+            basesRef.current = nextBases;
+            setBases(nextBases);
+            persistBases(nextBases);
+            if (fromChain.length) {
+                setTradeHash(fromChain[0]!.hash);
+                await refreshForkSpot(fromChain);
+                if (spotNow) await recordPositionTick(fromChain, nextBases, spotNow.usdcPerWeth);
+            }
+        } catch (e: any) {
+            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+        } finally {
+            setLoadingChain(false);
+        }
+    }, [refreshWallet, refreshHistory, refreshForkSpot, recordPositionTick]);
+
+    const onConnect = async () => {
+        setBusy(true);
+        setError(null);
+        try {
+            const addr = await connectWallet();
+            setAccount(addr);
+            let w = await readWallet();
+            if (w.weth === 0n && w.usdc === 0n) {
+                await seedConnectedWallet();
+                w = await readWallet();
+            }
+            setWallet(w);
+            await reloadForMaker();
+        } catch (e: any) {
+            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+        } finally {
+            setBusy(false);
+        }
+    };
+
     return (
         <div className="page desk">
             <header className="app-header">
@@ -476,13 +542,29 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
 
                 <div className="header-right">
                     <div className="header-group">
-                        <span className="pill-seg"><span className="dot" />Base fork · chain {d.chainId}</span>
                         <span
-                            className="pill-seg acct dim"
-                            title="Demo signer: a local development key funded on the practice fork. On a public chain, this becomes your connected wallet."
+                            className="pill-seg"
+                            title={`Base fork · chain ${d.chainId} · Aqua ${d.aqua.slice(0, 10)}… · ship & trade on the local fork`}
                         >
-                            <i className="state-dot" />Demo maker · <code>{shortHash(d.maker)}</code>
+                            <span className="dot" />Practice waters
                         </span>
+                        {account
+                            ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
+                            : hasInjectedWallet()
+                                ? <button type="button" className="pill-seg connect" onClick={onConnect} disabled={busy}>Connect wallet</button>
+                                : thirdwebClient
+                                    ? (
+                                        <span className="pill-seg thirdweb-seg">
+                                            <ConnectButton
+                                                client={thirdwebClient}
+                                                wallets={thirdwebWallets}
+                                                chain={base}
+                                                theme="light"
+                                                connectButton={{ label: "Sign in", className: "thirdweb-connect-btn" }}
+                                            />
+                                        </span>
+                                    )
+                                    : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
                     </div>
                 </div>
             </header>
@@ -505,14 +587,14 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 <div className="row">
                     <h2 className="desk-h" style={{ margin: 0 }}>Test a trade</h2>
                     <div className="muted" style={{ fontSize: 12 }}>
-                        Taker {d.taker.slice(0, 8)}…
+                        Cheat wallet {d.taker.slice(0, 8)}…
                         {takerWallet
                             ? ` · ${fmtWeth(takerWallet.weth)} WETH · ${fmtUsdc(takerWallet.usdc)} USDC`
                             : ""}
                     </div>
                 </div>
                 <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>
-                    Simulate a trade against one of your strategies to see how price and your position move.
+                    Same as Harbor: the anvil taker fills against your strategy on the fork (no MetaMask).
                 </p>
                 <div className="desk-form" style={{ marginTop: 14 }}>
                     <label className="desk-form-wide">
