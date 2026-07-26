@@ -8,6 +8,21 @@ never promise more liquidity than you can actually honor.
 
 Built at ETHGlobal Lisbon 2026 on [1inch Aqua](https://1inch.com/aqua).
 
+## Live
+
+| | |
+|---|---|
+| Landing | **https://doca-finance.pages.dev** |
+| App (preview) | https://doca-finance.pages.dev/app/ |
+| Pitch deck | https://doca-finance.pages.dev/deck/ |
+| Design dossier | https://doca-finance.pages.dev/dossier/ |
+| Agent / MCP surface | https://doca-finance.pages.dev/agents/ |
+| Brand assets | https://doca-finance.pages.dev/brand/ |
+
+The hosted app reads a Base **fork** running on the demo machine, so away from that machine it
+says so instead of rendering zeros. To drive it for real, run the fork locally — `DEV.md` has the
+three commands. Contracts, registry and router are 1inch's canonical deployments either way.
+
 ---
 
 ## The problem we picked
@@ -70,8 +85,8 @@ Everything settling value is 1inch's own live code. We deploy two small contract
 |---|---|---|
 | Aqua registry | `0x499943e74fb0ce105688beee8ef2abec5d936d31` | 1inch, canonical, live |
 | SwapVM router | official `AquaSwapVMRouter` code, unmodified | 1inch code, our deployment |
-| `InventorySkewProvider` | 159 lines | ours |
-| `PlimsollApp` | 93 lines, builds the SwapVM program | ours |
+| `InventorySkewProvider` | 178 lines | ours |
+| `DocaApp` | 93 lines, builds the SwapVM program | ours |
 
 Why our own deployment of the router and not the live one at
 `0x8fdd04dbf6111437b44bbca99c28882434e0958f`? Version skew, and it is documented: the live routers

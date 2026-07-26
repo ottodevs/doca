@@ -11,7 +11,7 @@ you sleep.
 
 ## The name is the design system
 
-The load line — the "Plimsoll line" — is the mark on a ship's hull: load past it and you sink. Every visual maps to a
+Doca is Portuguese for the dock. The load line painted on a hull is the mark: load past it and you sink. Every visual maps to a
 protocol primitive — nothing is decorative:
 
 | On screen | Means | Protocol reality |
@@ -46,6 +46,6 @@ stat stays — it is 1inch's own commissioned research, so it is attributed inli
 
 ## Seams
 
-- `web/src/lib/plimsoll.ts` exports everything (read/ship/dock/fill + wallet connect). The LP
+- `web/src/lib/doca.ts` exports everything (read/ship/dock/fill + wallet connect). The LP
   console mounts beside the journey without touching `App.tsx`.
 - Wallet mode: injected wallet = maker, signs every ship/dock; fork seeding for empty accounts.

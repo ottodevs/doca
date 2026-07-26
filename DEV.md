@@ -24,9 +24,9 @@ Reset demo state at any time by re-running step 2's deploy script (it `anvil_res
 
 ## Where things live
 
-- `web/src/lib/plimsoll.ts` — every chain call the UI uses (read/ship/dock/fill, wallet connect).
+- `web/src/lib/doca.ts` — every chain call the UI uses (read/ship/dock/fill, wallet connect).
   Build new views against these exports; `App.tsx` is the consumer journey and stays stable.
-- `contracts/contracts/` — `InventorySkewProvider.sol` + `PlimsollApp.sol`; tests in `contracts/test/`.
+- `contracts/contracts/` — `InventorySkewProvider.sol` + `DocaApp.sol`; tests in `contracts/test/`.
 - `deck/` pitch slides · `landing/` landing page · `docs/dossier.html` design dossier · `media/` submission assets.
 
 ## Gotchas
