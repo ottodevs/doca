@@ -94,7 +94,7 @@ whitepaper's manual recommendation, automated.
 **Trust model.** Demo: a local demo signer lets the Harbormaster act autonomously on camera. Real
 connected wallet: the same actions currently require your signature. Production: a scoped session
 key or smart-account module would authorize only `dock`, `ship` and waterline updates, with token
-limits, budget limits and expiry — session keys under ERC-4337 accounts with ERC-7715/ERC-7710
+limits, budget limits and expiry: session keys under ERC-4337 accounts with ERC-7715/ERC-7710
 style scoped, expiring, revocable grants. MCP: read-only observability (see [`mcp/`](mcp/)), not
 the transaction executor. It is a deterministic risk keeper, not an autonomous AI agent.
 
@@ -312,7 +312,7 @@ against a budget. The two compose rather than compete.
 |---|---|
 | `contracts/` | `InventorySkewProvider.sol`, `DocaApp.sol`, tests, measurement scripts |
 | `web/` | the app: `src/lib/doca.ts` is every chain call the UI makes |
-| `src/` | scaffold for a future headless keeper — not wired into anything; the live Harbormaster keeper runs in `web/src/App.tsx` |
+| `src/` | scaffold for a future headless keeper, not wired into anything; the live Harbormaster keeper runs in `web/src/App.tsx` |
 | `mcp/` | read-only MCP server (`bun mcp/server.ts`): wallet, positions, health |
 | `landing/`, `deck/`, `docs/` | landing page, pitch deck, design dossier and agent docs |
 | `site/` | static site assembly and deploy (`bun site/build.mjs`, `site/deploy.sh`) |

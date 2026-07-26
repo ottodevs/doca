@@ -7,7 +7,7 @@ import {
 } from "./lib/doca";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 import { Mark, TabNav, type ViewId } from "./nav";
-// Wallet sign-in fallback for browsers with no injected wallet — additive only, see lib/thirdweb.ts.
+// Wallet sign-in fallback for browsers with no injected wallet; additive only, see lib/thirdweb.ts.
 import { ConnectButton } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import { thirdwebClient, thirdwebWallets } from "./lib/thirdweb";

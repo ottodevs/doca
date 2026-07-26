@@ -69,7 +69,7 @@ live.
 ### `doca_health`
 The invariant check: sum the committed amounts (`rawBalances`) across the given strategies on both
 legs and compare each against the maker's actual wallet balances. `honorable: true` means the wallet
-holds enough WETH *and* enough USDC to cover every checked commitment at once — health is the worse
+holds enough WETH *and* enough USDC to cover every checked commitment at once; health is the worse
 leg. On-chain enforcement (the BudgetGuard instruction) remains on the roadmap. Nothing is ever
 deposited into Aqua up front.
 

@@ -17,7 +17,7 @@ export {
 
 // Function ABI plus the custom errors Aqua/SwapVM can revert with. Without the error
 // fragments here, ethers cannot decode a revert's selector and falls back to a bare
-// "unknown custom error" / "transaction failed" — real but illegible to users. Listing
+// "unknown custom error" / "transaction failed": real but illegible to users. Listing
 // them (inert if unused) turns every revert into a readable reason. See friendlyError().
 const AQUA_ABI = [
     "function ship(address app, bytes strategy, address[] tokens, uint256[] amounts) returns (bytes32)",
@@ -395,7 +395,7 @@ export type TradeResult = {
 
 const USDC_BALANCE_SLOT = 9n;
 
-/** Top up the anvil taker via fork cheats — same counterparty Harbor uses for market fills. */
+/** Top up the anvil taker via fork cheats: same counterparty Harbor uses for market fills. */
 async function ensureCheatTaker(side: TradeSide, amount: bigint): Promise<void> {
     const client: string = await provider.send("web3_clientVersion", []);
     if (!client.toLowerCase().includes("anvil")) {
