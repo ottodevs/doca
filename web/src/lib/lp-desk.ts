@@ -11,6 +11,10 @@ const KEYS = {
     taker: "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
 };
 
+// Function ABI plus the custom errors Aqua/SwapVM can revert with. Without the error
+// fragments here, ethers cannot decode a revert's selector and falls back to a bare
+// "unknown custom error" / "transaction failed" — real but illegible to users. Listing
+// them (inert if unused) turns every revert into a readable reason. See friendlyError().
 const AQUA_ABI = [
     "function ship(address app, bytes strategy, address[] tokens, uint256[] amounts) returns (bytes32)",
     "function dock(address app, bytes32 strategyHash, address[] tokens)",
@@ -18,11 +22,32 @@ const AQUA_ABI = [
     "event Shipped(address maker, address app, bytes32 strategyHash, bytes strategy)",
     "event Docked(address maker, address app, bytes32 strategyHash)",
     "event Pushed(address maker, address app, bytes32 strategyHash, address token, uint256 amount)",
+    "error MaxNumberOfTokensExceeded(uint256 tokensCount, uint256 maxTokensCount)",
+    "error StrategiesMustBeImmutable(address app, bytes32 strategyHash)",
+    "error DockingShouldCloseAllTokens(address app, bytes32 strategyHash)",
+    "error PushToNonActiveStrategyPrevented(address maker, address app, bytes32 strategyHash, address token)",
+    "error SafeBalancesForTokenNotInActiveStrategy(address maker, address app, bytes32 strategyHash, address token)",
+    "error InvalidAquaStrategy(address maker, bytes32 strategyHash, bytes32 salt, address app, address actualThis)",
+    "error MissingTakerAquaPush(address token, uint256 newBalance, uint256 expectedBalance)",
 ];
 const ROUTER_ABI = [
     "function hash((address maker, uint256 traits, bytes data) order) view returns (bytes32)",
     "function swap((address maker, uint256 traits, bytes data) order, uint256 amount, bytes takerTraitsAndData) returns (uint256,uint256,bytes32)",
     "function quote((address maker, uint256 traits, bytes data) order, uint256 amount, bytes takerTraitsAndData) returns (uint256,uint256,bytes32)",
+    "error BadSignature(address maker, bytes32 orderHash, bytes signature)",
+    "error AquaBalanceInsufficientAfterTakerPush(uint256 balance, uint256 preBalance, uint256 amount, uint256 amountNetPulled)",
+    "error SafeBalancesForTokenNotInActiveStrategy(address maker, address app, bytes32 strategyHash, address token)",
+    "error XYCSwapRequiresBothBalancesNonZero(uint256 balanceIn, uint256 balanceOut)",
+    "error ConcentrateInvalidPriceBounds(uint256 sqrtPriceMin, uint256 sqrtPriceMax)",
+    "error TakerTraitsThresholdLengthInvalid(bytes threshold)",
+    "error TakerTraitsInsufficientMinOutputAmount(uint256 amountOut, uint256 amountOutMin)",
+    "error TakerTraitsExceedingMaxInputAmount(uint256 amountIn, uint256 amountInMax)",
+    "error TakerTraitsDeadlineExpired()",
+    "error DeadlineReached(address taker, uint256 deadline)",
+    "error TakerTokenBalanceIsZero(address taker, address token)",
+    "error TakerTokenBalanceIsLessThanRequired(address taker, address token, uint256 balance, uint256 minAmount)",
+    "error SafeTransferFailed()",
+    "error SafeTransferFromFailed()",
 ];
 const AMM_ABI = [
     "function buildProgram(address maker, address tokenA, address tokenB, uint32 feeBpsIn, uint256 sqrtPriceMin, uint256 sqrtPriceMax, uint16 decayPeriod, uint32 protocolFeeBpsIn, address feeReceiver, uint64 salt, uint40 deadline) view returns (tuple(address maker, uint256 traits, bytes data))",
@@ -325,6 +350,8 @@ export type TradeSide = "buyWeth" | "sellWeth";
 export type TradeResult = {
     ok: boolean;
     reason?: string;
+    /** True when the revert means the target strategy already docked elsewhere; the caller should refresh. */
+    stale?: boolean;
 };
 
 /**
@@ -421,7 +448,8 @@ export async function tradeAgainst(
         resetTakerNonce();
         return {
             ok: false,
-            reason: String(e?.shortMessage ?? e?.message ?? e).slice(0, 160),
+            reason: friendlyError(e),
+            stale: e?.revert?.name === "SafeBalancesForTokenNotInActiveStrategy",
         };
     }
 }
@@ -435,6 +463,33 @@ export const fmtWeth = (v: bigint) => Number(ethers.formatEther(v)).toFixed(4);
 export const fmtUsdc = (v: bigint) =>
     Number(ethers.formatUnits(v, 6)).toLocaleString(undefined, { maximumFractionDigits: 2 });
 export const shortHash = (h: string) => `${h.slice(0, 6)}…${h.slice(-4)}`;
+
+const KNOWN_REVERT_REASONS: Record<string, string> = {
+    SafeBalancesForTokenNotInActiveStrategy: "That strategy already docked (closed) on-chain. Refresh the list and pick a live one.",
+    PushToNonActiveStrategyPrevented: "That strategy already docked (closed) on-chain. Refresh the list and pick a live one.",
+    TakerTokenBalanceIsZero: "The taker wallet has none of that token yet.",
+    TakerTokenBalanceIsLessThanRequired: "The taker wallet doesn't hold enough of that token.",
+    TakerTraitsInsufficientMinOutputAmount: "Trade would return less than the minimum accepted.",
+    TakerTraitsExceedingMaxInputAmount: "Trade input exceeds the strategy's remaining capacity.",
+    XYCSwapRequiresBothBalancesNonZero: "That strategy is out of one side of its inventory.",
+    DeadlineReached: "That quote expired. Try again.",
+    TakerTraitsDeadlineExpired: "That quote expired. Try again.",
+};
+
+/**
+ * Turn a raw ethers error into a readable one-liner. Prefers a decoded on-chain
+ * revert (needs the error listed in AQUA_ABI/ROUTER_ABI above) over the generic
+ * "transaction failed" ethers falls back to when it can't decode the selector.
+ */
+export function friendlyError(e: any): string {
+    const name: string | undefined = e?.revert?.name;
+    if (name) {
+        if (KNOWN_REVERT_REASONS[name]) return KNOWN_REVERT_REASONS[name];
+        const spaced = name.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+        return `${spaced} (on-chain)`;
+    }
+    return String(e?.shortMessage ?? e?.message ?? e).slice(0, 200);
+}
 
 /** AquaOpcodes indices used in AquaAMM programs. */
 const OP_XYC = 0x11;

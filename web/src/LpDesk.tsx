@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 import {
     d, readWallet, readLive, buildAndShip, dock, resetMakerNonce, loadShippedFromChain,
-    feeFromPercent, percentFromFee, fmtWeth, fmtUsdc, shortHash, KIND_LABEL,
+    feeFromPercent, percentFromFee, fmtWeth, fmtUsdc, shortHash, KIND_LABEL, friendlyError,
     freeWallet, assertFitsWallet, usdcForWethAtSpot, wethForUsdcAtSpot,
     tradeAgainst, fetchForkSpot, readTakerWallet, resetTakerNonce,
     type DraftStrategy, type LiveStrategy, type StrategyKind, type Wallet, type TradeSide,
@@ -240,7 +240,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                     if (spotNow) await recordPositionTick(fromChain, nextBases, spotNow.usdcPerWeth);
                 }
             } catch (e: any) {
-                if (!cancelled) setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+                if (!cancelled) setError(friendlyError(e));
             } finally {
                 if (!cancelled) setLoadingChain(false);
             }
@@ -316,7 +316,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
             await recordPositionTick(nextLive, nextBases, s?.usdcPerWeth ?? spotRef.current);
         } catch (e: any) {
             resetMakerNonce();
-            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+            setError(friendlyError(e));
         } finally {
             setBusy(false);
         }
@@ -339,7 +339,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 } catch (e: any) {
                     resetMakerNonce();
                     remaining.push(draft, ...drafts.slice(i + 1));
-                    setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+                    setError(friendlyError(e));
                     break;
                 }
             }
@@ -382,7 +382,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
             else setForkSpot(null);
         } catch (e: any) {
             resetMakerNonce();
-            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+            setError(friendlyError(e));
         } finally {
             setBusy(false);
         }
@@ -417,6 +417,14 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
             const result = await tradeAgainst(target, tradeSide, tradeAmount);
             if (!result.ok) {
                 setError(result.reason ?? "Trade failed");
+                // Selection pointed at a strategy that's already docked elsewhere: drop it
+                // from the live list instead of leaving a dead option selected.
+                if (result.stale) {
+                    const next = liveRef.current.filter((x) => x.hash !== target.hash);
+                    liveRef.current = next;
+                    setLive(next);
+                    if (tradeHash === target.hash) setTradeHash(next[0]?.hash ?? "");
+                }
                 return;
             }
             const next = await refreshLive();
@@ -426,7 +434,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
             await recordPositionTick(liveNow, basesRef.current, s?.usdcPerWeth ?? spotRef.current);
         } catch (e: any) {
             resetTakerNonce();
-            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+            setError(friendlyError(e));
         } finally {
             setBusy(false);
         }
@@ -438,7 +446,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
         try {
             await refreshWallet();
         } catch (e: any) {
-            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+            setError(friendlyError(e));
         } finally {
             setBusy(false);
         }
@@ -450,7 +458,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
         try {
             await refreshLive();
         } catch (e: any) {
-            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+            setError(friendlyError(e));
         } finally {
             setBusy(false);
         }
