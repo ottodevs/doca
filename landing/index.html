@@ -177,14 +177,27 @@
   .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
 
   /* ================= hero ================= */
-  .hero { padding: 132px 0 72px; }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: 48px; align-items: center; }
+  .hero { padding: 132px 0 72px; position: relative; overflow: hidden; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr); gap: 48px; align-items: center; position: relative; }
   .hero h1 { font-size: clamp(32px, 3.4vw, 48px); line-height: 1.08; }
   .hero .lede { margin: 22px 0 0; font-size: clamp(16px, 1.9vw, 18px); }
   .hero .cta { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
   .hero-map-wrap { min-width: 0; }
+  .hero-map-frame {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel);
+    box-shadow: var(--elev); padding: 28px 24px 20px;
+  }
   .hero-map { width: 100%; height: auto; }
   .map-caption { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); max-width: 52ch; }
+
+  /* hero background depth layers (contour lines + soundings), parallax on scroll */
+  .hero-depth { position: absolute; inset: -10% -6% -10%; z-index: 0; pointer-events: none; opacity: 0.4; }
+  .hero-depth svg { width: 100%; height: 100%; }
+  .hero-depth .contour { fill: none; stroke: var(--line-strong); stroke-width: 1; }
+  .hero-depth .sounding {
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; fill: var(--muted);
+  }
+  :root[data-theme="night"] .hero-depth { opacity: 0.55; }
 
   /* hero map internals */
   .hero-map .ws1 { stop-color: rgba(var(--water-fill), 0.09); }
@@ -202,8 +215,14 @@
   .hero-map .maplabel { font-family: var(--font-body); font-size: 16px; font-weight: 600; fill: var(--muted); }
   html:not(.rm) .hero-map .route { animation: drift 9s linear infinite; }
   html:not(.rm) .hero-map .route.dim { animation-duration: 14s; }
+  html:not(.rm) .hero-map .tide { animation: tidal 11s var(--ease-tidal) infinite alternate; transform-origin: 50% 50%; }
   @keyframes drift { to { stroke-dashoffset: -48; } }
-  @media (prefers-reduced-motion: reduce) { .hero-map .route { animation: none !important; } }
+  @keyframes tidal { from { transform: translateY(-2.5px); } to { transform: translateY(2.5px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-map .route, .hero-map .tide { animation: none !important; }
+    .hero-depth { display: none; }
+  }
+  @media (max-width: 760px) { .hero-depth { display: none; } }
 
   /* ================= mechanism: one balance + three truths ================= */
   .mechanism h2 { font-size: clamp(26px, 3.4vw, 36px); max-width: 18ch; }
@@ -333,10 +352,9 @@
 
   /* ================= responsive ================= */
   @media (max-width: 960px) {
-    .hero-grid { grid-template-columns: 1fr; gap: 8px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 28px; }
     .hero h1 { max-width: 16ch; }
-    /* the map's empty sky (top of the viewBox) reads as a hole when stacked */
-    .hero-map { margin-top: -6%; }
+    .hero-map-frame { padding: 18px 16px 14px; }
   }
   @media (max-width: 860px) {
     .truths { grid-template-columns: 1fr; }
@@ -392,6 +410,16 @@
 
   <!-- 1 · hero -->
   <section class="hero" id="hero">
+    <div class="hero-depth" aria-hidden="true" data-parallax="0.9">
+      <svg viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+        <path class="contour" d="M-40,180 C 220,120 420,240 640,170 S 1040,90 1240,160" />
+        <path class="contour" d="M-40,340 C 260,290 460,400 700,330 S 1060,250 1240,320" />
+        <path class="contour" d="M-40,500 C 300,450 520,560 760,490 S 1080,420 1240,480" />
+        <text class="sounding" x="70" y="230">18</text>
+        <text class="sounding" x="900" y="130">6</text>
+        <text class="sounding" x="1080" y="440">24</text>
+      </svg>
+    </div>
     <div class="wrap hero-grid">
       <div>
         <h1 data-reveal>Keep your wallet.<br />Put it to work anyway.</h1>
@@ -402,6 +430,7 @@
         </div>
       </div>
       <div class="hero-map-wrap" data-reveal style="--d:2">
+       <div class="hero-map-frame">
         <svg class="hero-map" viewBox="0 0 640 440" role="img" aria-label="Map of one wallet backing three strategies that quote into three markets. A waterline crosses the map: the strategy riding low is close to being docked and re-shipped.">
           <defs>
             <linearGradient id="wy" gradientUnits="userSpaceOnUse" x1="0" y1="252" x2="0" y2="424">
@@ -420,9 +449,11 @@
             <mask id="wmask"><rect x="0" y="240" width="640" height="200" fill="url(#wx)" /></mask>
           </defs>
 
-          <!-- water below the line, fading out toward depth and edges -->
-          <rect x="0" y="252" width="640" height="172" fill="url(#wy)" mask="url(#wmask)" />
-          <line class="waterline" x1="0" y1="252" x2="640" y2="252" />
+          <!-- water below the line, fading out toward depth and edges; drifts gently (tidal) -->
+          <g class="tide">
+            <rect x="0" y="252" width="640" height="172" fill="url(#wy)" mask="url(#wmask)" />
+            <line class="waterline" x1="0" y1="252" x2="640" y2="252" />
+          </g>
 
           <!-- routes: wallet to strategies -->
           <path class="route" d="M104,246 C 168,246 214,168 278,168" />
@@ -474,6 +505,7 @@
           <text class="maplabel" x="584" y="420" text-anchor="middle">markets</text>
         </svg>
         <p class="map-caption">Budgets are the waterline: a strategy riding low gets docked and re-shipped to what the wallet actually holds.</p>
+       </div>
       </div>
     </div>
   </section>
@@ -758,6 +790,30 @@ cd doca &amp;&amp; bun mcp/server.ts</code></pre>
       });
     });
   });
+
+  /* ---------- subtle parallax on hero depth layers (rAF-batched, passive) ---------- */
+  var depthLayers = Array.prototype.slice.call(document.querySelectorAll("[data-parallax]"));
+  if (depthLayers.length) {
+    var parallaxTicking = false;
+    function applyParallax() {
+      parallaxTicking = false;
+      if (rmQuery.matches || window.innerWidth < 760) {
+        depthLayers.forEach(function (el) { el.style.transform = ""; });
+        return;
+      }
+      var y = window.scrollY;
+      depthLayers.forEach(function (el) {
+        var speed = parseFloat(el.getAttribute("data-parallax")) || 0.9;
+        var raw = y * (1 - speed) * 0.5;
+        var clamped = Math.max(-40, Math.min(40, raw));
+        el.style.transform = "translateY(" + clamped.toFixed(1) + "px)";
+      });
+    }
+    window.addEventListener("scroll", function () {
+      if (!parallaxTicking) { requestAnimationFrame(applyParallax); parallaxTicking = true; }
+    }, { passive: true });
+    applyParallax();
+  }
 })();
 </script>
 </body>
