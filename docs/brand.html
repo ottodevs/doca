@@ -19,6 +19,13 @@
 <meta name="twitter:image" content="https://doca-finance.pages.dev/brand/og-card.png" />
 <link rel="icon" href="favicon.svg" />
 <style>
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
 :root{
   --ground:#f7f3ea; --surface:#fff; --paper:#efe9dc; --ink:#1c2733;
   --muted:color-mix(in srgb, var(--ink) 62%, transparent);
@@ -39,16 +46,16 @@
   }
 }
 *{box-sizing:border-box;margin:0}
-body{background:var(--ground);color:var(--ink);font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+body{background:var(--ground);color:var(--ink);font:16px/1.6 "Schibsted Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   -webkit-font-smoothing:antialiased}
 .wrap{max-width:960px;margin:0 auto;padding:72px 24px 96px}
 header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
-h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,6vw,60px);letter-spacing:-1.5px;line-height:1}
+h1{font-family:"Fraunces",Georgia,serif;font-size:clamp(38px,6vw,60px);letter-spacing:-1.5px;line-height:1}
 .lead{color:var(--muted);font-size:19px;margin:14px 0 8px;max-width:60ch}
 nav.top{display:flex;gap:18px;flex-wrap:wrap;margin:28px 0 56px;font-size:15px}
 nav.top a{color:var(--accent);text-decoration:none}
 nav.top a:hover{text-decoration:underline}
-h2{font-family:Georgia,serif;font-size:26px;letter-spacing:-.4px;margin:56px 0 6px}
+h2{font-family:"Fraunces",Georgia,serif;font-size:26px;letter-spacing:-.4px;margin:56px 0 6px}
 h2+p.note{color:var(--muted);margin-bottom:22px;max-width:62ch}
 .grid{display:grid;gap:16px}
 .marks{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
@@ -65,7 +72,7 @@ h2+p.note{color:var(--muted);margin-bottom:22px;max-width:62ch}
 .sw .meta b{font-weight:600}
 .sw .meta code{color:var(--muted);font-size:12px}
 .type{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px}
-.type .display{font-family:Georgia,serif;font-size:clamp(30px,5vw,46px);letter-spacing:-1px;line-height:1.1}
+.type .display{font-family:"Fraunces",Georgia,serif;font-size:clamp(30px,5vw,46px);letter-spacing:-1px;line-height:1.1}
 .type .body{margin-top:14px;color:var(--muted);max-width:62ch}
 .type .nums{margin-top:18px;font-variant-numeric:tabular-nums;font-size:22px;letter-spacing:.5px}
 .rules{list-style:none;padding:0;display:grid;gap:10px;margin-top:8px}
