@@ -585,78 +585,6 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
 
             <section className="card">
                 <div className="row">
-                    <h2 className="desk-h" style={{ margin: 0 }}>Test a trade</h2>
-                    <div className="muted" style={{ fontSize: 12 }}>
-                        Cheat wallet {d.taker.slice(0, 8)}…
-                        {takerWallet
-                            ? ` · ${fmtWeth(takerWallet.weth)} WETH · ${fmtUsdc(takerWallet.usdc)} USDC`
-                            : ""}
-                    </div>
-                </div>
-                <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>
-                    Same as Harbor: the anvil taker fills against your strategy on the fork (no MetaMask).
-                </p>
-                <div className="desk-form" style={{ marginTop: 14 }}>
-                    <label className="desk-form-wide">
-                        Strategy
-                        <select
-                            value={tradeHash || live[0]?.hash || ""}
-                            onChange={(e) => setTradeHash(e.target.value)}
-                            disabled={live.length === 0}
-                        >
-                            {live.length === 0 && <option value="">No live strategies</option>}
-                            {live.map((s) => (
-                                <option key={s.hash} value={s.hash} title={`${s.label} · ${s.hash}`}>
-                                    {s.label} · {shortHash(s.hash)} · {fmtWeth(s.wethLeft)}/{fmtUsdc(s.usdcLeft)}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>
-                        Side
-                        <select
-                            value={tradeSide}
-                            onChange={(e) => {
-                                const side = e.target.value as TradeSide;
-                                setTradeSide(side);
-                                setTradeAmount(side === "buyWeth" ? "100" : "0.02");
-                            }}
-                        >
-                            <option value="buyWeth">Buy WETH (pay USDC)</option>
-                            <option value="sellWeth">Sell WETH (pay WETH)</option>
-                        </select>
-                    </label>
-                    <label>
-                        {tradeSide === "buyWeth" ? "USDC in" : "WETH in"}
-                        <input
-                            value={tradeAmount}
-                            onChange={(e) => setTradeAmount(e.target.value)}
-                            inputMode="decimal"
-                            disabled={live.length === 0}
-                        />
-                    </label>
-                </div>
-                <div className="actions">
-                    <button
-                        type="button"
-                        className="primary"
-                        style={{ width: "auto" }}
-                        disabled={busy || live.length === 0}
-                        onClick={onTrade}
-                    >
-                        Execute trade
-                    </button>
-                    {forkSpot != null && (
-                        <span className="muted" style={{ alignSelf: "center", fontSize: 13 }}>
-                            Fork spot ${forkSpot.toFixed(2)}
-                            {spot != null ? ` · Base $${spot.toFixed(2)}` : ""}
-                        </span>
-                    )}
-                </div>
-            </section>
-
-            <section className="card">
-                <div className="row">
                     <div>
                         <div className="muted">Wallet · free after drafts</div>
                         <div className="balances" style={{ margin: "6px 0 0" }}>
@@ -839,6 +767,78 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                         </tbody>
                     </table></div>
                 )}
+            </section>
+
+            <section className="card testing-card">
+                <div className="row">
+                    <h2 className="desk-h" style={{ margin: 0 }}>Testing</h2>
+                    <div className="muted" style={{ fontSize: 12 }}>
+                        Cheat wallet {d.taker.slice(0, 8)}…
+                        {takerWallet
+                            ? ` · ${fmtWeth(takerWallet.weth)} WETH · ${fmtUsdc(takerWallet.usdc)} USDC`
+                            : ""}
+                    </div>
+                </div>
+                <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>
+                    Test a trade: the anvil taker fills against your strategy on the fork (no MetaMask), same flow as Harbor.
+                </p>
+                <div className="desk-form" style={{ marginTop: 14 }}>
+                    <label className="desk-form-wide">
+                        Strategy
+                        <select
+                            value={tradeHash || live[0]?.hash || ""}
+                            onChange={(e) => setTradeHash(e.target.value)}
+                            disabled={live.length === 0}
+                        >
+                            {live.length === 0 && <option value="">No live strategies</option>}
+                            {live.map((s) => (
+                                <option key={s.hash} value={s.hash} title={`${s.label} · ${s.hash}`}>
+                                    {s.label} · {shortHash(s.hash)} · {fmtWeth(s.wethLeft)}/{fmtUsdc(s.usdcLeft)}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <label>
+                        Side
+                        <select
+                            value={tradeSide}
+                            onChange={(e) => {
+                                const side = e.target.value as TradeSide;
+                                setTradeSide(side);
+                                setTradeAmount(side === "buyWeth" ? "100" : "0.02");
+                            }}
+                        >
+                            <option value="buyWeth">Buy WETH (pay USDC)</option>
+                            <option value="sellWeth">Sell WETH (pay WETH)</option>
+                        </select>
+                    </label>
+                    <label>
+                        {tradeSide === "buyWeth" ? "USDC in" : "WETH in"}
+                        <input
+                            value={tradeAmount}
+                            onChange={(e) => setTradeAmount(e.target.value)}
+                            inputMode="decimal"
+                            disabled={live.length === 0}
+                        />
+                    </label>
+                </div>
+                <div className="actions">
+                    <button
+                        type="button"
+                        className="primary"
+                        style={{ width: "auto" }}
+                        disabled={busy || live.length === 0}
+                        onClick={onTrade}
+                    >
+                        Execute trade
+                    </button>
+                    {forkSpot != null && (
+                        <span className="muted" style={{ alignSelf: "center", fontSize: 13 }}>
+                            Fork spot ${forkSpot.toFixed(2)}
+                            {spot != null ? ` · Base $${spot.toFixed(2)}` : ""}
+                        </span>
+                    )}
+                </div>
             </section>
 
             {error && <p className="desk-error">{error}</p>}

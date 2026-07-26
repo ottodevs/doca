@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
     d, provider, readWallet, readStrategy, start, dock, marketFill, spendWeth, shipStrategy, resetNonces,
     hasInjectedWallet, connectWallet, seedConnectedWallet, session,
-    PRESETS, fmtWeth, fmtPct, fmtFee, FRAC,
+    PRESETS, fmtWeth, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
@@ -855,13 +855,10 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
 
                     <section className="card controls-card">
                         <div className="actions">
-                            <button onClick={onFlow} disabled={!!busy}>Stress the position</button>
-                            <button onClick={onSpend} disabled={!!busy}>Spend 0.25 WETH</button>
                             <button className="ghost" onClick={onStop} disabled={!!busy}>Dock everything</button>
                         </div>
                         <p className="actions-note">
-                            Stress runs simulated taker flow against your live quotes: the drained side gets
-                            more expensive, and past the load line the Harbormaster steps in.
+                            Docking withdraws consent for every live strategy and returns the book to a plain wallet.
                         </p>
                         {busy && <p className="busy">{busy}</p>}
                     </section>
@@ -884,6 +881,24 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                     </div>
                 ))}
             </section>
+
+            {!nodeDown && wallet && working && (
+                <section className="card testing-card">
+                    <div className="testing-head">
+                        <strong>Testing</strong>
+                        <span>Demo-only controls: simulated activity on the practice fork.</span>
+                    </div>
+                    <div className="actions">
+                        <button onClick={onFlow} disabled={!!busy}>Stress the position</button>
+                        <button onClick={onSpend} disabled={!!busy}>Spend 0.25 WETH</button>
+                    </div>
+                    <p className="actions-note">
+                        Stress runs simulated taker flow against your live quotes: the drained side gets
+                        more expensive, and past the load line the Harbormaster steps in. Spending moves
+                        real WETH out of the wallet so the book has to resize.
+                    </p>
+                </section>
+            )}
 
             {!nodeDown && (
                 <footer>
