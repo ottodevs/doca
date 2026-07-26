@@ -82,7 +82,15 @@ export default function LpDesk() {
     const [tradeHash, setTradeHash] = useState<string>("");
     const [tradeSide, setTradeSide] = useState<TradeSide>("buyWeth");
     const [tradeAmount, setTradeAmount] = useState("100");
+    const [confirmDockHash, setConfirmDockHash] = useState<string | null>(null);
     const seededFormRef = useRef(false);
+    const confirmDockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (confirmDockTimerRef.current) clearTimeout(confirmDockTimerRef.current);
+        };
+    }, []);
 
     const refreshWallet = useCallback(async () => {
         const [maker, taker] = await Promise.all([readWallet(), readTakerWallet()]);
@@ -379,35 +387,21 @@ export default function LpDesk() {
         }
     };
 
-    const onDockAll = async () => {
-        const toDock = [...liveRef.current];
-        if (toDock.length === 0) return;
-        setBusy(true);
-        setError(null);
-        try {
-            for (const s of toDock) {
-                try {
-                    await dock(s);
-                    const nextLive = liveRef.current.filter((x) => x.hash !== s.hash);
-                    liveRef.current = nextLive;
-                    setLive(nextLive);
-                    const nextBases = dropBasis(basesRef.current, s.hash);
-                    basesRef.current = nextBases;
-                    setBases(nextBases);
-                    persistBases(nextBases);
-                } catch (e: any) {
-                    resetMakerNonce();
-                    setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
-                    break;
-                }
-            }
-            setTradeHash(liveRef.current[0]?.hash ?? "");
-            await refreshWallet();
-            if (liveRef.current.length) await refreshSpot(liveRef.current);
-            else setForkSpot(null);
-        } finally {
-            setBusy(false);
+    /** Docking is an irreversible tx: first click arms a 4s confirm window, second click fires it. */
+    const onDockClick = (s: LiveStrategy) => {
+        if (confirmDockHash === s.hash) {
+            if (confirmDockTimerRef.current) clearTimeout(confirmDockTimerRef.current);
+            confirmDockTimerRef.current = null;
+            setConfirmDockHash(null);
+            void onDock(s);
+            return;
         }
+        if (confirmDockTimerRef.current) clearTimeout(confirmDockTimerRef.current);
+        setConfirmDockHash(s.hash);
+        confirmDockTimerRef.current = setTimeout(() => {
+            setConfirmDockHash(null);
+            confirmDockTimerRef.current = null;
+        }, 4000);
     };
 
     const onTrade = async () => {
@@ -437,13 +431,37 @@ export default function LpDesk() {
         }
     };
 
+    const onRefreshWallet = async () => {
+        setBusy(true);
+        setError(null);
+        try {
+            await refreshWallet();
+        } catch (e: any) {
+            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const onRefreshLive = async () => {
+        setBusy(true);
+        setError(null);
+        try {
+            await refreshLive();
+        } catch (e: any) {
+            setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+        } finally {
+            setBusy(false);
+        }
+    };
+
     return (
         <div className="page desk">
             <header>
                 <div className="brand">
                     <div>
                         <h1>LP Desk</h1>
-                        <p className="tagline">Ship multiple AquaSwapVM strategies from one wallet</p>
+                        <p className="tagline">Run several liquidity strategies from one wallet</p>
                     </div>
                 </div>
                 <div className="chain">
@@ -464,7 +482,7 @@ export default function LpDesk() {
 
             <section className="card">
                 <div className="row">
-                    <h2 className="desk-h" style={{ margin: 0 }}>Trade (fork)</h2>
+                    <h2 className="desk-h" style={{ margin: 0 }}>Test a trade</h2>
                     <div className="muted" style={{ fontSize: 12 }}>
                         Taker {d.taker.slice(0, 8)}…
                         {takerWallet
@@ -473,8 +491,7 @@ export default function LpDesk() {
                     </div>
                 </div>
                 <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>
-                    Fill against a live Aqua strategy to move fork inventory.
-                    Chart marks Position and HOLD at real Base spot; fork mid is shown below.
+                    Simulate a trade against one of your strategies to see how price and your position move.
                 </p>
                 <div className="desk-form" style={{ marginTop: 14 }}>
                     <label className="desk-form-wide">
@@ -560,7 +577,7 @@ export default function LpDesk() {
                             </div>
                         </div>
                     </div>
-                    <button type="button" className="ghost" disabled={busy} onClick={() => refreshWallet()}>
+                    <button type="button" className="ghost" disabled={busy} onClick={onRefreshWallet}>
                         Refresh
                     </button>
                 </div>
@@ -582,9 +599,9 @@ export default function LpDesk() {
                     <label>
                         Kind
                         <select value={form.kind} onChange={(e) => setField("kind", e.target.value as StrategyKind)}>
-                            <option value="xyc">XYC (full range)</option>
-                            <option value="concentrate">Concentrated XYC</option>
-                            <option value="pegged">Pegged</option>
+                            <option value="xyc">Even spread (full range)</option>
+                            <option value="concentrate">Focused range</option>
+                            <option value="pegged">Pegged pair</option>
                         </select>
                     </label>
                     <label>
@@ -613,7 +630,7 @@ export default function LpDesk() {
                     )}
                     {form.kind === "pegged" && (
                         <label>
-                            Linear width A
+                            Peg tightness
                             <input value={form.linearWidthA} onChange={(e) => setField("linearWidthA", e.target.value)} inputMode="decimal" />
                         </label>
                     )}
@@ -674,20 +691,9 @@ export default function LpDesk() {
             <section className="card">
                 <div className="row">
                     <h2 className="desk-h">Live ({live.length})</h2>
-                    <div className="desk-actions" style={{ display: "flex", gap: 8 }}>
-                        <button type="button" className="ghost" disabled={busy || live.length === 0} onClick={() => refreshLive()}>
-                            Refresh balances
-                        </button>
-                        <button
-                            type="button"
-                            className="primary"
-                            style={{ width: "auto" }}
-                            disabled={busy || live.length === 0}
-                            onClick={onDockAll}
-                        >
-                            Dock all
-                        </button>
-                    </div>
+                    <button type="button" className="ghost" disabled={busy || live.length === 0} onClick={onRefreshLive}>
+                        Refresh balances
+                    </button>
                 </div>
                 {live.length === 0 ? (
                     <p className="muted">
@@ -716,7 +722,14 @@ export default function LpDesk() {
                                     <td>{fmtUsdc(s.usdcLeft)}</td>
                                     <td className="muted">{fmtWeth(s.promisedWeth)} / {fmtUsdc(s.promisedUsdc)}</td>
                                     <td>
-                                        <button type="button" disabled={busy} onClick={() => onDock(s)}>Dock</button>
+                                        <button
+                                            type="button"
+                                            className={confirmDockHash === s.hash ? "danger" : ""}
+                                            disabled={busy}
+                                            onClick={() => onDockClick(s)}
+                                        >
+                                            {confirmDockHash === s.hash ? "Confirm dock" : "Dock"}
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -729,7 +742,7 @@ export default function LpDesk() {
             {busy && <p className="busy">Working</p>}
 
             <footer>
-                AquaSwapVMRouter · fork trades · Position vs HOLD @ Base spot
+                Demo trades run on a private test copy of Base mainnet.
             </footer>
         </div>
     );

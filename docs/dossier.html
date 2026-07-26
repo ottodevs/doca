@@ -1,4 +1,4 @@
-<title>Plimsoll — Design Dossier</title>
+<title>Doca — Design Dossier</title>
 <style>
   @font-face {
     font-family: "Inter Var";
@@ -83,19 +83,19 @@
 
 <div class="wrap">
   <p class="eyebrow">Design dossier · ETHGlobal Lisbon 2026 · v2 shipped</p>
-  <h1><svg class="mark" width="44" height="44" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.6"/><line x1="1" y1="16" x2="31" y2="16" stroke="currentColor" stroke-width="2.6"/></svg> Plimsoll</h1>
+  <h1><svg class="mark" width="44" height="44" viewBox="0 0 32 32" aria-hidden="true"><defs><clipPath id="dt"><rect width="32" height="16"/></clipPath><clipPath id="db"><rect y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#dt)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#db)" opacity="0.45"/><line x1="1" y1="16" x2="31" y2="16"/></g></svg> Doca</h1>
   <p class="lead">Keep your wallet. Put it to work anyway.</p>
   <p class="meta">Live build: <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a> · design v2 in <code>web/src</code> · this document is the creative rationale behind every screen.</p>
 
   <h2>The narrative in three sentences</h2>
-  <p class="lead">Aqua solved custody: you promise liquidity, you never deposit it. But promises can exceed your wallet by design, and the whitepaper's own fix is a human docking positions by hand. <strong>Plimsoll turns that chore into a product</strong>: budgets keep every promise honest, a Harbormaster keeps them honest while you sleep.</p>
+  <p class="lead">Aqua solved custody: you promise liquidity, you never deposit it. But promises can exceed your wallet by design, and the whitepaper's own fix is a human docking positions by hand. <strong>Doca turns that chore into a product</strong>: budgets keep every promise honest, a Harbormaster keeps them honest while you sleep.</p>
   <blockquote>
     <p>"While Aqua doesn't automatically pause illiquid positions, Makers are strongly recommended to manually dock strategies that become chronically underfunded…"</p>
     <cite>Aqua whitepaper 1.0, §3 — the gap the product lives in</cite>
   </blockquote>
 
   <h2>The name is the design system</h2>
-  <p>The <strong>Plimsoll line</strong> is the mark painted on a ship's hull: load past it and you sink. Every visual element derives from that one metaphor, and every metaphor maps to a protocol primitive — nothing is decorative:</p>
+  <p><em>Doca</em> is Portuguese for the dock — where a ship is held while it loads, and where the <strong>load line</strong> painted on its hull tells you when it has taken on more than it can carry. Every visual element derives from that one metaphor, and every metaphor maps to a protocol primitive — nothing is decorative:</p>
   <div class="tablewrap"><table>
     <tr><th>On screen</th><th>Means</th><th>Protocol reality</th></tr>
     <tr><td>Vessel card</td><td>One market-making strategy</td><td>An Aqua-backed SwapVM order</td></tr>
@@ -166,8 +166,8 @@
   <ul>
     <li><strong>Wallet mode shipped</strong>: any injected wallet becomes the maker and signs every ship/dock; empty accounts get one-click seeding on the fork. Demo signer stays default for reproducibility.</li>
     <li><strong>Vocabulary aligned with Aqua</strong>: Strategy (not berth) as the primary noun, SLAC — 1inch's own amplification metric — named on the hero tile, ship/dock as the verbs.</li>
-    <li><strong>Open seam for the LP console</strong> (Henrik): everything is exported from <code>web/src/lib/plimsoll.ts</code>; a pro view mounts beside the journey without touching it.</li>
+    <li><strong>Open seam for the LP console</strong>: everything is exported from <code>web/src/lib/doca.ts</code>; a pro view mounts beside the journey without touching it.</li>
   </ul>
 
-  <p class="meta">Plimsoll · Otto &amp; Henrik · built on 1inch Aqua + SwapVM · every number in the repo reproduces from a script.</p>
+  <p class="meta">Doca · built on 1inch Aqua + SwapVM · every number in the repo reproduces from a script.</p>
 </div>

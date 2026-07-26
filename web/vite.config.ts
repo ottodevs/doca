@@ -9,6 +9,6 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 5273,
     strictPort: true,
-    allowedHosts: ["plimsoll.test", "lady", ".ts.net", "localhost", "127.0.0.1", "100.64.0.1"],
+    allowedHosts: ["doca.test", "lady", ".ts.net", "localhost", "127.0.0.1", "100.64.0.1"],
   },
 });

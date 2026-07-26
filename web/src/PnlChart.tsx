@@ -37,10 +37,21 @@ type Props = {
     priceError: string | null;
 };
 
-const GRID = "#363b63";
-const AXIS = "#363b63";
-const POS = "#5c70d6";
-const HOLD = "#999cb3";
+function cssVar(name: string, fallback: string): string {
+    if (typeof document === "undefined") return fallback;
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+}
+
+/** Read the chart's theme colors fresh on every render (tokens can flip with data-theme). */
+function chartColors() {
+    return {
+        grid: cssVar("--line", "#363b63"),
+        axis: cssVar("--line", "#363b63"),
+        pos: cssVar("--positive", "#1e8a5e"),
+        hold: cssVar("--muted", "#63738a"),
+    };
+}
 
 const MINUTE = 60_000;
 const HOUR = 3_600_000;
@@ -141,16 +152,17 @@ function ChartTooltip({ active, payload }: any) {
     if (!active || !payload?.length) return null;
     const row = payload[0]?.payload as PnlSample | undefined;
     if (!row) return null;
+    const { pos, hold } = chartColors();
     return (
         <div className="pnl-tooltip">
             <div className="pnl-tooltip-time">{new Date(row.at).toLocaleString()}</div>
             <div className="pnl-tooltip-row">
                 <span>Position value</span>
-                <strong style={{ color: POS }}>{fmtUsd(row.positionUsdc)}</strong>
+                <strong style={{ color: pos }}>{fmtUsd(row.positionUsdc)}</strong>
             </div>
             <div className="pnl-tooltip-row">
                 <span>HOLD value</span>
-                <strong style={{ color: HOLD }}>{fmtUsd(row.holdUsdc)}</strong>
+                <strong style={{ color: hold }}>{fmtUsd(row.holdUsdc)}</strong>
             </div>
             <div className="pnl-tooltip-row">
                 <span>vs HOLD</span>
@@ -173,6 +185,9 @@ function ChartTooltip({ active, payload }: any) {
 }
 
 export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceError }: Props) {
+    // Recomputed every render so a theme flip (data-theme) is picked up immediately;
+    // recharts already re-renders this component on every data tick.
+    const { grid: GRID, axis: AXIS, pos: POS, hold: HOLD } = chartColors();
     const hold = useMemo(() => sumHold(bases), [bases]);
     const position = useMemo(() => sumPosition(live), [live]);
 
@@ -318,9 +333,7 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
                 {noPosition ? (
                     <p className="pnl-nodata muted">Ship a strategy to start tracking Position vs HOLD.</p>
                 ) : empty ? (
-                    <p className="pnl-nodata muted">
-                        Building ship→now series…
-                    </p>
+                    <p className="pnl-nodata muted">Loading price history…</p>
                 ) : (
                     <div className="pnl-rechart" style={{ width: "100%", height: liveWindow ? 260 : 220 }}>
                         <ResponsiveContainer width="100%" height="100%">

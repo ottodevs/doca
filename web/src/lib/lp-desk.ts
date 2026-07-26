@@ -36,9 +36,10 @@ const ERC20_ABI = [
 
 export const d = deployment as typeof deployment & { aquaAmm: string; taker: string };
 
-const rpcUrl = typeof window !== "undefined"
-    ? `http://${window.location.hostname}:8545`
-    : deployment.rpcUrl;
+// VITE_RPC_URL pins a public endpoint for hosted builds; otherwise the node lives on whatever
+// host served the page, so the app works over localhost and over the tailnet unchanged.
+const rpcUrl = import.meta.env.VITE_RPC_URL
+    || (typeof window !== "undefined" ? `http://${window.location.hostname}:8545` : deployment.rpcUrl);
 
 export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
     staticNetwork: true,
@@ -533,7 +534,7 @@ export async function loadShippedFromChain(): Promise<LiveStrategy[]> {
             }
             byHash.set(hash.toLowerCase(), live);
         } catch {
-            /* skip undecodable strategies (e.g. Plimsoll demo skew programs) */
+            /* skip undecodable strategies (e.g. Doca demo skew programs) */
         }
     }
 
