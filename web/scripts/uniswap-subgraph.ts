@@ -26,7 +26,7 @@ function graphKey(): string {
 
 export function subgraphEndpoint(subgraphId = BASE_V3_SUBGRAPH_ID): string {
     const key = graphKey();
-    if (!key) throw new Error("THE_GRAPH_API_KEY missing — set it in the repo .env");
+    if (!key) throw new Error("THE_GRAPH_API_KEY missing: set it in the repo .env");
     return `https://gateway.thegraph.com/api/${key}/subgraphs/id/${subgraphId}`;
 }
 

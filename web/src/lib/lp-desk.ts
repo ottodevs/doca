@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
 // LP Desk: compose and ship multiple AquaSwapVM AMM strategies (XYC, concentrate, pegged)
-// via the plain AquaAMM builder — no inventory skew.
+// via the plain AquaAMM builder: no inventory skew.
 import { ethers, type EventLog, type Log } from "ethers";
 import deployment from "../deployment.json";
 import { TakerTraitsLib } from "./swapvm-helpers";
@@ -138,7 +138,7 @@ export function usdcPerWethToSqrtPrices(minUsdc: number, maxUsdc: number): { sqr
     const scale = WETH_DECIMALS + USDC_DECIMALS; // 24
 
     const toSqrt = (humanUsdcPerWeth: number): bigint => {
-        // Avoid float parseUnits issues — keep ~8 fractional digits.
+        // Avoid float parseUnits issues: keep ~8 fractional digits.
         const text = humanUsdcPerWeth.toFixed(8).replace(/\.?0+$/, "") || "0";
         const scaledRaw = ethers.parseUnits(text, scale);
         if (scaledRaw <= 0n) throw new Error("price must be positive");
@@ -161,7 +161,7 @@ export function usdcPerWethToSqrtPrices(minUsdc: number, maxUsdc: number): { sqr
     return { sqrtMin, sqrtMax };
 }
 
-/** Balanced USDC for a WETH amount at spot (50/50 by value — natural XYC deposit). */
+/** Balanced USDC for a WETH amount at spot (50/50 by value, natural XYC deposit). */
 export function usdcForWethAtSpot(wethHuman: number, usdcPerWeth: number): string {
     if (!(wethHuman > 0) || !(usdcPerWeth > 0)) return "0";
     return (wethHuman * usdcPerWeth).toFixed(2);
@@ -274,7 +274,7 @@ async function buildOrder(draft: DraftStrategy, salt: bigint): Promise<Order> {
 
 function draftLabel(draft: DraftStrategy): string {
     if (draft.kind === "concentrate") {
-        return `${KIND_LABEL.concentrate} ${draft.priceMinUsdc}–${draft.priceMaxUsdc}`;
+        return `${KIND_LABEL.concentrate} ${draft.priceMinUsdc}-${draft.priceMaxUsdc}`;
     }
     if (draft.kind === "pegged") {
         return `${KIND_LABEL.pegged} A=${draft.linearWidthA ?? 0.8}`;
@@ -284,7 +284,7 @@ function draftLabel(draft: DraftStrategy): string {
 
 export async function buildAndShip(draft: DraftStrategy, salt?: bigint): Promise<LiveStrategy> {
     if (!d.aquaAmm || d.aquaAmm === ethers.ZeroAddress) {
-        throw new Error("deployment.json missing aquaAmm — re-run deploy-for-web.ts");
+        throw new Error("deployment.json missing aquaAmm: re-run deploy-for-web.ts");
     }
     const bal = await readWallet();
     assertFitsWallet(draft, bal);
@@ -372,8 +372,8 @@ export async function fetchForkSpot(live: LiveStrategy[]): Promise<{ usdcPerWeth
 
 /**
  * Execute a taker swap against a shipped AquaSwapVM strategy on the local fork.
- * buyWeth  — pay USDC, receive WETH (isAToB=false)
- * sellWeth — pay WETH, receive USDC (isAToB=true)
+ * buyWeth  : pay USDC, receive WETH (isAToB=false)
+ * sellWeth : pay WETH, receive USDC (isAToB=true)
  */
 export async function tradeAgainst(
     s: LiveStrategy,
@@ -399,7 +399,7 @@ export async function tradeAgainst(
         } else {
             const bal = BigInt(await weth.balanceOf(d.taker));
             if (amount > bal) {
-                return { ok: false, reason: `Taker only has ${fmtWeth(bal)} WETH — buy some first` };
+                return { ok: false, reason: `Taker only has ${fmtWeth(bal)} WETH: buy some first` };
             }
             const allowance = BigInt(await weth.allowance(d.taker, d.router));
             if (allowance < amount) {
@@ -476,7 +476,7 @@ function decodeOrder(strategy: string): Order {
 export async function loadShippedFromChain(): Promise<LiveStrategy[]> {
     const maker = d.maker.toLowerCase();
     const app = d.router.toLowerCase();
-    // Only scan from the pinned fork block forward — avoids pulling all Base Aqua history.
+    // Only scan from the pinned fork block forward: avoids pulling all Base Aqua history.
     const fromBlock = (d as { forkBlock?: number }).forkBlock ?? 0;
 
     const isEvent = (e: Log | EventLog): e is EventLog => "args" in e && e.args != null;

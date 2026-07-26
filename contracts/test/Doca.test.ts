@@ -20,7 +20,7 @@ const MAX_FEE = BPS / 20n;           // 5% at the waterline
 const KINK = 5_000n;                 // ramp starts once half the shipped inventory is gone
 const WATERLINE = 1_000n;            // full surcharge with 10% of inventory left
 
-describe("Doca — inventory skew on Aqua/SwapVM", function () {
+describe("Doca: inventory skew on Aqua/SwapVM", function () {
     async function setupFixture() {
         const base = await deployFixture();
         const { accounts, tokens, contracts } = base;

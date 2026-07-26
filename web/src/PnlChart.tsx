@@ -283,7 +283,7 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
             <div className="pnl-beefy-card-header">
                 <h2 className="pnl-beefy-title">Position Performance</h2>
                 <div className="pnl-beefy-spot muted">
-                    {spot != null ? `Base $${spot.toFixed(2)}` : "Base —"}
+                    {spot != null ? `Base $${spot.toFixed(2)}` : "Base -"}
                     {forkSpot != null ? ` · Fork $${forkSpot.toFixed(2)}` : ""}
                     {liveWindow
                         ? ` · live ${range.label}`
@@ -299,32 +299,32 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
                 <div className="pnl-stat">
                     <div className="pnl-stat-label">At Deposit</div>
                     <div className="pnl-stat-row">
-                        <span>{bases.length ? `${fmtWeth(depositWeth)} WETH` : "—"}</span>
+                        <span>{bases.length ? `${fmtWeth(depositWeth)} WETH` : "-"}</span>
                         <span className="pnl-stat-sub">{bases.length ? fmtUsd(depositUsd) : ""}</span>
                     </div>
                     <div className="pnl-stat-row">
-                        <span>{bases.length ? `${fmtUsdc(depositUsdc)} USDC` : "—"}</span>
+                        <span>{bases.length ? `${fmtUsdc(depositUsdc)} USDC` : "-"}</span>
                     </div>
                 </div>
                 <div className="pnl-stat">
                     <div className="pnl-stat-label">Now</div>
                     <div className="pnl-stat-row">
-                        <span>{live.length ? `${fmtWeth(liveWeth)} WETH` : "—"}</span>
+                        <span>{live.length ? `${fmtWeth(liveWeth)} WETH` : "-"}</span>
                         <span className="pnl-stat-sub">{live.length ? fmtUsd(nowUsd) : ""}</span>
                     </div>
                     <div className="pnl-stat-row">
-                        <span>{live.length ? `${fmtUsdc(liveUsdc)} USDC` : "—"}</span>
+                        <span>{live.length ? `${fmtUsdc(liveUsdc)} USDC` : "-"}</span>
                     </div>
                 </div>
                 <div className="pnl-stat">
                     <div className="pnl-stat-label">Change</div>
                     <div className="pnl-stat-row">
                         <span className={pnlClass}>
-                            {bases.length ? `${fmtUsd(pnlUsd, true)} PNL` : "—"}
+                            {bases.length ? `${fmtUsd(pnlUsd, true)} PNL` : "-"}
                         </span>
                     </div>
                     <div className="pnl-stat-row pnl-stat-hold">
-                        <span>{bases.length ? `${fmtUsd(nowUsd - pnlUsd)} HOLD` : "—"}</span>
+                        <span>{bases.length ? `${fmtUsd(nowUsd - pnlUsd)} HOLD` : "-"}</span>
                     </div>
                 </div>
             </div>

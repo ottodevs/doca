@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 //
-// Doca MCP server — read-only agent surface over the Aqua fork.
+// Doca MCP server: read-only agent surface over the Aqua fork.
 //
 // Why zero dependencies: every call this server makes is a `view` function with only static
 // argument types (address / bytes32), so ABI encoding is four 32-byte words concatenated after a
-// 4-byte selector — no encoder needed. Selectors below are precomputed keccak4s of the same
+// 4-byte selector. No encoder needed. Selectors below are precomputed keccak4s of the same
 // signatures `web/src/lib/doca.ts` uses (see ABI arrays there); we don't recompute keccak at
 // runtime, we just hardcode the well-known result. `bun`'s built-in `fetch` + `Bun.serve` cover
 // the rest, so this file has no `bun add` footprint at all.
@@ -29,11 +29,11 @@ const PROTOCOL_VERSION = "2025-06-18";
 const SELECTORS = {
     // balanceOf(address)
     balanceOf: "0x70a08231",
-    // rawBalances(address,address,bytes32,address) — Aqua: maker, app, strategyHash, token
+    // rawBalances(address,address,bytes32,address), Aqua: maker, app, strategyHash, token
     rawBalances: "0x6d58b4cc",
-    // remainingFraction(bytes32,address) — InventorySkewProvider
+    // remainingFraction(bytes32,address): InventorySkewProvider
     remainingFraction: "0x8fdc4b85",
-    // feeBpsFor(bytes32,address) — InventorySkewProvider
+    // feeBpsFor(bytes32,address): InventorySkewProvider
     feeBpsFor: "0x2a3d3680",
 };
 
@@ -287,7 +287,7 @@ async function callTool(name: string, args: any) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// JSON-RPC over HTTP POST /mcp — the MCP handshake subset (initialize, tools/list, tools/call).
+// JSON-RPC over HTTP POST /mcp: the MCP handshake subset (initialize, tools/list, tools/call).
 // No SSE stream: every response here is a direct JSON-RPC reply, which the Streamable HTTP
 // transport spec allows for requests that don't need server-initiated messages.
 // ---------------------------------------------------------------------------------------------

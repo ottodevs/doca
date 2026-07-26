@@ -9,7 +9,7 @@ export interface RunnerOptions {
   client: AquaClient;
   strategies: StrategyRef[];
   intervalMs?: number;
-  once?: boolean; // run a single pass then return — used by tests and manual invocations
+  once?: boolean; // run a single pass then return: used by tests and manual invocations
 }
 
 // The engine loop: observe -> decide -> execute, repeated on an interval.

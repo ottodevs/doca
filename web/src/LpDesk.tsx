@@ -558,7 +558,7 @@ export default function LpDesk() {
                         <div className="muted">Wallet · free after drafts</div>
                         <div className="balances" style={{ margin: "6px 0 0" }}>
                             <div>
-                                <strong>{wallet ? fmtWeth(wallet.weth) : "—"}</strong>
+                                <strong>{wallet ? fmtWeth(wallet.weth) : "-"}</strong>
                                 <span>WETH</span>
                                 {wallet && drafts.length > 0 && (
                                     <span className="muted" style={{ marginLeft: 6 }}>
@@ -567,7 +567,7 @@ export default function LpDesk() {
                                 )}
                             </div>
                             <div>
-                                <strong>{wallet ? fmtUsdc(wallet.usdc) : "—"}</strong>
+                                <strong>{wallet ? fmtUsdc(wallet.usdc) : "-"}</strong>
                                 <span>USDC</span>
                                 {wallet && drafts.length > 0 && (
                                     <span className="muted" style={{ marginLeft: 6 }}>
@@ -671,7 +671,7 @@ export default function LpDesk() {
                                     <td>{fmtUsdc(draft.promisedUsdc)}</td>
                                     <td>{percentFromFee(draft.feeBpsIn)}%</td>
                                     <td className="muted">
-                                        {draft.kind === "concentrate" && `${draft.priceMinUsdc}–${draft.priceMaxUsdc}`}
+                                        {draft.kind === "concentrate" && `${draft.priceMinUsdc}-${draft.priceMaxUsdc}`}
                                         {draft.kind === "pegged" && `A=${draft.linearWidthA}`}
                                         {draft.kind === "xyc" && "full range"}
                                     </td>

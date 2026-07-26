@@ -1,4 +1,4 @@
-// Central env config. Bun auto-loads .env — no dotenv dependency needed.
+// Central env config. Bun auto-loads .env: no dotenv dependency needed.
 
 import type { Address } from "./types";
 
@@ -9,7 +9,7 @@ export interface EngineConfig {
 }
 
 // TODO: replace with the real deployed Aqua registry address for the target chain.
-// Left as the zero address on purpose — never assume a canonical deployment without checking docs at the venue.
+// Left as the zero address on purpose. Never assume a canonical deployment without checking docs at the venue.
 const DEFAULT_AQUA_ADDRESS: Address = "0x0000000000000000000000000000000000000000";
 
 export function loadConfig(): EngineConfig {

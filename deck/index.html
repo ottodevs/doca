@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Doca — ETHGlobal Lisbon 2026</title>
+<title>Doca: ETHGlobal Lisbon 2026</title>
 <style>
   @font-face {
     font-family: "Inter Variable";
@@ -63,7 +63,7 @@
   a { color: var(--accent); text-decoration: none; }
   .demo-cue { border: 1px dashed rgba(61,214,245,0.5); color: var(--accent); border-radius: 14px; padding: 2.4vh 3vw; font-size: 3.2vh; max-width: 60vw; }
   ul.plain { list-style: none; display: grid; gap: 1.8vh; font-size: 3vh; }
-  ul.plain li::before { content: "— "; color: var(--accent); }
+  ul.plain li::before { content: "- "; color: var(--accent); }
   ul.plain li { color: var(--muted); } ul.plain li strong { color: var(--text); font-weight: 620; }
   .diagram { max-width: 46vw; max-height: 26vh; border: 1px solid var(--line); border-radius: 16px; align-self: center; }
 </style>
@@ -77,33 +77,33 @@
     <h1>Doca</h1>
   </div>
   <h2>Keep your wallet.<br/>Put it to work anyway.</h2>
-  <p class="sub">Non-custodial market making on 1inch Aqua — budgets sized to the wallet's actual balance.</p>
+  <p class="sub">Non-custodial market making on 1inch Aqua: budgets sized to the wallet's actual balance.</p>
 </section>
 
 <!-- 2 · problem -->
 <section class="slide">
-  <div class="kicker">Adjacent evidence — 1inch's own numbers, one week old</div>
-  <div class="big">85% <small>of tracked concentrated liquidity underutilized in H1 2026 — $1.6B of $1.84B analyzed, mostly individually managed positions<br/>(1inch-commissioned Dune research, July 18)</small></div>
-  <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em>by design</em> — and when flow turns directional, quotes go phantom.</p>
+  <div class="kicker">Adjacent evidence: 1inch's own numbers, one week old</div>
+  <div class="big">85% <small>of tracked concentrated liquidity underutilized in H1 2026: $1.6B of $1.84B analyzed, mostly individually managed positions<br/>(1inch-commissioned Dune research, July 18)</small></div>
+  <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em>by design</em>, and when flow turns directional, quotes go phantom.</p>
 </section>
 
 <!-- 3 · whitepaper -->
 <section class="slide">
-  <div class="kicker">Not speculative — it is in the Aqua whitepaper, §3</div>
+  <div class="kicker">Not speculative: it is in the Aqua whitepaper, §3</div>
   <blockquote class="quote">
     "While Aqua doesn't automatically pause illiquid positions, Makers are strongly recommended to
     <em>manually dock</em> strategies that become chronically underfunded…"
-    <cite>Aqua whitepaper 1.0, §3 — the prescribed fix is a human, awake at 3am</cite>
+    <cite>Aqua whitepaper 1.0, §3: the prescribed fix is a human, awake at 3am</cite>
   </blockquote>
   <h2>Nobody docks by hand at 3am.</h2>
 </section>
 
 <!-- 4 · what it is -->
 <section class="slide">
-  <div class="kicker">Doca — one invariant, three pieces</div>
+  <div class="kicker">Doca: one invariant, three pieces</div>
   <h2>A <span style="color:var(--accent)">promise</span> may exceed your wallet.<br/>A <span style="color:var(--good)">budget</span> may not.</h2>
   <div class="cols">
-    <div class="box"><h3>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional — takers get paid to rebalance you.</p></div>
+    <div class="box"><h3>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional: takers get paid to rebalance you.</p></div>
     <div class="box"><h3>Harbormaster</h3><p>An <strong>autopilot</strong> that docks any strategy crossing its line and re-ships against the wallet's current balance. The whitepaper's advice, automated in this demo; with a connected wallet it prompts you to sign.</p></div>
     <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend without withdrawing.</p></div>
   </div>
@@ -119,7 +119,7 @@
 
 <!-- 6 · measured -->
 <section class="slide">
-  <div class="kicker">Measured, with a paired control — one instruction of difference</div>
+  <div class="kicker">Measured, with a paired control: one instruction of difference</div>
   <h2>Same wallet. Same flow.</h2>
   <div class="cols" style="align-items:flex-start">
     <div>
@@ -137,7 +137,7 @@
       </table>
     </div>
   </div>
-  <p class="sub">At 1× and 2× the mechanism costs nothing — budgets never exhaust. It only bites when it is needed.</p>
+  <p class="sub">At 1× and 2× the mechanism costs nothing. Budgets never exhaust. It only bites when it is needed.</p>
 </section>
 
 <!-- 7 · trust -->
@@ -157,7 +157,7 @@
   <div class="kicker">What is real</div>
   <ul class="plain">
     <li><strong>Canonical Aqua registry</strong>, official router code unmodified, real WETH/USDC transfers. Our contracts are live on Base mainnet: <code>0x768F…54D9</code> (skew provider), <code>0x8A15…9694</code> (app).</li>
-    <li><strong>7 tests green</strong> — curve asserted against its closed form, retention proven with real balance changes.</li>
+    <li><strong>7 tests green</strong>: curve asserted against its closed form, retention proven with real balance changes.</li>
     <li><strong>Every number reproducible</strong> from a script in the repo.</li>
   </ul>
   <p class="sub" style="color:var(--text); font-size:2.9vh;">Keep your wallet. Put it to work anyway.</p>
@@ -167,7 +167,7 @@
   </div>
 </section>
 
-<div class="foot"><span>Doca — ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
+<div class="foot"><span>Doca: ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
 
 <script>
   const slides = [...document.querySelectorAll('.slide')];

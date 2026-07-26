@@ -26,7 +26,7 @@ function syntheticState(balanceA: bigint, balanceB: bigint, saltSuffix: string):
 }
 
 describe("decide: threshold rebalance policy", () => {
-  // Pure logic, no chain — always runs, exercises decide/ in isolation.
+  // Pure logic, no chain: always runs, exercises decide/ in isolation.
   test("holds a balanced 50/50 strategy", () => {
     const state = syntheticState(1_000n, 1_000n, "1");
     const [decision] = decide([state]);

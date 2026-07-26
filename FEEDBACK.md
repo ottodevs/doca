@@ -1,25 +1,25 @@
-# Uniswap API — Developer Feedback
+# Uniswap API: Developer Feedback
 
 Written for the Uniswap Foundation "Best Uniswap API Integration" bounty at ETHGlobal
 Lisbon 2026. Context: Doca uses the Trading API as the live market reference for an
-autonomous maker built on 1inch Aqua — see [How we use the API](#how-we-use-the-api).
+autonomous maker built on 1inch Aqua. See [How we use the API](#how-we-use-the-api).
 
 ## How we use the API
 
-- `web/src/lib/uniswap-price.ts` — the whole client. `POST /v1/quote` (EXACT_INPUT,
+- `web/src/lib/uniswap-price.ts`: the whole client. `POST /v1/quote` (EXACT_INPUT,
   WETH→USDC, chain 8453, protocols V3+V4) gives us the live Base mainnet price.
-- `web/src/App.tsx` — the Harbormaster agent marks every dock/re-ship decision against
+- `web/src/App.tsx`: the Harbormaster agent marks every dock/re-ship decision against
   that live price, and the header shows the reference so users see what the real market
   says while they trade on the practice fork.
-- `web/src/LpDesk.tsx` + `web/src/lib/pnl.ts` — every Aqua position is valued
+- `web/src/LpDesk.tsx` + `web/src/lib/pnl.ts`: every Aqua position is valued
   mark-to-market against the Uniswap quote; the PnL chart and position history ticks
   are denominated in it.
-- `web/plugins/lp-desk-dev.ts` — dev-server proxy that keeps the API key out of the
+- `web/plugins/lp-desk-dev.ts`: dev-server proxy that keeps the API key out of the
   browser bundle and polls the spot hourly for position history.
 
 ## What worked well
 
-- Key issuance was instant — signed up and quoted inside the same hour.
+- Key issuance was instant: signed up and quoted inside the same hour.
 - Quote latency from the venue was consistently sub-second for Base V3+V4 routes.
 - Base (8453) coverage is solid; the CLASSIC route we get matches on-chain reality.
 - One endpoint gave us everything we needed for valuation; we never had to touch a

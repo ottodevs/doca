@@ -259,12 +259,12 @@ export default function App() {
             const w = await readWallet();
             setWallet(w);
             if (w.weth === 0n && w.usdc === 0n) {
-                say("connected wallet is empty on this fork — seeding demo funds (sign the prompts)", "info");
+                say("connected wallet is empty on this fork: seeding demo funds (sign the prompts)", "info");
                 await seedConnectedWallet();
                 setWallet(await readWallet());
                 say("seeded: 2 WETH + 8,000 USDC, approvals set", "info");
             } else {
-                say(`connected ${addr.slice(0, 6)}…${addr.slice(-4)} — your wallet is now the maker`, "info");
+                say(`connected ${addr.slice(0, 6)}…${addr.slice(-4)}: your wallet is now the maker`, "info");
             }
         } catch (e: any) {
             say(`wallet connect failed: ${String(e?.shortMessage ?? e?.message ?? e).slice(0, 70)}`, "warn");
@@ -332,7 +332,7 @@ export default function App() {
             setStorm(true);
             setTimeout(() => setStorm(false), 3000);
             try {
-                say(`strategy ${fresh.indexOf(sinking) + 1} went below its line — docking`, "agent");
+                say(`strategy ${fresh.indexOf(sinking) + 1} went below its line: docking`, "agent");
                 await dock(sinking);
                 const w = await readWallet();
                 // The new budget is whatever the other strategies have not already reserved,
@@ -346,9 +346,9 @@ export default function App() {
                     setRebalances((n) => n + 1);
                     setEvent({
                         title: "Harbormaster protected your wallet",
-                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked. No free balance to re-ship — one strategy fewer, every remaining quote still honorable.`,
+                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked. No free balance to re-ship. One strategy fewer, every remaining quote still honorable.`,
                     });
-                    say("docked — no free balance to re-promise, one less strategy", "agent");
+                    say("docked: no free balance to re-promise, one less strategy", "agent");
                 } else {
                     const replacement = await shipStrategy(
                         BigInt(1000 + saltRef.current++),
@@ -362,7 +362,7 @@ export default function App() {
                         detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; the strategy detected it and re-shipped a safe reallocation.`
                             + (m ? ` Market reference at re-ship: $${m.usdcPerWeth.toFixed(2)}/WETH, live Base via the Uniswap Trading API.` : ""),
                     });
-                    say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget — what is really free`, "agent");
+                    say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget: what is really free`, "agent");
                     if (m) say(`market check: $${m.usdcPerWeth.toFixed(2)}/WETH on Base right now (Uniswap API)`, "agent");
                 }
             } catch (e: any) {
@@ -381,7 +381,7 @@ export default function App() {
         try {
             const shipped = await start(preset, wallet);
             setStrategies(shipped);
-            say(`${preset.count} promises shipped — nothing left your wallet`, "info");
+            say(`${preset.count} promises shipped: nothing left your wallet`, "info");
             setAgentOn(true);
             setStage(2);
         } finally { setBusy(null); }
@@ -406,18 +406,18 @@ export default function App() {
                 setStrategies((prev) => prev.map((p) => (p.hash === updated.hash ? updated : p)));
                 setWallet(await readWallet());
             }
-            say("8 fills settled — real WETH left the wallet, USDC came in", "info");
+            say("8 fills settled: real WETH left the wallet, USDC came in", "info");
         } finally { setBusy(null); }
     };
 
     const onSpend = async () => {
         if (!wallet) return;
-        // Spend a quarter WETH when it is there, half of what is left otherwise — never revert a demo.
+        // Spend a quarter WETH when it is there, half of what is left otherwise. Never revert a demo.
         const amount = wallet.weth >= SPEND ? SPEND : wallet.weth / 2n;
         setBusy(`sending ${fmtWeth(amount)} WETH out of the same wallet`);
         try {
             await spendWeth(amount);
-            say(`spent ${fmtWeth(amount)} WETH while earning — nothing had to be withdrawn first`, "info");
+            say(`spent ${fmtWeth(amount)} WETH while earning: nothing had to be withdrawn first`, "info");
             await refresh();
         } catch (e: any) {
             resetNonces();
@@ -442,7 +442,7 @@ export default function App() {
             setEvent(null);
             setReceipt(summary);
             setStage(5);
-            say("everything docked — your full balance is liquid right now", "info");
+            say("everything docked: your full balance is liquid right now", "info");
             await refresh();
         } catch (e: any) {
             resetNonces();

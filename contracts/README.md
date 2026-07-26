@@ -1,4 +1,4 @@
-# Doca — contracts
+# Doca: contracts
 
 Doca's on-chain half, built on [1inch's SwapVM and Aqua protocol](https://1inch.com/aqua). This
 directory started as the official `swap-vm-template` scaffold; the Prerequisites, Installation and
@@ -7,11 +7,11 @@ top of it.
 
 ## Overview
 
-- **`InventorySkewProvider`** (`contracts/InventorySkewProvider.sol`) — the on-chain half of Doca's
+- **`InventorySkewProvider`** (`contracts/InventorySkewProvider.sol`): the on-chain half of Doca's
   budget invariant. An `IProtocolFeeProvider` plugged into SwapVM's stock
   `AquaDynamicProtocolFeeAmountIn` opcode: it prices inventory depletion per strategy, flat while a
   budget is healthy and rising quadratically as it drains.
-- **`DocaApp`** (`contracts/DocaApp.sol`) — builds the Aqua-backed SwapVM program for a strategy,
+- **`DocaApp`** (`contracts/DocaApp.sol`): builds the Aqua-backed SwapVM program for a strategy,
   wiring the skew provider into the fee instruction ahead of the concentrated-liquidity curve.
 - **`AquaAMM`**: the official `swap-vm-template` concentrated-liquidity AMM strategy, kept
   unmodified and used as the paired control in the measurement scripts.

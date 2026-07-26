@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Uniswap v3 Base subgraph → 1-week hourly price history + occasional fork position snapshot.
-// No Trading-API polling — subgraph already indexes candles.
+// No Trading-API polling: subgraph already indexes candles.
 //
 //   cd web && bun run scripts/spot-poller.ts
 //   (also auto-started by Vite `npm run dev`)
@@ -243,7 +243,7 @@ export function startSpotPoller(opts?: { intervalMs?: number; log?: boolean }): 
     };
 
     if (log) {
-        console.log(`[spot-poller] Uniswap v3 Base subgraph — refresh every ${Math.round(intervalMs / 60_000)}m`);
+        console.log(`[spot-poller] Uniswap v3 Base subgraph: refresh every ${Math.round(intervalMs / 60_000)}m`);
         console.log(`[spot-poller] rpc=${rpcUrl(d)}  existing ticks=${readPositionHistory().ticks.length}`);
     }
     void run();

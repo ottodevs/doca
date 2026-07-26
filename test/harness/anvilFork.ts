@@ -18,7 +18,7 @@ export interface AnvilFork {
 
 // Spawn a local anvil fork of `forkUrl` and wire a viem test client with
 // snapshot/revert/impersonate actions. Strategies run against this pinned,
-// disposable state — no real funds, no live chain writes.
+// disposable state: no real funds, no live chain writes.
 export async function startAnvilFork(forkUrl: string, port = 8545): Promise<AnvilFork> {
   const proc = spawn("anvil", ["--fork-url", forkUrl, "--port", String(port), "--silent"]);
   const rpcUrl = `http://127.0.0.1:${port}`;
@@ -46,7 +46,7 @@ async function waitForRpc(url: string, proc: ChildProcess, timeoutMs = 15_000): 
 
   while (Date.now() - start < timeoutMs) {
     if (proc.exitCode !== null) {
-      throw new Error(`anvil exited early (code ${proc.exitCode}) — is foundry installed and on PATH?`);
+      throw new Error(`anvil exited early (code ${proc.exitCode}): is foundry installed and on PATH?`);
     }
 
     try {

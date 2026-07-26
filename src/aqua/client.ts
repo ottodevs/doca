@@ -14,7 +14,7 @@ export interface AquaClientConfig {
 // Talks to the interface directly via viem + the ABI in ./abi.ts. The official
 // @1inch/aqua-sdk TS package (github.com/1inch/sdks/tree/master/typescript/aqua) is the
 // preferred long-term dependency, but its exact export shape wasn't verified at scaffold
-// time. Swap the internals for the real SDK client once confirmed — keep the public
+// time. Swap the internals for the real SDK client once confirmed. Keep the public
 // method signatures on this class stable so observe/decide/execute don't need to change.
 export class AquaClient {
   constructor(private readonly config: AquaClientConfig) {}
@@ -43,7 +43,7 @@ export class AquaClient {
 
   // Apply a decided allocation on-chain.
   // TODO(hack): "rebalance" needs an app-specific instruction (a SwapVM opcode, or a bespoke
-  // app's swap call) — push()/ship() alone only move funds in/out of a strategy, they don't
+  // app's swap call). push()/ship() alone only move funds in/out of a strategy, they don't
   // move funds between legs. Wire the real app call here once the strategy app is chosen.
   async applyAllocation(strategyHash: Hash32, allocation: Allocation): Promise<string> {
     if (!this.config.walletClient) {

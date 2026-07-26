@@ -4,7 +4,7 @@
 
 A budget layer for [1inch Aqua](https://1inch.com/aqua). Aqua lets one wallet back several trading
 strategies at once by shipping promises instead of deposits, and a promise can exceed what you
-actually hold — by design. Doca adds the missing check: every strategy carries a budget that cannot
+actually hold, by design. Doca adds the missing check: every strategy carries a budget that cannot
 exceed your real balance, and the Harbormaster docks and re-ships when the balance moves.
 
 Built at ETHGlobal Lisbon 2026.
@@ -21,7 +21,7 @@ Built at ETHGlobal Lisbon 2026.
 - [The gap](#the-gap)
 - [The design](#the-design)
 - [Ours and 1inch's](#ours-and-1inchs)
-- [Live market reference — Uniswap API](#live-market-reference--uniswap-api)
+- [Live market reference: Uniswap API](#live-market-reference-uniswap-api)
 - [Measurements](#measurements)
 - [Run it](#run-it)
 - [Tests](#tests)
@@ -33,7 +33,7 @@ Built at ETHGlobal Lisbon 2026.
 ## The gap
 
 Aqua is a shared-liquidity settlement layer. A maker deposits nothing: they approve Aqua once, then
-`ship` a promise — a record saying "this strategy may sell up to this much of my wallet, under these
+`ship` a promise: a record saying "this strategy may sell up to this much of my wallet, under these
 price rules". Tokens move only during a fill, straight out of the maker's wallet. `dock` cancels the
 promise. Nothing is ever custodied.
 
@@ -50,11 +50,11 @@ price. The Aqua whitepaper names this in §3 and prescribes a manual fix:
 > price exposure."
 
 One week before this hackathon, a 1inch-commissioned Dune study put numbers on the adjacent gap:
-85% of tracked concentrated liquidity — $1.6B of $1.84B analyzed — was underutilized in H1 2026,
+85% of tracked concentrated liquidity ($1.6B of $1.84B analyzed) was underutilized in H1 2026,
 and individually managed positions accounted for most of the attributed idle capital on Uniswap v3
 ([CoinDesk, 2026-07-18](https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away)).
-That study measures manual LP management on a different venue, not Doca's failure mode directly —
-we cite it as evidence the underlying discipline (sizing a position to what you actually hold) is a
+That study measures manual LP management on a different venue, not Doca's failure mode directly.
+We cite it as evidence the underlying discipline (sizing a position to what you actually hold) is a
 gap the market already recognizes.
 
 <sub>[↑ Contents](#contents)</sub>
@@ -63,7 +63,7 @@ gap the market already recognizes.
 
 One invariant, two pieces.
 
-**The invariant.** A *promise* may exceed your wallet — that is the point of Aqua. A *budget* may
+**The invariant.** A *promise* may exceed your wallet. That is the point of Aqua. A *budget* may
 not. Every strategy carries a budget of what it is allowed to consume, sized against what the
 wallet really holds. Doca prices depletion on-chain as a budget drains and repairs allocations
 off-chain before underfunding turns into persistent failed quotes.
@@ -72,7 +72,7 @@ off-chain before underfunding turns into persistent failed quotes.
   <img src="assets/diagrams/04-diagram-system-architecture.png" alt="System architecture: on-chain flow from Maker Wallet through Aqua and SwapVM into DocaApp's InventorySkewProvider and the Harbormaster, fed off-chain by market data, routes, quotes and events" width="720">
 </p>
 
-**On-chain — `InventorySkewProvider`.** An `IProtocolFeeProvider` plugged into SwapVM's stock
+**On-chain: `InventorySkewProvider`.** An `IProtocolFeeProvider` plugged into SwapVM's stock
 `AquaDynamicProtocolFeeAmountIn` instruction (opcode 30). The fee is flat while a budget is healthy
 and rises quadratically as it drains. Three properties:
 
@@ -80,10 +80,10 @@ and rises quadratically as it drains. Three properties:
 |---|---|
 | Directional | The fee reads the outgoing token only, so draining the scarce side costs progressively more while the direction that refills you stays at the base rate. Takers are paid, in price, to rebalance you. |
 | De-leveraging | SwapVM pulls the surcharge from the maker's Aqua balance and forwards it to a recipient of the maker's choosing, so value leaves the shared pool exactly when oversubscription risk peaks. |
-| No new inputs | It reads only `AQUA.rawBalances` — never the wallet balance or allowances — which is what the whitepaper says an app should price against. |
+| No new inputs | It reads only `AQUA.rawBalances`, never the wallet balance or allowances, which is what the whitepaper says an app should price against. |
 
-**Off-chain — the Harbormaster.** Watches every strategy a maker has shipped; when one goes under
-its waterline it docks it and re-promises against the balances the wallet holds now — the
+**Off-chain: the Harbormaster.** Watches every strategy a maker has shipped; when one goes under
+its waterline it docks it and re-promises against the balances the wallet holds now: the
 whitepaper's manual recommendation, automated.
 
 <p align="center">
@@ -139,15 +139,15 @@ live on Base mainnet:
 
 | Component | Address on Base | Whose |
 |---|---|---|
-| Aqua registry | [`0x4999…6d31`](https://basescan.org/address/0x499943e74fb0ce105688beee8ef2abec5d936d31) | 1inch — canonical, live |
+| Aqua registry | [`0x4999…6d31`](https://basescan.org/address/0x499943e74fb0ce105688beee8ef2abec5d936d31) | 1inch, canonical, live |
 | `AquaSwapVMRouter` | [`0xc717…B989`](https://basescan.org/address/0xc71750516D13702Fde5861623131961c1eB3B989) | 1inch code, unmodified, our deployment |
-| `InventorySkewProvider` | [`0x768F…54D9`](https://basescan.org/address/0x768FDce0cD1b6237811CA50D7758698e7EDe54D9) | ours — 178 lines |
-| `DocaApp` | [`0x8A15…9694`](https://basescan.org/address/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) | ours — 93 lines, builds the SwapVM program |
+| `InventorySkewProvider` | [`0x768F…54D9`](https://basescan.org/address/0x768FDce0cD1b6237811CA50D7758698e7EDe54D9) | ours, 178 lines |
+| `DocaApp` | [`0x8A15…9694`](https://basescan.org/address/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) | ours, 93 lines, builds the SwapVM program |
 | `AquaAMM` | [`0x400a…8234`](https://basescan.org/address/0x400a7692A205C426b0bD49a6e7A22c3D9DeC8234) | template code, our deployment |
 
-Both of our contracts are source-verified with an exact bytecode match on Sourcify —
+Both of our contracts are source-verified with an exact bytecode match on Sourcify:
 [`InventorySkewProvider`](https://repo.sourcify.dev/8453/0x768FDce0cD1b6237811CA50D7758698e7EDe54D9) ·
-[`DocaApp`](https://repo.sourcify.dev/8453/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) — so the
+[`DocaApp`](https://repo.sourcify.dev/8453/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694), so the
 source above is provably the code at those addresses.
 
 Full addresses in [`web/src/deployment.base.json`](web/src/deployment.base.json). The demo runs on
@@ -163,22 +163,22 @@ untouched by the skew: opcode 30 is `_aquaDynamicProtocolFeeAmountInXD` in both 
 
 <sub>[↑ Contents](#contents)</sub>
 
-## Live market reference — Uniswap API
+## Live market reference: Uniswap API
 
 The practice fork is frozen at a pinned block; the real market is not. Doca uses the
 **Uniswap Trading API** as its live Base mainnet reference so nothing the user sees is
 priced in a vacuum:
 
-- [`web/src/lib/uniswap-price.ts`](web/src/lib/uniswap-price.ts) — the client:
+- [`web/src/lib/uniswap-price.ts`](web/src/lib/uniswap-price.ts): the client:
   `POST /v1/quote` (EXACT_INPUT WETH→USDC, chain 8453, V3+V4). Handles both CLASSIC and
   X response shapes.
-- [`web/src/App.tsx`](web/src/App.tsx) — the Harbormaster annotates every dock/re-ship
+- [`web/src/App.tsx`](web/src/App.tsx): the Harbormaster annotates every dock/re-ship
   decision with the live price (`markRef`), and the header pill shows the current
   Uniswap quote next to the fork state.
 - [`web/src/LpDesk.tsx`](web/src/LpDesk.tsx) +
-  [`web/src/lib/pnl.ts`](web/src/lib/pnl.ts) — positions are valued mark-to-market
+  [`web/src/lib/pnl.ts`](web/src/lib/pnl.ts): positions are valued mark-to-market
   against the quote; the PnL chart and history ticks are denominated in it.
-- [`web/plugins/lp-desk-dev.ts`](web/plugins/lp-desk-dev.ts) — dev proxy that injects
+- [`web/plugins/lp-desk-dev.ts`](web/plugins/lp-desk-dev.ts): dev proxy that injects
   `x-api-key` server-side (the key never reaches the browser bundle) and polls spot
   for position history.
 
@@ -191,7 +191,7 @@ Developer feedback for the Uniswap team lives in [`FEEDBACK.md`](FEEDBACK.md).
 Paired control: two strategies shipped from the same wallet, same curve, same liquidity, same taker
 flow, one instruction of difference. Every number below reproduces from a script in this repo.
 
-**`contracts/scripts/waterline-scenario.ts`** — 30 fills into a 100/100 strategy, curve capped at 50%:
+**`contracts/scripts/waterline-scenario.ts`**: 30 fills into a 100/100 strategy, curve capped at 50%:
 
 | | plain | with the skew |
 |---|---:|---:|
@@ -203,7 +203,7 @@ flow, one instruction of difference. Every number below reproduces from a script
 de-leveraging, not profit: it moves from committed liquidity to free balance, and the maker owns
 both sides.
 
-**`contracts/scripts/amplification-experiment.ts`** — trending market, price-sensitive ordinary
+**`contracts/scripts/amplification-experiment.ts`**: trending market, price-sensitive ordinary
 flow, and an arbitrageur that only trades when a quote is stale. Same market at 1x, 2x and 4x
 amplification, with and without management:
 
@@ -219,7 +219,7 @@ amplification, with and without management:
 1. **Unmanaged amplification publishes quotes it cannot honor.** At 4x, 43 of 86 attempted fills
    reverted: the wallet was empty while every strategy still advertised inventory. With budgets:
    zero. That is binary, and it is the aggregator's problem as much as the maker's.
-2. **Amplification multiplies impermanent loss close to linearly** — -5.6%, -11.3%, -21.8% versus
+2. **Amplification multiplies impermanent loss close to linearly**: -5.6%, -11.3%, -21.8% versus
    holding at 1x, 2x, 4x. Each strategy sells the same real inventory into the same move.
 3. **Management recovers 2.74%** of maker value at 4x, costing 3 of 43 fills of volume, because a
    taker who wanted to buy cheap walks away.
@@ -274,7 +274,7 @@ Other scripts: `demo-flow-base.ts` (the whole loop against the canonical registr
 - the fee is directional: taking the scarce leg is surcharged, refilling it is not
 - identical taker flow through a skewed and a plain program, shipped from the same wallet, leaves
   strictly more inventory standing in the skewed one, and the exact surcharge lands outside the
-  pool — asserted with real ERC-20 balance changes
+  pool, asserted with real ERC-20 balance changes
 
 Three more, in [`contracts/test/adversarial.test.ts`](contracts/test/adversarial.test.ts), document
 what InventorySkewProvider does and does not catch:
@@ -293,7 +293,7 @@ what InventorySkewProvider does and does not catch:
 
 **RiverSwap** (1st, ETHGlobal New York 2026) uses the same extension point, an
 `IProtocolFeeProvider` on opcode 30, with an auction deciding the fee: whoever wins an epoch pays
-rent and sets `feeBps`. Same slot, opposite input — theirs is an auction winner, ours is how much
+rent and sets `feeBps`. Same slot, opposite input. Theirs is an auction winner, ours is how much
 budget is left. Theirs is market design, ours is balance-sheet risk.
 
 **`progressiveFeeIn`** (opcode 37, `FeeExperimental.sol`) already makes draining a reserve cost
@@ -309,7 +309,7 @@ against a budget. The two compose rather than compete.
 | Path | What |
 |---|---|
 | `contracts/` | `InventorySkewProvider.sol`, `DocaApp.sol`, tests, measurement scripts |
-| `web/` | the app — `src/lib/doca.ts` is every chain call the UI makes |
+| `web/` | the app: `src/lib/doca.ts` is every chain call the UI makes |
 | `mcp/` | read-only MCP server (`bun mcp/server.ts`): wallet, positions, health |
 | `landing/`, `deck/`, `docs/` | landing page, pitch deck, design dossier and agent docs |
 | `site/` | static site assembly and deploy (`bun site/build.mjs`, `site/deploy.sh`) |

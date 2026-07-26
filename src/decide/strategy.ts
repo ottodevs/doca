@@ -6,7 +6,7 @@ const BPS_DENOMINATOR = 10_000n;
 const TARGET_BPS = 5_000;
 
 // Placeholder policy: keep a two-token strategy near a 50/50 balance.
-// TODO(hack): replace with the real alpha — this only exists so the engine loop has
+// TODO(hack): replace with the real alpha. This only exists so the engine loop has
 // something concrete to decide on and the harness has something to test.
 export function thresholdRebalancePolicy(state: StrategyState): Decision {
   if (!state.isActive || state.balances.length !== 2) {

@@ -58,7 +58,7 @@ export const makerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.maker,
 export const takerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.taker, provider));
 
 // The maker side is swappable: demo mode signs with the dev key, wallet mode with the user's
-// own wallet (EIP-1193). The taker stays on the dev key — it plays the market, not the user.
+// own wallet (EIP-1193). The taker stays on the dev key. It plays the market, not the user.
 export type Session = { mode: "demo" | "wallet"; maker: string };
 export const session: Session = { mode: "demo", maker: deployment.maker };
 
@@ -98,7 +98,7 @@ export async function connectWallet(): Promise<string> {
 }
 
 /// Demo-network helper: on an anvil fork we can hand the connected wallet real WETH/USDC and the
-/// approvals it needs. Fails loudly anywhere else — this is a fork-only convenience.
+/// approvals it needs. Fails loudly anywhere else. This is a fork-only convenience.
 export async function seedConnectedWallet(): Promise<void> {
     const client: string = await provider.send("web3_clientVersion", []);
     if (!client.toLowerCase().includes("anvil")) throw new Error("seeding only works on the anvil fork");

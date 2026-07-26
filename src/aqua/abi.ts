@@ -1,8 +1,8 @@
-// Minimal IAqua ABI fragment — only the calls this engine needs.
+// Minimal IAqua ABI fragment: only the calls this engine needs.
 // Source: the public Aqua protocol README (github.com/1inch/aqua), which documents
 // ship/push/dock/rawBalances/safeBalances as the core registry interface.
 // TODO: swap for the full generated ABI once @1inch/aqua-sdk (github.com/1inch/sdks/tree/master/typescript/aqua)
-// is installed and its export shape is confirmed — this hand-written fragment is a stopgap.
+// is installed and its export shape is confirmed. This hand-written fragment is a stopgap.
 export const aquaAbi = [
   {
     type: "function",

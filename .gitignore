@@ -38,3 +38,4 @@ site/dist/
 .cursor/
 .agents/
 skills-lock.json
+.wrangler/
