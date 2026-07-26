@@ -5,6 +5,7 @@ import {
     PRESETS, fmtWeth, fmtPct, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
+import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 
 const WATERLINE = 1_000n;         // must match the curve the provider was configured with
 const FILL_SIZE = 500_000_000n;   // 500 USDC per market fill
@@ -297,6 +298,20 @@ export default function App() {
         return () => clearInterval(t);
     }, [refresh]);
 
+    // Live Base mainnet reference via the Uniswap Trading API. Optional by design:
+    // if the API is unreachable the pill and annotations simply drop out.
+    const [mark, setMark] = useState<SpotPrice | null>(null);
+    const markRef = useRef<SpotPrice | null>(null);
+    useEffect(() => {
+        let cancelled = false;
+        const pull = () => fetchWethUsdcSpot()
+            .then((s) => { if (!cancelled) { setMark(s); markRef.current = s; } })
+            .catch(() => {});
+        pull();
+        const t = setInterval(pull, 60_000);
+        return () => { cancelled = true; clearInterval(t); };
+    }, []);
+
     // The harbormaster reads strategies through a ref: the interval must survive refresh cycles
     // (a state dependency would reset the 3.5s timer every 2.5s and it would never fire).
     const strategiesRef = useRef<Strategy[]>([]);
@@ -341,11 +356,14 @@ export default function App() {
                     );
                     setStrategies((prev) => prev.map((s) => (s.hash === sinking.hash ? replacement : s)));
                     setRebalances((n) => n + 1);
+                    const m = markRef.current;
                     setEvent({
                         title: "Harbormaster protected your wallet",
-                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`,
+                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`
+                            + (m ? ` Market reference at re-ship: $${m.usdcPerWeth.toFixed(2)}/WETH, live Base via the Uniswap Trading API.` : ""),
                     });
                     say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget — what is really free`, "agent");
+                    if (m) say(`market check: $${m.usdcPerWeth.toFixed(2)}/WETH on Base right now (Uniswap API)`, "agent");
                 }
             } catch (e: any) {
                 resetNonces();
@@ -479,6 +497,14 @@ export default function App() {
                         >
                             <span className="dot" />Practice waters
                         </span>
+                        {mark && (
+                            <span
+                                className="pill"
+                                title="Live Base mainnet WETH/USDC price from the Uniswap Trading API. The Harbormaster marks its decisions against the real market, not the practice fork."
+                            >
+                                <span className="dot" />${mark.usdcPerWeth.toFixed(0)} · Uniswap live
+                            </span>
+                        )}
                         {account
                             ? <span className="acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                             : hasInjectedWallet()
