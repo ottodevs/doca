@@ -81,14 +81,19 @@ manual recommendation, automated.
 
 ## Ours and 1inch's
 
-Everything that settles value is 1inch's own code. We add two contracts.
+Everything that settles value is 1inch's own code; we add two contracts. All of it is deployed and
+live on Base mainnet:
 
-| Component | Detail | Whose |
+| Component | Address on Base | Whose |
 |---|---|---|
-| Aqua registry | `0x499943e74fb0ce105688beee8ef2abec5d936d31` | 1inch — canonical, live |
-| SwapVM router | official `AquaSwapVMRouter`, unmodified | 1inch code, our deployment |
-| `InventorySkewProvider` | 178 lines | ours |
-| `DocaApp` | 93 lines, builds the SwapVM program | ours |
+| Aqua registry | [`0x4999…6d31`](https://basescan.org/address/0x499943e74fb0ce105688beee8ef2abec5d936d31) | 1inch — canonical, live |
+| `AquaSwapVMRouter` | [`0xc717…B989`](https://basescan.org/address/0xc71750516D13702Fde5861623131961c1eB3B989) | 1inch code, unmodified, our deployment |
+| `InventorySkewProvider` | [`0x768F…54D9`](https://basescan.org/address/0x768FDce0cD1b6237811CA50D7758698e7EDe54D9) | ours — 178 lines |
+| `DocaApp` | [`0x8A15…9694`](https://basescan.org/address/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) | ours — 93 lines, builds the SwapVM program |
+| `AquaAMM` | [`0x400a…8234`](https://basescan.org/address/0x400a7692A205C426b0bD49a6e7A22c3D9DeC8234) | template code, our deployment |
+
+Full addresses in [`web/src/deployment.base.json`](web/src/deployment.base.json). The demo runs on
+a fork of the same chain, so what you see in the video executes against these exact contracts.
 
 **Why our own router deployment.** The live routers (12 chains, June, `eip712Domain()` reports
 `1.0.0`) predate the order-data layout the hackathon template targets. On July 24 1inch updated

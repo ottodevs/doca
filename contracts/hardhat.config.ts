@@ -84,11 +84,14 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      // Add your Etherscan API keys here
       mainnet: process.env.ETHERSCAN_API_KEY || "",
+      base: process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || "",
       sepolia: process.env.ETHERSCAN_API_KEY || "",
-      // Add other networks as needed
     }
+  },
+  // Sourcify needs no API key, so deployed sources are verifiable out of the box.
+  sourcify: {
+    enabled: true,
   }
 };
 
