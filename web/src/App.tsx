@@ -286,9 +286,11 @@ export default function App() {
         }
     }, [strategies]);
 
+    const [nodeDown, setNodeDown] = useState(false);
     useEffect(() => {
         readWallet().then(setWallet);
-        provider.getBlockNumber().then(setBlock).catch(() => {});
+        provider.getBlockNumber().then((b) => { setBlock(b); setNodeDown(false); })
+            .catch(() => setNodeDown(true));
     }, []);
     useEffect(() => {
         const t = setInterval(() => { refresh().catch(() => {}); }, 2500);
@@ -443,6 +445,14 @@ export default function App() {
 
     return (
         <div className={`page ${storm ? "storm" : ""}`}>
+            {nodeDown && (
+                <div className="node-down" role="status">
+                    <strong>No node in reach.</strong> This preview talks to a Base fork running on
+                    the demo machine, so the hosted copy has nothing to read. Watch the walkthrough,
+                    or run it yourself: <code>DEV.md</code> in the repo.
+                    <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
+                </div>
+            )}
             {onboardOpen && <Onboarding onClose={closeOnboarding} />}
             <header>
                 <div className="brand">
