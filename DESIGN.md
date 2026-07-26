@@ -6,8 +6,8 @@ Full illustrated dossier: [docs/dossier.html](docs/dossier.html). This is the te
 
 Aqua solved custody: you promise liquidity, you never deposit it. Promises can exceed the wallet
 by design, and the whitepaper's fix (§3) is a human docking positions by hand. Doca turns that
-chore into a product: budgets keep every promise honest, a Harbormaster keeps them honest while
-you sleep.
+chore into a product: every strategy carries a budget sized to what the wallet actually holds, and
+the Harbormaster watches for drift and re-ships before underfunding turns into failed quotes.
 
 ## The name is the design system
 
@@ -30,16 +30,17 @@ Mentor's explicit ranking: UX > user journey > legitimate use case > contracts. 
 the top advances as the user acts:
 
 1. **Wallet** — recognition. Idle balances + one attributed fact (1inch's July research).
-2. **Put to work** — safe leverage. Presets = one human decision. "Price rules, not a deposit."
+2. **Put to work** — capacity, not leverage. Presets = one human decision. "Price rules, not a deposit."
 3. **Live market** — watching it work. Water rises, surcharge wakes on the drained side only.
 4. **Protected** — the punch. Storm → event strip: docked → re-shipped. Invariant stays green.
 5. **Walk away** — the receipt. Markets, fills, protections, 0 deposits · 0 to unwind.
 
-The remembered line: **"Wallet balance changed. Your quotes repaired themselves."**
+The remembered line: **"Wallet balance changed. Your strategy detected the change and prepared a
+safe reallocation."**
 
 ## Process
 
-v1 rebuilt the app around the journey; then an independent vision critique (GPT-5.6) over the real
+v1 rebuilt the app around the journey; then an independent vision critique over the real
 screenshots vs our own review. 9 decisions accepted (event strip, hero metric, labelled metaphor,
 chips, receipt, storm, solid surfaces, type scale, rail rename), 1 rejected with cause (the $1.6B
 stat stays — it is 1inch's own commissioned research, so it is attributed inline, not deleted).

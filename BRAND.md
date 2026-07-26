@@ -53,7 +53,9 @@ ScrollTrigger on the landing (vendored, no CDN), R3F/three only where it carries
 - LEAD: **"Under 4× leverage, half of an unmanaged maker's quotes failed. With Doca: zero."**
 - LEAD: **"+29% inventory retained under identical flow."**
 - SUPPORT (never headline): +1.99% realized price, $-figures.
-- PROBLEM STAT: 85% / $1.6B idle (1inch's own research) — keep, attributed.
+- PROBLEM STAT: 85% ($1.6B of $1.84B analyzed), 1inch-commissioned Dune research — keep, attributed;
+  frame as adjacent evidence of the manual-LP-management gap, never as a direct size of Doca's own
+  problem.
 
 ## Components — kill list
 
@@ -71,7 +73,8 @@ dock": rounded pontoon D, gentle reflection, subtle bob animation on hover. Asse
 ## Centerpiece hierarchy (what the product is about)
 
 1. **The Harbormaster** — ease: it watches so you don't.
-2. **Vs a traditional AMM** — nothing deposited, spend any time, one balance many markets.
+2. **Vs a traditional AMM** — nothing deposited, spend without withdrawing (Doca resizes around
+   it), one balance many markets.
 3. **The credit horizon** — lending/borrowing as a visible concept (teaser panel, "coming next"),
    powered by the same budget primitive. Concept only; no fake numbers.
 

@@ -1,11 +1,11 @@
-# Doca Finance
+# Doca
 
 **Keep your wallet. Put it to work anyway.**
 
 A budget layer for [1inch Aqua](https://1inch.com/aqua). Aqua lets one wallet back several trading
 strategies at once by shipping promises instead of deposits, and a promise can exceed what you
 actually hold — by design. Doca adds the missing check: every strategy carries a budget that cannot
-exceed your real balance, and an agent docks and re-ships when the balance moves.
+exceed your real balance, and the Harbormaster docks and re-ships when the balance moves.
 
 Built at ETHGlobal Lisbon 2026.
 
@@ -48,10 +48,13 @@ price. The Aqua whitepaper names this in §3 and prescribes a manual fix:
 > manually dock strategies that become chronically underfunded to prevent accumulating unfavorable
 > price exposure."
 
-One week before this hackathon, 1inch's own commissioned research put numbers on the same gap: 85%
-of concentrated liquidity sat idle in H1 2026, and 82-94% of that idle capital was in wallets
-managed by people rather than by contracts
+One week before this hackathon, a 1inch-commissioned Dune study put numbers on the adjacent gap:
+85% of tracked concentrated liquidity — $1.6B of $1.84B analyzed — was underutilized in H1 2026,
+and individually managed positions accounted for most of the attributed idle capital on Uniswap v3
 ([CoinDesk, 2026-07-18](https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away)).
+That study measures manual LP management on a different venue, not Doca's failure mode directly —
+we cite it as evidence the underlying discipline (sizing a position to what you actually hold) is a
+gap the market already recognizes.
 
 <sub>[↑ Contents](#contents)</sub>
 
@@ -60,8 +63,9 @@ managed by people rather than by contracts
 One invariant, two pieces.
 
 **The invariant.** A *promise* may exceed your wallet — that is the point of Aqua. A *budget* may
-not. Every strategy carries a budget of what it may actually consume, the budgets sum to what you
-hold, so every quote you publish can be honored.
+not. Every strategy carries a budget of what it is allowed to consume, sized against what the
+wallet really holds. Doca prices depletion on-chain as a budget drains and repairs allocations
+off-chain before underfunding turns into persistent failed quotes.
 
 **On-chain — `InventorySkewProvider`.** An `IProtocolFeeProvider` plugged into SwapVM's stock
 `AquaDynamicProtocolFeeAmountIn` instruction (opcode 30). The fee is flat while a budget is healthy
@@ -73,9 +77,15 @@ and rises quadratically as it drains. Three properties:
 | De-leveraging | SwapVM pulls the surcharge from the maker's Aqua balance and forwards it to a recipient of the maker's choosing, so value leaves the shared pool exactly when oversubscription risk peaks. |
 | No new inputs | It reads only `AQUA.rawBalances` — never the wallet balance or allowances — which is what the whitepaper says an app should price against. |
 
-**Off-chain — the agent.** Watches every strategy a maker has shipped; when one goes under its
-waterline it docks it and re-promises against the balances the wallet holds now. The whitepaper's
-manual recommendation, automated.
+**Off-chain — the Harbormaster.** Watches every strategy a maker has shipped; when one goes under
+its waterline it docks it and re-promises against the balances the wallet holds now — the
+whitepaper's manual recommendation, automated.
+
+**Trust model.** Demo: a local demo signer lets the Harbormaster act autonomously on camera. Real
+connected wallet: the same actions currently require your signature. Production: a scoped session
+key or smart-account module would authorize only `dock`, `ship` and waterline updates, with token
+limits, budget limits and expiry. MCP: read-only observability (see [`mcp/`](mcp/)), not the
+transaction executor. It is a deterministic risk keeper, not an autonomous AI agent.
 
 <sub>[↑ Contents](#contents)</sub>
 
