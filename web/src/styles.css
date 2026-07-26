@@ -279,6 +279,9 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
 .wallet-node em { font-style: normal; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
 .wallet-node > span { color: var(--muted); font-size: 11px; }
 .wallet-avail { color: var(--positive) !important; font-size: 12px !important; font-weight: 600; }
+.wallet-avail.low { color: var(--warn) !important; }
+.wallet-avail.none { color: var(--muted) !important; }
+em.warn { color: var(--warn); }
 .wallet-route { position: absolute; top: 50%; right: -20px; width: 20px; height: 0; border-top: 2px dashed var(--line-strong); }
 .wallet-route::before {
   content: ""; position: absolute; right: -4px; top: -4px; width: 8px; height: 8px;

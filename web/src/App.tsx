@@ -467,7 +467,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
     // WETH leg only: Strategy doesn't currently carry a per-strategy budgetUsdc, so this
     // can't check the USDC leg. Label below is scoped to match (says "WETH leg", not "wallet")
-    // until budgetUsdc is tracked at ship/re-ship time — see re-ship in the harbormaster effect,
+    // until budgetUsdc is tracked at ship/re-ship time; see re-ship in the harbormaster effect,
     // which already computes a per-strategy USDC amount but never stores it on the strategy.
     const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
 
@@ -627,7 +627,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                             <div>
                                 <span>Wallet capacity</span>
                                 <strong>{easedWeth.toFixed(2)} WETH</strong>
-                                <em className="good">{walletAvailPct.toFixed(0)}% available</em>
+                                <em className={walletAvailPct > 25 ? "good" : walletAvailPct > 0 ? "warn" : "muted"}>{walletAvailPct.toFixed(0)}% available</em>
                             </div>
                             <div>
                                 <span>Quoted liquidity</span>
@@ -665,7 +665,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                 <strong>Your wallet</strong>
                                 <em>{easedWeth.toFixed(2)} WETH</em>
                                 <span>Capacity</span>
-                                <b className="wallet-avail">{walletAvailPct.toFixed(0)}% available</b>
+                                <b className={`wallet-avail ${walletAvailPct > 25 ? "" : walletAvailPct > 0 ? "low" : "none"}`}>{walletAvailPct.toFixed(0)}% available</b>
                             </div>
 
                             <div className={`hulls ${anyAlert ? "alert" : ""}`}>
@@ -682,7 +682,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                 </div>
                                 <p className={`hm-state ${anyAlert ? "warn" : ""}`}>
                                     {!agentOn
-                                        ? "Off — nobody is watching your promises"
+                                        ? "Off: nobody is watching your promises"
                                         : anyAlert
                                             ? "Intervention in progress"
                                             : `Watching ${strategies.length} strateg${strategies.length === 1 ? "y" : "ies"}`}
