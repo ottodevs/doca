@@ -5,10 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Doca: Brand</title>
 <meta name="description" content="Doca's marks, palette and type. Lisbon light over deep water." />
+<meta name="theme-color" content="#F7F3EA" />
+<meta property="og:type" content="website" />
 <meta property="og:title" content="Doca: Brand" />
 <meta property="og:description" content="Marks, palette and type. Lisbon light over deep water." />
-<meta property="og:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
+<meta property="og:url" content="https://doca-finance.pages.dev/brand/" />
+<meta property="og:image" content="https://doca-finance.pages.dev/brand/og-card.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Doca — Brand" />
+<meta name="twitter:description" content="Marks, palette and type. Lisbon light over deep water." />
+<meta name="twitter:image" content="https://doca-finance.pages.dev/brand/og-card.png" />
 <link rel="icon" href="favicon.svg" />
 <style>
 :root{
@@ -62,6 +70,11 @@ h2+p.note{color:var(--muted);margin-bottom:22px;max-width:62ch}
 .type .nums{margin-top:18px;font-variant-numeric:tabular-nums;font-size:22px;letter-spacing:.5px}
 .rules{list-style:none;padding:0;display:grid;gap:10px;margin-top:8px}
 .rules li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+.icons{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+.icons .card{align-items:center;text-align:center}
+.icons .art svg{width:34px;height:34px;color:var(--ink)}
+.icons figcaption{font-size:13px;color:var(--ink)}
+.icons figcaption span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;
   display:flex;gap:18px;flex-wrap:wrap}
 footer a{color:var(--accent);text-decoration:none}
@@ -156,6 +169,52 @@ Atlantic after dark. Amber is a harbour lamp: highlights and warnings only.</p>
     <div class="meta"><b>Harbour lamp</b><code>#e8b34b</code></div></div>
   <div class="sw"><div class="chip" style="background:#1e8a5e"></div>
     <div class="meta"><b>Positive</b><code>#1e8a5e</code></div></div>
+</div>
+
+<h2>Icons</h2>
+<p class="note">A nautical icon family for annotating meaning in the product and its surfaces, not for
+decoration. 32&times;32, stroke-based, cobalt and sea glass used only where they carry a signal.</p>
+<div class="grid icons">
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 9H18.6L21 25H11L13.4 9Z"/><path d="M12.3 15.5H19.7"/><path d="M11.6 20H20.4"/><path d="M9 25H23"/><rect x="13.2" y="5.2" width="5.6" height="3.8"/><path d="M12 5.2L16 2.4L20 5.2"/></g><path d="M4.5 20.6C6.2 19.4 7.8 19.4 9.5 20.6" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/><path d="M22.5 20.6C24.2 19.4 25.8 19.4 27.5 20.6" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/><circle cx="16" cy="7.1" r="1" fill="#1F5FD6" stroke="none"/></svg></div>
+    <figcaption>Lighthouse<span>Doca itself, production readiness</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H26L23 23.5C20.8 24.7 11.2 24.7 9 23.5L6 18Z"/><rect x="13" y="12.5" width="6" height="5.5"/><path d="M16 12.5V8.2"/><path d="M16 8.2L20 10"/></g><path d="M3 24C6 22.4 9 22.4 12 24C15 25.6 18 25.6 21 24C24 22.4 27 22.4 29 24" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+    <figcaption>Vessel<span>A single strategy, in demo</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.6V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16 6L18.3 16L16 26L13.7 16Z"/><path d="M6 16L16 13.7L26 16L16 18.3Z"/></g><path d="M16 6L18.3 16L16 16Z" fill="#1F5FD6" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg></div>
+    <figcaption>Compass<span>Orientation, navigation</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="6.4" r="2.6"/><path d="M16 9V23.5"/><path d="M10 13.4H22"/><path d="M16 23.5C16 27.6 12.4 29.6 8.4 29"/><path d="M8.4 29L10.4 26.4"/><path d="M16 23.5C16 27.6 19.6 29.6 23.6 29"/><path d="M23.6 29L21.6 26.4"/></g></svg></div>
+    <figcaption>Anchor<span>A connected, signing wallet</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 22V13C12.5 10.5 14 9 16 9C18 9 19.5 10.5 19.5 13V22"/><path d="M11.5 22H20.5"/><path d="M16 9V5.5"/><circle cx="16" cy="4" r="1.6"/></g><path d="M13 15.5H19" stroke="#1F5FD6" stroke-width="1.3" stroke-linecap="round"/><path d="M4 25.5C6.2 24.1 8.4 24.1 10.6 25.5C12.8 26.9 15 26.9 17.2 25.5C19.4 24.1 21.6 24.1 23.8 25.5C26 26.9 28.2 26.9 29 25.5" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+    <figcaption>Buoy<span>A marker, a watched state</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 16H29"/><path d="M9 13.2V15"/><path d="M9 17V18.8"/><path d="M23 13.2V15"/><path d="M23 17V18.8"/></g><circle cx="16" cy="16" r="1.6" fill="#1F5FD6" stroke="none"/></svg></div>
+    <figcaption>Waterline<span>The load line: promise vs. held</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12.5" width="24" height="3" rx="1"/><path d="M16 12.5V9.2"/><circle cx="16" cy="7.6" r="1.6"/><path d="M8 15.5V25"/><path d="M8 25L6.2 27.5"/><path d="M8 25L9.8 27.5"/><path d="M16 15.5V25"/><path d="M16 25L14.2 27.5"/><path d="M16 25L17.8 27.5"/><path d="M24 15.5V25"/><path d="M24 25L22.2 27.5"/><path d="M24 25L25.8 27.5"/></g></svg></div>
+    <figcaption>Dock<span>Where a strategy moors</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2.6 2.8"><path d="M16 2V10.5"/><path d="M16 21.5V30"/><path d="M2 16H10.5"/><path d="M21.5 16H30"/></g><circle cx="16" cy="16" r="3.4" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="1.3" fill="#1F5FD6" stroke="none"/></svg></div>
+    <figcaption>Route marker<span>SwapVM, a junction</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M3 13C6.3 10 9.7 10 13 13C16.3 16 19.7 16 23 13C24.7 11.5 26.3 11 28 11.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 20C6.3 17 9.7 17 13 20C16.3 23 19.7 23 23 20C24.7 18.5 26.3 18 28 18.2" stroke="#2AA198" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <figcaption>Waves<span>Aqua, calm conditions</span></figcaption>
+  </figure>
+  <figure class="card">
+    <div class="art"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="14.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="11.6" stroke="currentColor" stroke-width="1" stroke-dasharray="1.4 2.2"/><g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12.5H18L19.6 21H12.4L14 12.5Z"/><path d="M11 21H21"/><rect x="14.4" y="10.2" width="3.2" height="2.3"/></g><path d="M9.5 21.5C11.7 20.1 13.9 20.1 16 21.5C18.1 22.9 20.3 22.9 22.5 21.5" stroke="#2AA198" stroke-width="1.2" stroke-linecap="round"/><circle cx="16" cy="11" r="0.9" fill="#1F5FD6" stroke="none"/></svg></div>
+    <figcaption>Harbor badge<span>A seal: production, verified</span></figcaption>
+  </figure>
 </div>
 
 <h2>Type</h2>
