@@ -147,6 +147,19 @@ h1 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 22px; font-w
 .pill-seg.acct .state-dot { background: var(--positive); }
 .pill-seg.acct.dim { color: var(--faint); }
 .pill-seg.acct.dim .state-dot { background: var(--faint); }
+
+/* ---------- thirdweb sign-in fallback (no injected wallet) ---------- */
+/* Additive: only rendered in place of the "Preview wallet" pill. The segment itself drops its
+   padding so the button (targeted via connectButton.className) can size itself like a pill-seg. */
+.pill-seg.thirdweb-seg { padding: 0; }
+.thirdweb-connect-btn {
+  height: 27px; padding: 0 14px !important; margin: 0; box-sizing: border-box;
+  font: inherit !important; font-size: 11.5px !important; font-weight: 600 !important;
+  line-height: 27px !important; border: 0 !important; border-radius: 0 !important;
+  background: transparent !important; color: var(--accent) !important; box-shadow: none !important;
+  min-width: 0 !important; white-space: nowrap;
+}
+.thirdweb-connect-btn:hover { color: var(--accent-ink) !important; background: var(--accent) !important; }
 .header-aux { display: flex; align-items: center; gap: 6px; }
 
 /* ---------- header help button ---------- */

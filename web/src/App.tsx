@@ -7,6 +7,10 @@ import {
 } from "./lib/doca";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 import { Mark, TabNav, type ViewId } from "./nav";
+// Wallet sign-in fallback for browsers with no injected wallet — additive only, see lib/thirdweb.ts.
+import { ConnectButton } from "thirdweb/react";
+import { base } from "thirdweb/chains";
+import { thirdwebClient, thirdwebWallets } from "./lib/thirdweb";
 
 const WATERLINE = 1_000n;         // must match the curve the provider was configured with
 const FILL_SIZE = 500_000_000n;   // 500 USDC per market fill
@@ -525,7 +529,19 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                             ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                             : hasInjectedWallet()
                                 ? <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>
-                                : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
+                                : thirdwebClient
+                                    ? (
+                                        <span className="pill-seg thirdweb-seg">
+                                            <ConnectButton
+                                                client={thirdwebClient}
+                                                wallets={thirdwebWallets}
+                                                chain={base}
+                                                theme="light"
+                                                connectButton={{ label: "Sign in", className: "thirdweb-connect-btn" }}
+                                            />
+                                        </span>
+                                    )
+                                    : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
                     </div>
                     <div className="header-aux">
                         <button
