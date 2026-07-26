@@ -512,7 +512,7 @@ export default function App() {
                         <h2>{stage === 5 ? "Back to a plain wallet" : "This wallet is idle"}</h2>
                         <p>
                             {stage === 5
-                                ? "Everything docked in one click. Your balance stayed liquid the whole time, and it also earned."
+                                ? "Everything docked in one click. Your balance stayed liquid the whole time."
                                 : "Put the same balance to work in several places at once, without depositing it anywhere."}
                         </p>
                     </div>
@@ -522,7 +522,7 @@ export default function App() {
                             <div><strong>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong><span>USDC</span></div>
                         </div>
                         <p className="muted">
-                            Nothing leaves this wallet. You are signing price rules, not a deposit.
+                            No upfront deposit. Tokens move only when a trade settles — you are signing price rules.
                         </p>
                         <p className="leadline">
                             Under 4× leverage, half of an unmanaged maker's quotes failed.
@@ -530,8 +530,9 @@ export default function App() {
                         </p>
                         <p className="supportline">+29% inventory retained under identical flow.</p>
                         <p className="factline">
-                            1inch-commissioned research, July 2026: 85% of concentrated liquidity sat idle
-                            in H1, $1.6B of it in wallets managed by hand.
+                            Adjacent evidence, 1inch-commissioned Dune research, July 2026: 85% of tracked
+                            concentrated liquidity — $1.6B of $1.84B analyzed — sat underutilized in H1, mostly
+                            individually managed positions.
                         </p>
 
                         <div className="presets">
@@ -562,7 +563,8 @@ export default function App() {
                     <div className="narr">
                         <h2>One balance, working in {strategies.length} markets</h2>
                         <p>
-                            Nothing deposited, spend any time: the Harbormaster keeps every promise honest.
+                            Nothing deposited. Spend without withdrawing — Doca detects the change and resizes
+                            your strategies, the Harbormaster keeping each one inside its budget.
                         </p>
                     </div>
 
@@ -640,8 +642,9 @@ export default function App() {
                     <div className="horizon">
                         <span>Credit, next</span>
                         <p>
-                            The same budgets that keep quotes honest could back loans too: lenders promise funds,
-                            borrowers post collateral, and any default unwinds automatically and fairly.
+                            The same budget primitive that keeps strategy commitments inside a managed risk
+                            envelope could back loans too: lenders promise funds, borrowers post collateral, and
+                            any default unwinds automatically and fairly.
                         </p>
                     </div>
                 </>

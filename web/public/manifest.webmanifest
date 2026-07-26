@@ -1,7 +1,7 @@
 {
-  "name": "Doca Finance — keep your wallet, put it to work",
+  "name": "Doca — keep your wallet, put it to work",
   "short_name": "Doca",
-  "description": "Non-custodial market making on 1inch Aqua with budgets that keep every promise honest.",
+  "description": "Non-custodial market making on 1inch Aqua: budgets sized to what the wallet holds, and a Harbormaster that watches and resizes them.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f7f3ea",
