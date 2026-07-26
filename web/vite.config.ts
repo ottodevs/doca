@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { lpDeskDevPlugin } from "./plugins/lp-desk-dev";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), lpDeskDevPlugin()],
   // Reachable over the tailnet from other machines, and by name if a .test domain is wired up.
   server: {
     host: "0.0.0.0",

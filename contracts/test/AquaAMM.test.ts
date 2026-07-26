@@ -224,4 +224,56 @@ describe("AquaAMM", function () {
       )).to.be.revertedWithCustomError(aquaAMM, 'DeadlineReached');
     });
   });
+
+  describe("Pegged Swap with AquaAMM", function () {
+    it("should build, ship, and execute a pegged swap", async function () {
+      const {
+        accounts: { maker, taker },
+        tokens: { tokenA, tokenB },
+        contracts: { aqua, aquaAMM, swapVM }
+      } = await loadFixture(setupFixture);
+
+      const liquidityA = ether("100");
+      const liquidityB = ether("100");
+      const linearWidth = 8n * 10n ** 26n; // A = 0.8
+
+      const built = await aquaAMM.buildPeggedProgram(
+        await maker.getAddress(),
+        await tokenA.getAddress(),
+        await tokenB.getAddress(),
+        0n, // feeBpsIn
+        linearWidth,
+        liquidityA,
+        liquidityB,
+        18,
+        18,
+        0n, // protocolFeeBpsIn
+        constants.ZERO_ADDRESS,
+        42n, // salt
+        0n // deadline
+      );
+      const orderStruct = { maker: built.maker, traits: built.traits, data: built.data };
+
+      await shipLiquidity(aqua, maker, swapVM, orderStruct, tokenA, tokenB, liquidityA, liquidityB);
+
+      const amountIn = ether("10");
+      const takerData = TakerTraitsLib.build({
+        taker: await taker.getAddress(),
+        isExactIn: true,
+        isAToB: false,
+        threshold: 1n,
+        useTransferFromAndAquaPush: true
+      });
+
+      await tokenB.connect(taker).approve(await swapVM.getAddress(), amountIn);
+
+      const tx = await swapVM.connect(taker).swap(orderStruct, amountIn, takerData);
+
+      await expect(tx).to.changeTokenBalances(
+        tokenB,
+        [await taker.getAddress(), await maker.getAddress()],
+        [-amountIn, amountIn]
+      );
+    });
+  });
 });
