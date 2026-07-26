@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import LpDesk from "./LpDesk";
+import type { ViewId } from "./nav";
 import "@fontsource/fraunces/500.css";
 import "@fontsource/fraunces/600.css";
 import "@fontsource/schibsted-grotesk/400.css";
@@ -10,33 +11,15 @@ import "@fontsource/schibsted-grotesk/600.css";
 import "@fontsource/schibsted-grotesk/700.css";
 import "./styles.css";
 
-type View = "journey" | "desk";
-
-// Two faces of the same primitives: the guided journey and the pro LP desk.
+// Two faces of the same primitives: the guided harbor journey and the pro LP desk.
+// Each view owns its own header (wallet chip differs), but both render the same
+// tab nav via ./nav so switching views never re-lays the surrounding chrome.
 function Root() {
-    const [view, setView] = useState<View>("journey");
+    const [view, setView] = useState<ViewId>("journey");
 
-    return (
-        <>
-            <nav className="view-nav" aria-label="App views">
-                <button
-                    type="button"
-                    className={view === "journey" ? "on" : ""}
-                    onClick={() => setView("journey")}
-                >
-                    Journey
-                </button>
-                <button
-                    type="button"
-                    className={view === "desk" ? "on" : ""}
-                    onClick={() => setView("desk")}
-                >
-                    LP Desk
-                </button>
-            </nav>
-            {view === "journey" ? <App /> : <LpDesk />}
-        </>
-    );
+    return view === "journey"
+        ? <App view={view} onViewChange={setView} />
+        : <LpDesk view={view} onViewChange={setView} />;
 }
 
 createRoot(document.getElementById("root")!).render(<Root />);
