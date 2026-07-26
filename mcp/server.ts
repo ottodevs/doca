@@ -9,17 +9,12 @@
 // runtime, we just hardcode the well-known result. `bun`'s built-in `fetch` + `Bun.serve` cover
 // the rest, so this file has no `bun add` footprint at all.
 //
-// Why read-only: shipping/docking a strategy needs a signature. Handing an agent the maker's
-// private key (even the anvil demo key) so it can *write* is a custody decision this project isn't
-// making unilaterally — see mcp/README.md "Roadmap" for what an authenticated write path looks
-// like. Until then, agents get read access and can advise a human who holds the keys.
+// The server never holds a key: it reads chain state and answers questions. Signing stays with
+// whoever owns the wallet, so an agent can be given this endpoint without granting it custody.
 //
-// Why `doca_positions`/`doca_health` require strategy hashes as input: Aqua's `Shipped` event
-// (`Shipped(address maker, address app, bytes32 strategyHash, bytes strategy)`) has no `indexed`
-// parameters, so there's no cheap `eth_getLogs` filter by maker — only a full log scan + manual
-// ABI decode of a dynamic `bytes` tail, which is indexer-shaped work, not a minimal MCP server.
-// Callers already have the hash: it's the return value of `ship()`/`router.hash(order)` in
-// `web/src/lib/doca.ts`, or shown in the Doca app after a strategy is shipped.
+// Discovery: Aqua's `Shipped` event has no indexed parameters, so `doca_strategies` scans logs by
+// topic and decodes the static head of the payload (maker, app, strategyHash) rather than relying
+// on an external indexer. `Docked` removes them again, so the tool returns what is actually live.
 
 import deployment from "../web/src/deployment.json";
 
@@ -101,14 +96,66 @@ const fmtUsdc = (v: bigint) => (Number(v) / 1e6).toLocaleString(undefined, { max
 const fmtPct = (v: bigint) => (Number(v) / Number(FRAC) * 100).toFixed(1);
 const fmtFee = (v: bigint) => (Number(v) / Number(BPS) * 100).toFixed(2);
 
+// Aqua event topics. Precomputed keccak256 of the signatures, same approach as SELECTORS above.
+const TOPICS = {
+    // Shipped(address maker, address app, bytes32 strategyHash, bytes strategy)
+    shipped: "0xdc3622e06fb145651f567d421c9ef261d71d43e3778b761907bc0d70d42e52b0",
+    // Docked(address maker, address app, bytes32 strategyHash)
+    docked: "0xd173a1d140c154eb1ce9298d251d5eb8c4089cc2d16e70f1067bdc810c6fe004",
+};
+
+async function rpc(method: string, params: unknown[]): Promise<any> {
+    const res = await fetch(RPC_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    });
+    const body = await res.json() as any;
+    if (body.error) throw new Error(`${method}: ${body.error.message}`);
+    return body.result;
+}
+
+/** Live strategy hashes for a maker: everything shipped, minus everything docked since. */
+async function liveStrategies(maker: string, fromBlock: string): Promise<string[]> {
+    const [shipped, docked] = await Promise.all([
+        rpc("eth_getLogs", [{ address: deployment.aqua, topics: [TOPICS.shipped], fromBlock, toBlock: "latest" }]),
+        rpc("eth_getLogs", [{ address: deployment.aqua, topics: [TOPICS.docked], fromBlock, toBlock: "latest" }]),
+    ]);
+    const mine = (log: any) => words(log.data)[0]?.slice(24) === maker.toLowerCase().replace(/^0x/, "");
+    const hashOf = (log: any) => "0x" + words(log.data)[2];
+    const gone = new Set(docked.filter(mine).map(hashOf));
+    const live: string[] = [];
+    for (const log of shipped.filter(mine)) {
+        const h = hashOf(log);
+        if (!gone.has(h) && !live.includes(h)) live.push(h);
+    }
+    return live;
+}
+
 // ---------------------------------------------------------------------------------------------
 // Tools
 // ---------------------------------------------------------------------------------------------
 
 const TOOLS = [
     {
+        name: "doca_market",
+        description: "Where this server points: chain id, RPC, the canonical Aqua registry and the Doca contracts. Call this first to self-configure.",
+        inputSchema: { type: "object", properties: {} },
+    },
+    {
+        name: "doca_strategies",
+        description: "Discover a maker's live strategies. Returns the strategy hashes still shipped (docked ones excluded), ready to pass to doca_positions or doca_health.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                maker: { type: "string", description: `Address to scan. Defaults to ${deployment.maker}.` },
+                fromBlock: { type: "string", description: "Hex or decimal block to scan from. Defaults to the deployment block." },
+            },
+        },
+    },
+    {
         name: "doca_wallet",
-        description: "Read a maker's live WETH/USDC wallet balances (same ERC20 balanceOf calls the Doca app uses). Read-only.",
+        description: "A maker's live WETH/USDC wallet balances, read with the same calls the Doca app makes.",
         inputSchema: {
             type: "object",
             properties: {
@@ -118,7 +165,7 @@ const TOOLS = [
     },
     {
         name: "doca_positions",
-        description: "Read Doca strategy positions by strategy hash: WETH aboard, budget-remaining fraction, current fee surcharge. Call with no hashes to get instructions for obtaining them.",
+        description: "Strategy positions: WETH aboard, budget remaining, current fee surcharge. Omit hashes to read every live strategy the maker has.",
         inputSchema: {
             type: "object",
             properties: {
@@ -129,7 +176,7 @@ const TOOLS = [
     },
     {
         name: "doca_health",
-        description: "Invariant check: can the maker's actual wallet balance cover the WETH committed across the given strategies simultaneously? honorable=true is the whole point of Doca's budget primitive.",
+        description: "The invariant: can the wallet cover every promise at once? Omit hashes to check the maker's whole book.",
         inputSchema: {
             type: "object",
             properties: {
@@ -143,8 +190,38 @@ const TOOLS = [
 const ok = (obj: unknown) => ({ content: [{ type: "text", text: JSON.stringify(obj, null, 2) }] });
 const fail = (message: string) => ({ content: [{ type: "text", text: message }], isError: true });
 
+// eth_getLogs wants quantities hex-encoded; accept decimal or hex from callers and config.
+const toBlockTag = (v: string | number) => {
+    const s = String(v);
+    if (/^(latest|earliest|pending|safe|finalized)$/.test(s)) return s;
+    if (/^0x[0-9a-f]+$/i.test(s)) return s;
+    return "0x" + BigInt(s).toString(16);
+};
+// Start one block past the fork point: a range that reaches into forked history is answered
+// by the upstream node, which knows nothing about strategies shipped locally.
+const DEPLOY_BLOCK = toBlockTag(BigInt((deployment as any).forkBlock ?? (deployment as any).deployedAt ?? 0) + 1n);
+
 async function callTool(name: string, args: any) {
     const maker = typeof args?.maker === "string" && args.maker ? args.maker : deployment.maker;
+    const fromBlock = args?.fromBlock ? toBlockTag(args.fromBlock) : DEPLOY_BLOCK;
+
+    if (name === "doca_market") {
+        return ok({
+            chainId: deployment.chainId,
+            rpc: RPC_URL,
+            aquaRegistry: deployment.aqua,
+            router: deployment.router,
+            docaApp: deployment.docaApp,
+            skewProvider: deployment.skewProvider,
+            tokens: { weth: deployment.weth, usdc: deployment.usdc },
+            defaultMaker: deployment.maker,
+        });
+    }
+
+    if (name === "doca_strategies") {
+        const hashes = await liveStrategies(maker, fromBlock);
+        return ok({ maker, live: hashes.length, hashes });
+    }
 
     if (name === "doca_wallet") {
         const [weth, usdc] = await Promise.all([
@@ -160,18 +237,9 @@ async function callTool(name: string, args: any) {
     }
 
     if (name === "doca_positions") {
-        const hashes: string[] = Array.isArray(args?.hashes) ? args.hashes : [];
-        if (hashes.length === 0) {
-            return ok({
-                maker,
-                positions: [],
-                note: "No strategy hashes provided. Doca doesn't index strategies by maker on-chain " +
-                    "(Aqua's Shipped event has no indexed args — see the header comment in mcp/server.ts). " +
-                    "Get the hash from whoever shipped the strategy: it's the return value of " +
-                    "aqua.ship(...)/router.hash(order) in web/src/lib/doca.ts, or shown in the Doca app " +
-                    'after a strategy goes live. Then call again with hashes: ["0x..."].',
-            });
-        }
+        const hashes: string[] = Array.isArray(args?.hashes) && args.hashes.length
+            ? args.hashes
+            : await liveStrategies(maker, fromBlock);
         const positions = await Promise.all(hashes.map(async (raw) => {
             const hash = normalizeHash(raw);
             const [bal, remaining, fee] = await Promise.all([
@@ -191,7 +259,9 @@ async function callTool(name: string, args: any) {
     }
 
     if (name === "doca_health") {
-        const hashes: string[] = Array.isArray(args?.hashes) ? args.hashes : [];
+        const hashes: string[] = Array.isArray(args?.hashes) && args.hashes.length
+            ? args.hashes
+            : await liveStrategies(maker, fromBlock);
         const wallet = await erc20BalanceOf(deployment.weth, maker);
         const committedAmounts = await Promise.all(hashes.map(async (raw) => {
             const hash = normalizeHash(raw);
@@ -208,9 +278,8 @@ async function callTool(name: string, args: any) {
             committedWeth: { raw: committed.toString(), formatted: fmtWeth(committed) },
             headroomWeth: { raw: headroom.toString(), formatted: (headroom < 0n ? "-" : "") + fmtWeth(headroom < 0n ? -headroom : headroom) },
             honorable,
-            note: hashes.length === 0
-                ? "No strategy hashes were checked — this only reports the wallet balance; the invariant is trivially honorable with zero commitments."
-                : "honorable=true means the wallet actually holds enough WETH to cover every checked strategy's committed amount at once, even though nothing was ever deposited into Aqua.",
+            note: "honorable=true means the wallet holds enough WETH to cover every checked strategy at once, "
+                + "with nothing deposited into Aqua.",
         });
     }
 
@@ -229,14 +298,22 @@ const rpcResult = (id: unknown, result: unknown) => json({ jsonrpc: "2.0", id, r
 const rpcError = (id: unknown, code: number, message: string, status = 200) =>
     json({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }, status);
 
+// Set DOCA_MCP_TOKEN to require `Authorization: Bearer <token>`; unset means local-only use.
+const AUTH_TOKEN = process.env.DOCA_MCP_TOKEN || "";
+const authorized = (req: Request) =>
+    !AUTH_TOKEN || req.headers.get("authorization") === `Bearer ${AUTH_TOKEN}`;
+
 Bun.serve({
     port: PORT,
+    // Bind to loopback unless a host is given, so the default posture is not "exposed".
+    hostname: process.env.MCP_HOST || "127.0.0.1",
     async fetch(req) {
         const url = new URL(req.url);
         if (url.pathname === "/" && req.method === "GET") {
-            return new Response("doca-mcp: read-only Doca position/wallet/health tools. POST JSON-RPC to /mcp.\n");
+            return new Response("doca-mcp: wallet, positions and budget health over Aqua. POST JSON-RPC to /mcp.\n");
         }
         if (url.pathname !== "/mcp") return new Response("not found", { status: 404 });
+        if (!authorized(req)) return rpcError(null, -32001, "unauthorized", 401);
         if (req.method === "GET") return new Response(null, { status: 405, headers: { Allow: "POST" } });
         if (req.method !== "POST") return new Response(null, { status: 405, headers: { Allow: "POST" } });
 
@@ -258,8 +335,9 @@ Bun.serve({
                         protocolVersion: params?.protocolVersion || PROTOCOL_VERSION,
                         capabilities: { tools: {} },
                         serverInfo: { name: "doca-mcp", version: "0.1.0" },
-                        instructions: "Read-only Doca position/wallet/health tools against an Aqua fork or live deployment. " +
-                            "No write actions (ship/dock) are exposed — see mcp/README.md for why.",
+                        instructions: "Doca reads over Aqua: call doca_market to self-configure, doca_strategies to " +
+                            "discover a maker's live positions, then doca_positions / doca_health. Signing stays with " +
+                            "the wallet owner, so this endpoint can be shared without granting custody.",
                     };
                     return isNotification ? new Response(null, { status: 202 }) : rpcResult(id, result);
                 }

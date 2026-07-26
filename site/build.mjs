@@ -13,7 +13,8 @@ const out = "site/dist";
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
-execSync("bun run build", { cwd: "web", stdio: "inherit" });
+// The app is served under /app/, so the bundle must reference its assets from there.
+execSync("bun run build -- --base=/app/", { cwd: "web", stdio: "inherit" });
 
 cpSync("landing", out, { recursive: true });
 // Public build points at the unified /app route instead of the tailnet dev URL.
@@ -23,6 +24,7 @@ writeFileSync(idx, readFileSync(idx, "utf8").replaceAll("http://100.64.0.1:5273"
 cpSync("web/dist", `${out}/app`, { recursive: true });
 cpSync("deck", `${out}/deck`, { recursive: true });
 cpSync("assets/brand", `${out}/brand`, { recursive: true });
+if (existsSync("docs/brand.html")) cpSync("docs/brand.html", `${out}/brand/index.html`);
 // Directory routes (/dossier/, /agents/) instead of .html files: Pages' own
 // .html-stripping redirect would otherwise bounce /dossier.html -> /dossier forever.
 if (existsSync("docs/dossier.html")) {

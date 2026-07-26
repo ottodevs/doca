@@ -447,10 +447,9 @@ export default function App() {
         <div className={`page ${storm ? "storm" : ""}`}>
             {nodeDown && (
                 <div className="node-down" role="status">
-                    <strong>No node in reach.</strong> This preview talks to a Base fork running on
-                    the demo machine, so the hosted copy has nothing to read. Watch the walkthrough,
-                    or run it yourself: <code>DEV.md</code> in the repo.
-                    <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
+                    <strong>Preview.</strong> The interactive build follows the demo node.
+                    <a href="/deck/">See the walkthrough</a>
+                    <a href="/">How the budgets work</a>
                 </div>
             )}
             {onboardOpen && <Onboarding onClose={closeOnboarding} />}

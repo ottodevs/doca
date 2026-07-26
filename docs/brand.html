@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Doca — Brand</title>
+<meta name="description" content="Doca's marks, palette and type. Lisbon light over deep water." />
+<meta property="og:title" content="Doca — Brand" />
+<meta property="og:description" content="Marks, palette and type. Lisbon light over deep water." />
+<meta property="og:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="favicon.svg" />
+<style>
+:root{
+  --ground:#f7f3ea; --surface:#fff; --paper:#efe9dc; --ink:#1c2733;
+  --muted:color-mix(in srgb, var(--ink) 62%, transparent);
+  --line:color-mix(in srgb, var(--ink) 12%, transparent);
+  --accent:#1f5fd6; --support:#2aa198; --warn:#c97b2d; --danger:#c0392b; --positive:#1e8a5e;
+  --radius:16px;
+}
+:root[data-theme="night"], html.night{
+  --ground:#0d1626; --surface:#141f33; --paper:#101a2b; --ink:#e9eef7;
+  --line:color-mix(in srgb, var(--ink) 16%, transparent);
+  --accent:#5b9cf5; --support:#37c2b4; --warn:#e8b34b;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="day"]){
+    --ground:#0d1626; --surface:#141f33; --paper:#101a2b; --ink:#e9eef7;
+    --line:color-mix(in srgb, var(--ink) 16%, transparent);
+    --accent:#5b9cf5; --support:#37c2b4; --warn:#e8b34b;
+  }
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--ground);color:var(--ink);font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:72px 24px 96px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:8px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,6vw,60px);letter-spacing:-1.5px;line-height:1}
+.lead{color:var(--muted);font-size:19px;margin:14px 0 8px;max-width:60ch}
+nav.top{display:flex;gap:18px;flex-wrap:wrap;margin:28px 0 56px;font-size:15px}
+nav.top a{color:var(--accent);text-decoration:none}
+nav.top a:hover{text-decoration:underline}
+h2{font-family:Georgia,serif;font-size:26px;letter-spacing:-.4px;margin:56px 0 6px}
+h2+p.note{color:var(--muted);margin-bottom:22px;max-width:62ch}
+.grid{display:grid;gap:16px}
+.marks{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;
+  display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.card .art{display:flex;align-items:center;justify-content:center;width:100%;min-height:120px}
+.card figcaption{font-size:13px;color:var(--muted)}
+.card a.dl{font-size:13px;color:var(--accent);text-decoration:none}
+.card a.dl:hover{text-decoration:underline}
+.swatches{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.sw{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.sw .chip{height:76px}
+.sw .meta{padding:12px 14px;font-size:13px;display:flex;justify-content:space-between;gap:8px}
+.sw .meta b{font-weight:600}
+.sw .meta code{color:var(--muted);font-size:12px}
+.type{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px}
+.type .display{font-family:Georgia,serif;font-size:clamp(30px,5vw,46px);letter-spacing:-1px;line-height:1.1}
+.type .body{margin-top:14px;color:var(--muted);max-width:62ch}
+.type .nums{margin-top:18px;font-variant-numeric:tabular-nums;font-size:22px;letter-spacing:.5px}
+.rules{list-style:none;padding:0;display:grid;gap:10px;margin-top:8px}
+.rules li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+footer{margin-top:72px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;
+  display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--accent);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <svg width="52" height="52" viewBox="0 0 32 32" aria-hidden="true">
+    <defs><clipPath id="t"><rect width="32" height="16"/></clipPath>
+    <clipPath id="b"><rect y="16" width="32" height="16"/></clipPath></defs>
+    <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
+      <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#t)"/>
+      <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#b)" opacity=".45"/>
+      <line x1="4" y1="16" x2="28" y2="16"/>
+    </g>
+  </svg>
+  <h1>Brand</h1>
+</header>
+
+<p class="lead">Lisbon light over deep water. A floating dock, half above the line and half below it,
+carrying one idea: what you promise stays inside what you hold.</p>
+
+<nav class="top">
+  <a href="/">Landing</a><a href="/app/">App</a><a href="/deck/">Deck</a>
+  <a href="/dossier/">Design dossier</a><a href="/agents/">Agents</a>
+  <a href="https://github.com/ottodevs/doca">GitHub</a>
+</nav>
+
+<h2>Marks</h2>
+<p class="note">The D sits at the waterline with its reflection below. It works from 16px to a
+billboard, in one colour, on either theme.</p>
+<div class="grid marks">
+  <figure class="card">
+    <div class="art"><img src="mark.svg" alt="Doca mark" width="112" height="112" /></div>
+    <figcaption>Primary mark</figcaption>
+    <a class="dl" href="mark.svg" download>mark.svg</a>
+  </figure>
+  <figure class="card">
+    <div class="art" style="background:#f7f3ea;border-radius:12px">
+      <img src="mark-day.svg" alt="Doca mark, day" width="112" height="112" /></div>
+    <figcaption>Day</figcaption>
+    <a class="dl" href="mark-day.svg" download>mark-day.svg</a>
+  </figure>
+  <figure class="card">
+    <div class="art" style="background:#0d1626;border-radius:12px">
+      <img src="mark-night.svg" alt="Doca mark, night" width="112" height="112" /></div>
+    <figcaption>Night</figcaption>
+    <a class="dl" href="mark-night.svg" download>mark-night.svg</a>
+  </figure>
+  <figure class="card">
+    <div class="art"><img src="favicon.svg" alt="Doca favicon" width="64" height="64" /></div>
+    <figcaption>Favicon</figcaption>
+    <a class="dl" href="favicon.svg" download>favicon.svg</a>
+  </figure>
+</div>
+
+<h2>Lockup</h2>
+<p class="note">The mark carries the D; the wordmark completes it. Never set "Doca" with a second D
+beside the mark.</p>
+<div class="grid">
+  <figure class="card">
+    <div class="art"><img src="wordmark.svg" alt="Doca wordmark" style="max-width:100%;height:auto" /></div>
+    <a class="dl" href="wordmark.svg" download>wordmark.svg</a>
+  </figure>
+  <figure class="card">
+    <div class="art" style="background:#0d1626;border-radius:12px;padding:18px">
+      <img src="og-image.png" alt="Doca social card" style="max-width:100%;height:auto;border-radius:8px" /></div>
+    <figcaption>Social card, 1200×630</figcaption>
+    <a class="dl" href="og-image.png" download>og-image.png</a>
+  </figure>
+</div>
+
+<h2>Palette</h2>
+<p class="note">Two lights, one geometry. Day is a Lisbon morning on the docks; night is the
+Atlantic after dark. Amber is a harbour lamp: highlights and warnings only.</p>
+<div class="grid swatches">
+  <div class="sw"><div class="chip" style="background:#f7f3ea"></div>
+    <div class="meta"><b>Limestone</b><code>#f7f3ea</code></div></div>
+  <div class="sw"><div class="chip" style="background:#1c2733"></div>
+    <div class="meta"><b>Harbour slate</b><code>#1c2733</code></div></div>
+  <div class="sw"><div class="chip" style="background:#1f5fd6"></div>
+    <div class="meta"><b>Azulejo</b><code>#1f5fd6</code></div></div>
+  <div class="sw"><div class="chip" style="background:#0d1626"></div>
+    <div class="meta"><b>Atlantic</b><code>#0d1626</code></div></div>
+  <div class="sw"><div class="chip" style="background:#5b9cf5"></div>
+    <div class="meta"><b>Moonlit cobalt</b><code>#5b9cf5</code></div></div>
+  <div class="sw"><div class="chip" style="background:#2aa198"></div>
+    <div class="meta"><b>Sea glass</b><code>#2aa198</code></div></div>
+  <div class="sw"><div class="chip" style="background:#e8b34b"></div>
+    <div class="meta"><b>Harbour lamp</b><code>#e8b34b</code></div></div>
+  <div class="sw"><div class="chip" style="background:#1e8a5e"></div>
+    <div class="meta"><b>Positive</b><code>#1e8a5e</code></div></div>
+</div>
+
+<h2>Type</h2>
+<p class="note">Fraunces for headlines, Schibsted Grotesk for everything you read, tabular figures
+for every number.</p>
+<div class="type">
+  <div class="display">Keep your wallet. Put it to work anyway.</div>
+  <p class="body">One balance backs several strategies at once, and every quote it publishes can be
+  honoured. The interface accompanies; it never lectures.</p>
+  <div class="nums">4.84% · +29% · 16.3187 · 0.001 ETH</div>
+</div>
+
+<h2>Rules</h2>
+<ul class="rules">
+  <li>The waterline is structural, not decoration: it separates what is promised from what is held.</li>
+  <li>One hero number per view. State reads as a water level and a short word, never as shouting chips.</li>
+  <li>Amber means attention. It never becomes a brand colour.</li>
+  <li>Motion is tidal — long ease-outs, ambient and slow. Reduced motion turns all of it off.</li>
+</ul>
+
+<footer>
+  <a href="/">doca-finance.pages.dev</a>
+  <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
+  <span>Built on 1inch Aqua + SwapVM</span>
+</footer>
+
+</div>
+</body>
+</html>

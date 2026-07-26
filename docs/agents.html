@@ -68,25 +68,26 @@
   </a>
 
   <h1>Read your positions from anywhere an agent can run</h1>
-  <p class="lede">Doca ships a small MCP server: three read-only tools that let an AI agent check a
+  <p class="lede">Doca ships an MCP server: five tools that let an AI agent check a
   maker's wallet, look up strategy state, and verify the one invariant that matters — can the
   wallet actually cover every promise it's made, at once.</p>
 
   <h2>What it exposes</h2>
   <table>
     <tr><th>Tool</th><th>Returns</th><th></th></tr>
+    <tr><td><code>doca_market</code></td><td>Chain, RPC, Aqua registry and Doca addresses — self-configure in one call</td><td><span class="pill read">read</span></td></tr>
+    <tr><td><code>doca_strategies</code></td><td>A maker's live strategy hashes, discovered from chain logs</td><td><span class="pill read">read</span></td></tr>
     <tr><td><code>doca_wallet</code></td><td>Maker's WETH / USDC balance</td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>doca_positions</code></td><td>Per-strategy WETH aboard, budget-remaining fraction, fee surcharge</td><td><span class="pill read">read</span></td></tr>
+    <tr><td><code>doca_positions</code></td><td>Per-strategy WETH aboard, budget remaining, fee surcharge</td><td><span class="pill read">read</span></td></tr>
     <tr><td><code>doca_health</code></td><td>Committed WETH vs. wallet balance, <code>honorable: true/false</code></td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>ship</code> / <code>dock</code></td><td>—</td><td><span class="pill no">not exposed</span></td></tr>
   </table>
 
-  <h2>Why read-only</h2>
-  <p>Shipping or docking a strategy needs a signature. Handing an agent a private key so it can move
-  funds unattended is a custody decision this project isn't making by default — the person who holds
-  the keys should decide when a promise gets made or revoked. Today an agent can watch a position and
-  tell a human what to do about it. It cannot act on its own. See the roadmap below for what an
-  authenticated write path looks like.</p>
+  <h2>Safe to hand out</h2>
+  <p>The server holds no key, so the endpoint can be given to an agent, a teammate or a monitoring
+  bot without granting any of them custody. Bearer auth turns on with a single environment variable,
+  it binds to loopback by default, and every call is a fresh read with no session to hijack.</p>
+  <p>An agent watches the book and says when a position is drifting. The wallet owner decides when a
+  promise is made or revoked. That split is the product, not a limitation of it.</p>
 
   <h2>Run it</h2>
   <pre><code>bun mcp/server.ts
@@ -95,7 +96,7 @@
 claude mcp add --transport http doca http://127.0.0.1:8420/mcp</code></pre>
   <p>One file, zero new dependencies: <code>Bun.serve</code> plus raw JSON-RPC <code>eth_call</code>
   against <code>RPC_URL</code>, reading addresses from the same
-  <code>web/src/deployment.json</code> the app uses. No auth, no session state — every call is a
+  <code>web/src/deployment.json</code> the app uses. Bearer auth via <code>DOCA_MCP_TOKEN</code>, loopback by default, and every call is a
   fresh read.</p>
 
   <h2>Example call</h2>
