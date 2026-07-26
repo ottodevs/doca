@@ -44,7 +44,7 @@
     position: absolute; inset: 0; display: none; flex-direction: column;
     justify-content: center; padding: 7vh 9vw; gap: 3.2vh;
   }
-  .slide.on { display: flex; animation: fade 0.35s ease; }
+  .slide.on { display: flex; animation: fade 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
   @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
   .kicker { color: var(--accent); font-size: 2.1vh; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 650; }
   h1 { font-size: 8.2vh; line-height: 1.06; letter-spacing: -0.025em; font-weight: 680; }
