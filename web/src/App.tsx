@@ -619,19 +619,20 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                     </div>
 
                     <section className="stats">
-                        <div className="stat-hero">
-                            <span>Coverage</span>
-                            <strong>{amplification.toFixed(2)}×</strong>
-                            <em>quoted liquidity spread across every market, from one wallet balance</em>
-                        </div>
                         <div className="stat-strip">
                             <div>
                                 <span>Wallet capacity</span>
                                 <strong>{easedWeth.toFixed(2)} WETH</strong>
+                                <em className="good">{walletAvailPct.toFixed(0)}% available</em>
                             </div>
                             <div>
                                 <span>Quoted liquidity</span>
                                 <strong>{fmt2(promisedWeth)} WETH</strong>
+                                <em>Across {strategies.length} strateg{strategies.length === 1 ? "y" : "ies"}</em>
+                            </div>
+                            <div>
+                                <span>Coverage</span>
+                                <strong>{amplification.toFixed(2)}×</strong>
                             </div>
                             <div className={honorable ? "good" : "bad"}>
                                 <span>Allocated risk budget</span>

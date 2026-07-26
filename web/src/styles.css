@@ -243,6 +243,7 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
 .stat-strip span { color: var(--muted); font-size: 12px; }
 .stat-strip strong { display: flex; align-items: center; gap: 6px; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
 .stat-strip em { color: var(--muted); font-size: 12px; font-style: normal; }
+.stat-strip em.good { color: var(--positive); font-weight: 600; }
 .stat-strip .bad strong { color: var(--danger); }
 .stat-strip .bad strong .state-dot { background: var(--danger); }
 .stat-strip .good strong { color: var(--positive); }
