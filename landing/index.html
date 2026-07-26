@@ -46,6 +46,7 @@
   :root {
     --font-display: "Fraunces", ui-serif, Georgia, serif;
     --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
     --container: 1120px;
     --ease-tidal: cubic-bezier(0.22, 1, 0.36, 1);
     --radius-panel: 18px;
@@ -253,6 +254,31 @@
   .arch-col .role { margin: 12px 0 0; color: var(--muted); font-size: 15px; max-width: 30ch; }
   .arch-note { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; max-width: 68ch; }
 
+  /* ================= for agents ================= */
+  .agents-mark { display: inline-flex; color: var(--accent); margin-bottom: 14px; }
+  .agents-mark svg { width: 26px; height: 26px; }
+  .agents h2 { font-size: clamp(24px, 3vw, 32px); max-width: 16ch; }
+  .agents-grid { display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 56px; align-items: start; }
+  .agents .support { color: var(--muted); font-size: 16px; max-width: 46ch; margin: 16px 0 0; }
+  .agents-note { color: var(--faint); font-size: 14px; margin: 14px 0 0; max-width: 46ch; }
+  .agents-link { display: inline-block; margin-top: 22px; font-size: 15px; font-weight: 600; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .agents-code { display: grid; gap: 16px; min-width: 0; }
+  .code-block { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .code-head {
+    display: flex; align-items: center; justify-content: space-between; padding: 9px 14px;
+    border-bottom: 1px solid var(--line); font-size: 12.5px; color: var(--muted); font-weight: 600;
+  }
+  .copy-btn {
+    font: inherit; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--muted);
+    background: transparent; border: 1px solid var(--line-strong); border-radius: var(--radius-pill);
+    padding: 3px 11px; cursor: pointer; transition: color 0.2s var(--ease-tidal), border-color 0.2s var(--ease-tidal);
+  }
+  .copy-btn:hover { color: var(--ink); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--positive); border-color: var(--positive); }
+  .code-block pre { margin: 0; padding: 14px 16px; overflow-x: auto; }
+  .code-block code { font-family: var(--font-mono); font-size: 13px; line-height: 1.6; color: var(--ink); white-space: pre; }
+  @media (max-width: 860px) { .agents-grid { grid-template-columns: 1fr; gap: 30px; } }
+
   /* ================= faq ================= */
   .faq h2 { font-size: clamp(24px, 3.4vw, 32px); margin: 0 0 20px; }
   .faq-list { max-width: 780px; }
@@ -263,6 +289,7 @@
   .faq-item summary::after { content: "+"; font-family: var(--font-body); font-weight: 400; font-size: 22px; line-height: 1; color: var(--muted); transition: transform 0.3s var(--ease-tidal); flex: none; }
   .faq-item[open] summary::after { transform: rotate(45deg); }
   .faq-item p.a { color: var(--muted); font-size: 15.5px; line-height: 1.65; max-width: 64ch; margin: 0 0 24px; }
+  .faq-item p.a a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
   /* ================= close ================= */
   .close { text-align: center; padding: 128px 0 136px; }
@@ -513,6 +540,39 @@
     </div>
   </section>
 
+  <!-- 4b · for agents -->
+  <section class="agents section-pad" id="agents">
+    <div class="wrap agents-grid">
+      <div>
+        <span class="agents-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.6V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16 6L18.3 16L16 26L13.7 16Z"/><path d="M6 16L16 13.7L26 16L16 18.3Z"/></g><path d="M16 6L18.3 16L16 16Z" fill="var(--accent)" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg>
+        </span>
+        <h2 data-reveal>Your agents can read the harbor too.</h2>
+        <p class="support" data-reveal style="--d:1">The repo ships a read-only MCP server. An agent calls one tool to discover a maker's live strategies straight from chain logs, then reads budgets, surcharge and the health check, without ever holding a key.</p>
+        <p class="agents-note" data-reveal style="--d:2">It points at a node you run, the demo fork or your own. There is no hosted endpoint.</p>
+        <a class="agents-link" href="/agents" data-reveal style="--d:2">Read the agent surface docs</a>
+      </div>
+      <div class="agents-code" data-reveal style="--d:1">
+        <div class="code-block">
+          <div class="code-head"><span>Setup</span><button class="copy-btn" type="button" data-copy-target="agentsCmd1">Copy</button></div>
+          <pre id="agentsCmd1"><code>git clone https://github.com/ottodevs/doca
+cd doca &amp;&amp; bun mcp/server.ts</code></pre>
+        </div>
+        <div class="code-block">
+          <div class="code-head"><span>MCP config</span><button class="copy-btn" type="button" data-copy-target="agentsCmd2">Copy</button></div>
+          <pre id="agentsCmd2"><code>{
+  "mcpServers": {
+    "doca": {
+      "url": "http://127.0.0.1:8420/mcp",
+      "transport": "http"
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 5 · faq -->
   <section class="faq section-pad" id="faq">
     <div class="wrap">
@@ -548,7 +608,7 @@
         </details>
         <details class="faq-item">
           <summary>Can agents integrate?</summary>
-          <p class="a">Yes. The repo ships an MCP server (<code>bun mcp/server.ts</code>): an agent calls one tool to self-configure, discovers a maker's live strategies from chain logs, and reads budgets, surcharge and the honourable check. It holds no key, so you can hand the endpoint to an agent without handing over custody.</p>
+          <p class="a">Yes, see <a href="#agents">Your agents can read the harbor too</a> above: a read-only MCP server, no key required.</p>
         </details>
       </div>
     </div>
@@ -658,6 +718,21 @@
   } else {
     els.forEach(function (el) { el.classList.add("in-view"); });
   }
+
+  /* ---------- copy buttons (agent setup code) ---------- */
+  Array.prototype.slice.call(document.querySelectorAll(".copy-btn")).forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var targetId = btn.getAttribute("data-copy-target");
+      var codeEl = document.getElementById(targetId);
+      if (!codeEl || !navigator.clipboard) return;
+      navigator.clipboard.writeText(codeEl.innerText).then(function () {
+        var prev = btn.textContent;
+        btn.textContent = "Copied";
+        btn.classList.add("copied");
+        setTimeout(function () { btn.textContent = prev; btn.classList.remove("copied"); }, 1600);
+      });
+    });
+  });
 })();
 </script>
 </body>
