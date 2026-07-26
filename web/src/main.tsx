@@ -1,33 +1,30 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-<<<<<<< HEAD
+import LpDesk from "./LpDesk";
 import "@fontsource/fraunces/500.css";
 import "@fontsource/fraunces/600.css";
 import "@fontsource/schibsted-grotesk/400.css";
 import "@fontsource/schibsted-grotesk/500.css";
 import "@fontsource/schibsted-grotesk/600.css";
 import "@fontsource/schibsted-grotesk/700.css";
-=======
-import LpDesk from "./LpDesk";
-import "@fontsource-variable/inter";
->>>>>>> origin/lp
 import "./styles.css";
 
-type View = "demo" | "desk";
+type View = "journey" | "desk";
 
+// Two faces of the same primitives: the guided journey and the pro LP desk.
 function Root() {
-    const [view, setView] = useState<View>("desk");
+    const [view, setView] = useState<View>("journey");
 
     return (
         <>
             <nav className="view-nav" aria-label="App views">
                 <button
                     type="button"
-                    className={view === "demo" ? "on" : ""}
-                    onClick={() => setView("demo")}
+                    className={view === "journey" ? "on" : ""}
+                    onClick={() => setView("journey")}
                 >
-                    Demo
+                    Journey
                 </button>
                 <button
                     type="button"
@@ -37,7 +34,7 @@ function Root() {
                     LP Desk
                 </button>
             </nav>
-            {view === "demo" ? <App /> : <LpDesk />}
+            {view === "journey" ? <App /> : <LpDesk />}
         </>
     );
 }
