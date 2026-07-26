@@ -85,6 +85,25 @@ export async function connectWallet(): Promise<string> {
     return addr;
 }
 
+// Adopt an already-bound external signer (e.g. a thirdweb in-app account bridged onto the
+// fork provider) as the maker. No fork guard needed: the signer's transport is the fork
+// provider by construction, so it cannot reach the real network.
+export function connectExternalSigner(signer: ethers.Signer, addr: string): string {
+    maker = signer;
+    session.mode = "wallet";
+    session.maker = addr;
+    notify();
+    return addr;
+}
+
+// Return to the demo signer (sign-out, or the external account went away).
+export function disconnectToDemo(): void {
+    maker = makerSigner;
+    session.mode = "demo";
+    session.maker = deployment.maker;
+    notify();
+}
+
 export async function seedConnectedWallet(): Promise<void> {
     const client: string = await provider.send("web3_clientVersion", []);
     if (!client.toLowerCase().includes("anvil")) throw new Error("seeding only works on the anvil fork");

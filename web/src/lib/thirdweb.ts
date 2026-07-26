@@ -26,7 +26,9 @@ export const thirdwebClient: ThirdwebClient | undefined = clientId
 // from a mobile wallet. No injected-wallet entries here; that path already has its own button.
 export const thirdwebWallets: Wallet[] = [
     inAppWallet({
-        auth: { options: ["email", "google", "passkey", "phone"] },
+        // "guest" gives a one-click ephemeral account: the fastest way to try the desk
+        // without a wallet or an inbox, and what the demo path upgrades from.
+        auth: { options: ["email", "google", "passkey", "phone", "guest"] },
     }),
     createWallet("walletConnect"),
 ];

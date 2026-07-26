@@ -5,10 +5,13 @@ import {
     PRESETS, fmtWeth, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
+import { useThirdwebMaker } from "./lib/use-thirdweb-maker";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 import { Mark, TabNav, type ViewId } from "./nav";
-// Thirdweb sign-in (email / Google / passkey / WalletConnect), shown first whenever configured.
-import { ConnectButton } from "thirdweb/react";
+// Thirdweb sign-in (email / Google / passkey / guest / WalletConnect), shown first whenever
+// configured. The signed-in account becomes the maker: it signs in the enclave and broadcasts
+// through the practice fork, same trust model as an injected wallet.
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { base } from "thirdweb/chains";
 import { thirdwebClient, thirdwebWallets } from "./lib/thirdweb";
 
@@ -398,6 +401,22 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
         }
     };
 
+    // Thirdweb sign-in becomes the maker (shared hook, also mounted by the LP Desk).
+    const twAccount = useActiveAccount();
+    useThirdwebMaker((ev) => {
+        switch (ev.kind) {
+            case "seeding": say("signed-in account is empty on this fork: seeding demo funds", "info"); break;
+            case "seeded": say("seeded: 2 WETH + 8,000 USDC, approvals set", "info"); break;
+            case "signed-in":
+                setAccount(ev.address);
+                readWallet().then(setWallet).catch(() => {});
+                say(`signed in ${ev.address.slice(0, 6)}…${ev.address.slice(-4)}: your account is now the maker`, "info");
+                break;
+            case "signed-out": setAccount(null); say("signed out: back on the preview wallet", "info"); break;
+            case "error": say(`sign-in failed: ${ev.message}`, "warn"); break;
+        }
+    });
+
     const say = useCallback((text: string, kind: Entry["kind"] = "info") => {
         const at = new Date().toLocaleTimeString();
         setLog((l) => [{ at, text, kind }, ...l].slice(0, 40));
@@ -632,7 +651,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                     ${mark.usdcPerWeth.toFixed(0)} · Uniswap live
                                 </span>
                             )}
-                            {account
+                            {account && !twAccount
                                 ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                                 : (
                                     <>
@@ -647,8 +666,8 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                                 />
                                             </span>
                                         )}
-                                        {hasInjectedWallet() && <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>}
-                                        {!thirdwebClient && !hasInjectedWallet() && <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
+                                        {!account && hasInjectedWallet() && <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>}
+                                        {!account && !thirdwebClient && !hasInjectedWallet() && <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
                                     </>
                                 )}
                         </div>

@@ -7,11 +7,15 @@ import deployment from "../deployment.json";
 import {
     provider, makerSigner, takerSigner, session, getMaker, onMakerChange,
     hasInjectedWallet, connectWallet, seedConnectedWallet,
+    connectExternalSigner, disconnectToDemo,
     type Session,
 } from "./fork-session";
 import { TakerTraitsLib } from "./swapvm-helpers";
 
-export { provider, makerSigner, takerSigner, session, hasInjectedWallet, connectWallet, seedConnectedWallet };
+export {
+    provider, makerSigner, takerSigner, session, hasInjectedWallet, connectWallet, seedConnectedWallet,
+    connectExternalSigner, disconnectToDemo,
+};
 export type { Session };
 
 export const BPS = 1_000_000_000n;
