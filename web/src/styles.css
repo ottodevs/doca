@@ -105,7 +105,7 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-.page { max-width: 1120px; margin: 0 auto; padding: 32px 24px 90px; }
+.page { max-width: 1120px; margin: 0 auto; padding: 32px 24px 90px; display: flex; flex-direction: column; min-height: 100dvh; }
 
 /* storm: the 3-second darkening while the harbormaster intervenes */
 .page.storm::before {
@@ -153,6 +153,14 @@ h1 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 22px; font-w
 .pill-seg.acct .state-dot { background: var(--positive); }
 .pill-seg.acct.dim { color: var(--faint); }
 .pill-seg.acct.dim .state-dot { background: var(--faint); }
+
+/* ---------- guided replay chip ---------- */
+/* Calm and persistent, not a warning: replaces the chain header-group for the length of the
+   scripted replay. The exit control sits in the same pill so it reads as one honest unit. */
+.replay-group { background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.pill-seg.replay-chip { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.pill-seg.replay-exit { padding: 7px 12px; font-size: 13px; line-height: 1; color: var(--muted); cursor: pointer; }
+.pill-seg.replay-exit:hover { color: var(--accent); }
 
 /* ---------- thirdweb sign-in fallback (no injected wallet) ---------- */
 /* Additive: only rendered in place of the "Preview wallet" pill. The segment itself drops its
@@ -728,27 +736,38 @@ footer { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px;
 
 /* ---------- welcome (hosted preview, no reachable node) ---------- */
 /* Replaces the journey entirely when the fork is unreachable: three panels walking the
-   mechanism, then a CTA row to the real thing. Calm, not a warning. */
-.welcome { max-width: 640px; margin: 8px auto 36px; text-align: center; }
-.welcome-panels { position: relative; min-height: 280px; }
+   mechanism, then a CTA row to the real thing. Calm, not a warning.
+   `.page` is a min-height:100dvh flex column (see above), so this block taking `flex: 1` and
+   centering its own content vertically fills whatever room the header leaves, on any viewport,
+   without a hand-tuned calc() against header height. */
+.welcome {
+  flex: 1; width: 100%; max-width: 680px; margin: 0 auto; padding: 20px 0;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  text-align: center; gap: 8px;
+}
+.welcome-panels { position: relative; min-height: 210px; width: 100%; }
 .welcome-panel { display: none; padding: 6px 4px 4px; }
 .welcome-panel.active { display: block; }
 @media (prefers-reduced-motion: no-preference) { .welcome-panel.active { animation: fadeUp 0.5s var(--ease-tidal) both; } }
-.welcome-svg { width: 200px; height: 100px; color: var(--accent); margin: 0 auto 16px; display: block; }
-.welcome-panel h2 { margin: 0 0 10px; font-family: "Fraunces", Georgia, serif; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
-.welcome-panel p { margin: 0 auto; max-width: 46ch; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+.welcome-svg { width: 168px; height: 84px; color: var(--accent); margin: 0 auto 14px; display: block; }
+.welcome-panel h2 { margin: 0 0 9px; font-family: "Fraunces", Georgia, serif; font-size: 23px; font-weight: 600; letter-spacing: -0.01em; }
+.welcome-panel p { margin: 0 auto; max-width: 46ch; color: var(--muted); font-size: 14px; line-height: 1.55; }
 
-.welcome-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 6px; }
+.welcome-controls { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 8px; }
 .welcome-dots { display: flex; gap: 7px; }
 .welcome-dots button { width: 7px; height: 7px; padding: 0; border-radius: 50%; border: 0; background: var(--line-strong); transition: background 0.25s ease, transform 0.25s ease; }
 .welcome-dots button.on { background: var(--accent); transform: scale(1.3); }
 .welcome-continue { width: auto; padding: 10px 24px; font-size: 13.5px; }
 
 .welcome-cta {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 20px;
-  margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px 20px;
+  margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--line); width: 100%;
 }
 .welcome-cta > button.primary { width: auto; padding: 12px 22px; }
+.welcome-cta > button.secondary {
+  width: auto; padding: 12px 22px; font-weight: 600; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line-strong);
+}
 .welcome-link { color: var(--accent); font-size: 13.5px; font-weight: 600; }
 .welcome-link:hover { text-decoration: underline; }
 
@@ -761,9 +780,10 @@ footer { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px;
 .welcome-demo pre { margin: 0; padding: 12px 14px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--ink) 6%, transparent); overflow-x: auto; }
 .welcome-demo code { font: 12.5px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--ink); white-space: pre; }
 
-.welcome-note { margin: 22px auto 0; max-width: 52ch; color: var(--faint); font-size: 12.5px; line-height: 1.6; }
+.welcome-note { margin: 16px auto 0; max-width: 52ch; color: var(--faint); font-size: 12.5px; line-height: 1.55; }
 
 @media (max-width: 780px) {
+  .welcome { justify-content: flex-start; padding: 28px 0 12px; }
   .welcome-panels { min-height: 0; }
   .welcome-panel { display: block !important; padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid var(--line); }
   .welcome-panel:last-child { border-bottom: 0; margin-bottom: 0; }
