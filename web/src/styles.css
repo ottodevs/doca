@@ -236,10 +236,17 @@ footer { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px;
 @keyframes stormfade { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 
 @media (max-width: 780px) {
+  .page { padding: 20px 14px 70px; }
+  header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .chain { text-align: left; }
   .tiles { grid-template-columns: 1fr 1fr; }
+  .tile.hero strong { font-size: 24px; }
   .receipt { grid-template-columns: 1fr 1fr; }
   .presets { grid-template-columns: 1fr; }
   .rail { overflow-x: auto; }
+  .narr h2 { font-size: 23px; }
   .balances { gap: 26px; }
   .balances strong { font-size: 30px; }
+  .actions button { flex: 1 1 auto; }
+  .harbor { flex-wrap: wrap; }
 }

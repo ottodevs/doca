@@ -1,0 +1,14 @@
+{
+  "name": "Plimsoll — keep your wallet, put it to work",
+  "short_name": "Plimsoll",
+  "description": "Non-custodial market making on 1inch Aqua with budgets that keep every promise honest.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#05080d",
+  "theme_color": "#05080d",
+  "icons": [
+    { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" }
+  ]
+}
