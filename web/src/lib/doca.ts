@@ -105,6 +105,14 @@ export async function connectWallet(): Promise<string> {
             throw new Error(`wallet is on chain ${net.chainId}; switch it to the practice network (chain ${deployment.chainId}) to act as maker`);
         }
     }
+    // The practice fork shares Base's chain id, so a chain-id match alone can still be the
+    // real network. Before letting the wallet sign anything, prove the injected provider sees
+    // the fork's own chain state: the fork's latest block hash exists nowhere else.
+    const forkTip = await provider.getBlock("latest");
+    const seen = await new ethers.BrowserProvider(injected).getBlock(forkTip!.number).catch(() => null);
+    if (!seen || seen.hash !== forkTip!.hash) {
+        throw new Error("this wallet is connected to the real network, not the practice fork; wallet mode stays disabled to keep real funds out of the demo");
+    }
     rebind(signer);
     session.mode = "wallet";
     session.maker = addr;
@@ -133,8 +141,11 @@ export type Strategy = {
     promisedWeth: bigint;
     promisedUsdc: bigint;
     budgetWeth: bigint;
+    budgetUsdc: bigint;
     wethLeft: bigint;
-    remaining: bigint;   // budget left, in FRAC units
+    usdcLeft: bigint;
+    remaining: bigint;       // WETH budget left, in FRAC units (drives the water level)
+    remainingUsdc: bigint;   // USDC budget left, in FRAC units (health checks use both legs)
     surchargeBps: bigint;
 };
 export type Wallet = { weth: bigint; usdc: bigint };
@@ -163,13 +174,22 @@ export async function readWallet(): Promise<Wallet> {
     return { weth: BigInt(w), usdc: BigInt(u) };
 }
 
-export async function readStrategy(s: { hash: string; order: Order; promisedWeth: bigint; promisedUsdc: bigint; budgetWeth: bigint }): Promise<Strategy> {
-    const [raw, remaining, fee] = await Promise.all([
+export async function readStrategy(s: { hash: string; order: Order; promisedWeth: bigint; promisedUsdc: bigint; budgetWeth: bigint; budgetUsdc: bigint }): Promise<Strategy> {
+    const [raw, rawUsdc, remaining, remainingUsdc, fee] = await Promise.all([
         aquaRead.rawBalances(session.maker, d.router, s.hash, d.weth),
+        aquaRead.rawBalances(session.maker, d.router, s.hash, d.usdc),
         skewRead.remainingFraction(s.hash, d.weth),
+        skewRead.remainingFraction(s.hash, d.usdc),
         skewRead.feeBpsFor(s.hash, d.weth),
     ]);
-    return { ...s, wethLeft: BigInt(raw[0]), remaining: BigInt(remaining), surchargeBps: BigInt(fee) };
+    return {
+        ...s,
+        wethLeft: BigInt(raw[0]),
+        usdcLeft: BigInt(rawUsdc[0]),
+        remaining: BigInt(remaining),
+        remainingUsdc: BigInt(remainingUsdc),
+        surchargeBps: BigInt(fee),
+    };
 }
 
 /// Ships one strategy: a promise plus the budget that keeps it honorable.
@@ -200,10 +220,12 @@ export async function shipStrategy(
         budget0: budgetWeth,
         budget1: budgetUsdc,
         ...CURVE,
-        harvestTo: d.maker,
+        // Surcharges belong to whoever owns the strategy. In wallet mode that is the
+        // connected maker, never the demo deployment key.
+        harvestTo: session.maker,
     })).wait();
 
-    return readStrategy({ hash, order, promisedWeth, promisedUsdc, budgetWeth });
+    return readStrategy({ hash, order, promisedWeth, promisedUsdc, budgetWeth, budgetUsdc });
 }
 
 export async function start(preset: Preset, wallet: Wallet): Promise<Strategy[]> {
