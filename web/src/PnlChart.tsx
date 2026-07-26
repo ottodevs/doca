@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 //
 // Beefy CLM-style Position Performance chart.
-// Two lines on one USD axis: Position Value vs HOLD Value.
-import { useEffect, useMemo, useState } from "react";
+// Two lines on one USD axis: Position Value vs HOLD Value (same L1 spot).
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
     CartesianGrid,
     Line,
@@ -21,17 +21,18 @@ import {
     sumHold,
     sumPosition,
     type PositionBasisLive,
+    type PositionHistoryTick,
     type PnlSample,
     type SpotHour,
 } from "./lib/pnl";
 
 type Props = {
-    hours: SpotHour[];
+    ticks: PositionHistoryTick[];
     bases: PositionBasisLive[];
     live: LiveStrategy[];
-    /** Real Base Uniswap USDC/WETH (HOLD). */
+    /** Real Base Uniswap USDC/WETH (both lines). */
     spot: number | null;
-    /** Local fork implied USDC/WETH (Position). */
+    /** Local fork implied USDC/WETH (header only). */
     forkSpot: number | null;
     priceError: string | null;
 };
@@ -41,10 +42,14 @@ const AXIS = "#363b63";
 const POS = "#5c70d6";
 const HOLD = "#999cb3";
 
+const MINUTE = 60_000;
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 
 const RANGES = [
+    { id: "1m", label: "1M", ms: MINUTE },
+    { id: "10m", label: "10M", ms: 10 * MINUTE },
+    { id: "1h", label: "1H", ms: HOUR },
     { id: "1d", label: "1D", ms: DAY },
     { id: "1w", label: "1W", ms: WEEK_MS },
     { id: "all", label: "ALL", ms: WEEK_MS },
@@ -71,6 +76,13 @@ function fmtAxis(n: number): string {
 
 function fmtTime(ts: number, spanMs: number): string {
     const d = new Date(ts);
+    if (spanMs <= 15 * MINUTE) {
+        return d.toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+    }
     if (spanMs <= DAY * 1.5) {
         return d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
     }
@@ -94,6 +106,37 @@ function yDomain(values: number[]): { min: number; max: number; ticks: number[] 
     return { min: lo, max: hi, ticks };
 }
 
+/** Samples in [start, end], with a carry-forward point at `start` so short windows aren't empty on the left. */
+function windowSeries(plot: PnlSample[], start: number, end: number): (PnlSample & { t: number })[] {
+    if (plot.length === 0) return [];
+
+    let before: PnlSample | null = null;
+    const inside: PnlSample[] = [];
+    for (const s of plot) {
+        if (s.at < start) before = s;
+        else if (s.at <= end) inside.push(s);
+    }
+
+    const out: PnlSample[] = [];
+    if (inside.length === 0) {
+        const seed = before ?? plot[plot.length - 1]!;
+        out.push({ ...seed, at: start });
+        if (end > start) out.push({ ...seed, at: end });
+    } else {
+        if (inside[0]!.at > start) {
+            const seed = before ?? inside[0]!;
+            out.push({ ...seed, at: start });
+        }
+        out.push(...inside);
+        const last = out[out.length - 1]!;
+        if (last.at < end - 1_000) {
+            out.push({ ...last, at: end });
+        }
+    }
+
+    return out.map((s) => ({ ...s, t: s.at }));
+}
+
 function ChartTooltip({ active, payload }: any) {
     if (!active || !payload?.length) return null;
     const row = payload[0]?.payload as PnlSample | undefined;
@@ -113,34 +156,33 @@ function ChartTooltip({ active, payload }: any) {
                 <span>vs HOLD</span>
                 <strong className={row.pnlUsdc >= 0 ? "good" : "bad"}>{fmtUsd(row.pnlUsdc, true)}</strong>
             </div>
+            {(row.wethLeft != null || row.usdcLeft != null) && (
+                <div className="pnl-tooltip-row">
+                    <span>Inventory</span>
+                    <strong>
+                        {(row.wethLeft ?? 0).toFixed(4)} WETH · {(row.usdcLeft ?? 0).toFixed(2)} USDC
+                    </strong>
+                </div>
+            )}
             <div className="pnl-tooltip-row">
                 <span>Base spot</span>
                 <strong>${row.spot.toFixed(2)}</strong>
             </div>
-            {row.forkSpot != null && (
-                <div className="pnl-tooltip-row">
-                    <span>Fork spot</span>
-                    <strong>${row.forkSpot.toFixed(2)}</strong>
-                </div>
-            )}
         </div>
     );
 }
 
-export default function PnlChart({ hours, bases, live, spot, forkSpot, priceError }: Props) {
+export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceError }: Props) {
     const hold = useMemo(() => sumHold(bases), [bases]);
     const position = useMemo(() => sumPosition(live), [live]);
 
     const tipReal: SpotHour | null = spot != null
         ? { at: Date.now(), usdcPerWeth: spot }
         : null;
-    const tipFork: SpotHour | null = forkSpot != null
-        ? { at: Date.now(), usdcPerWeth: forkSpot }
-        : null;
 
     const series = useMemo(
-        () => buildPnlSeries(hours, hold, position, tipReal, tipFork),
-        [hours, hold, position, tipReal?.usdcPerWeth, tipFork?.usdcPerWeth],
+        () => buildPnlSeries(ticks, hold, position, tipReal),
+        [ticks, hold, position, tipReal?.usdcPerWeth],
     );
 
     const [stable, setStable] = useState<PnlSample[]>([]);
@@ -151,18 +193,33 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
     // Prefer stable (avoids tip-timestamp flicker) but don't stay empty if series is ready.
     const plot = stable.length >= 2 ? stable : series;
 
-    const [rangeId, setRangeId] = useState<RangeId>("all");
-    const range = RANGES.find((r) => r.id === rangeId) ?? RANGES[RANGES.length - 1]!;
+    // Live demos default to 10M so ship/trade steps aren't crushed on a week axis.
+    const [rangeId, setRangeId] = useState<RangeId>("10m");
+    const [userPickedRange, setUserPickedRange] = useState(false);
+    const lastShipRef = useRef<number>(0);
+
+    useEffect(() => {
+        if (userPickedRange) return;
+        if (!(hold.since > 0)) return;
+        // Fresh ship / new session → keep the live 10M view.
+        if (hold.since !== lastShipRef.current) {
+            lastShipRef.current = hold.since;
+            setRangeId("10m");
+        }
+    }, [hold.since, userPickedRange]);
+
+    const range = RANGES.find((r) => r.id === rangeId) ?? RANGES[0]!;
+    const liveWindow = range.id === "1m" || range.id === "10m" || range.id === "1h";
 
     const end = plot.length ? plot[plot.length - 1]!.at : Date.now();
     const startAll = plot.length ? plot[0]!.at : end;
-    const start = range.id === "all" ? startAll : Math.max(startAll, end - range.ms);
+    // Fixed-width windows (10M/1H/…) so live steps aren't crushed on a week axis.
+    const start = range.id === "all" ? startAll : end - range.ms;
 
-    const data = useMemo(() => {
-        return plot
-            .filter((s) => s.at >= start && s.at <= end)
-            .map((s) => ({ ...s, t: s.at }));
-    }, [plot, start, end]);
+    const data = useMemo(
+        () => windowSeries(plot, start, end),
+        [plot, start, end],
+    );
 
     const { min: yMin, max: yMax, ticks: yTicks } = useMemo(() => {
         const vals: number[] = [];
@@ -174,31 +231,51 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
 
     const xDomain = useMemo(() => [start, end] as [number, number], [start, end]);
     const yDomainMemo = useMemo(() => [yMin, yMax] as [number, number], [yMin, yMax]);
-    const spanMs = end - start || range.ms;
+    const spanMs = Math.max(end - start, liveWindow ? range.ms : 1);
 
     const depositWeth = bases.reduce((n, b) => n + b.weth, 0n);
     const depositUsdc = bases.reduce((n, b) => n + b.usdc, 0n);
     const liveWeth = live.reduce((n, s) => n + s.wethLeft, 0n);
     const liveUsdc = live.reduce((n, s) => n + s.usdcLeft, 0n);
 
+    // At Deposit: deposit inventory × spot nearest ship time (not window-start).
+    const depositSample = plot.find((s) => s.at >= hold.since - 5_000)
+        ?? data.find((s) => Math.abs(s.pnlUsdc) < 0.01)
+        ?? data[0];
     const latest = data[data.length - 1];
-    const depositUsd = spot != null ? hold.weth * spot + hold.usdc : latest?.holdUsdc ?? 0;
-    const markPos = forkSpot ?? spot;
-    const nowUsd = markPos != null ? position.weth * markPos + position.usdc : latest?.positionUsdc ?? 0;
+    const depositUsd = depositSample?.holdUsdc
+        ?? (spot != null ? hold.weth * spot + hold.usdc : 0);
+    const nowUsd = latest?.positionUsdc
+        ?? (spot != null ? position.weth * spot + position.usdc : 0);
     const pnlUsd = nowUsd - depositUsd;
     const pnlClass = pnlUsd > 0.005 ? "good" : pnlUsd < -0.005 ? "bad" : "";
 
     const empty = data.length < 2;
     const noPosition = bases.length === 0;
+    const priceHours = new Set(
+        ticks.filter((t) => t.usdcPerWeth > 0).map((t) => Math.floor(t.at / HOUR) * HOUR),
+    ).size;
+    const balanceTicks = ticks.filter((t) => (t.strategyCount ?? 0) > 0
+        || (t.wethLeft ?? 0) > 0
+        || (t.usdcLeft ?? 0) > 0).length;
+
+    const posDot = liveWindow
+        ? { r: 3, strokeWidth: 0, fill: POS }
+        : false;
 
     return (
         <section className="pnl-beefy">
             <div className="pnl-beefy-card-header">
                 <h2 className="pnl-beefy-title">Position Performance</h2>
                 <div className="pnl-beefy-spot muted">
-                    {spot != null ? `HOLD $${spot.toFixed(2)}` : "HOLD —"}
-                    {forkSpot != null ? ` · Position $${forkSpot.toFixed(2)}` : ""}
-                    {hours.length ? ` · ${hours.length}h history` : ""}
+                    {spot != null ? `Base $${spot.toFixed(2)}` : "Base —"}
+                    {forkSpot != null ? ` · Fork $${forkSpot.toFixed(2)}` : ""}
+                    {liveWindow
+                        ? ` · live ${range.label}`
+                        : priceHours
+                            ? ` · ${priceHours}h history`
+                            : ""}
+                    {balanceTicks ? ` · ${balanceTicks} inventory ticks` : ""}
                     {priceError ? ` · ${priceError}` : ""}
                 </div>
             </div>
@@ -232,7 +309,7 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
                         </span>
                     </div>
                     <div className="pnl-stat-row pnl-stat-hold">
-                        <span>{bases.length ? `${fmtUsd(depositUsd)} HOLD` : "—"}</span>
+                        <span>{bases.length ? `${fmtUsd(nowUsd - pnlUsd)} HOLD` : "—"}</span>
                     </div>
                 </div>
             </div>
@@ -242,11 +319,10 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
                     <p className="pnl-nodata muted">Ship a strategy to start tracking Position vs HOLD.</p>
                 ) : empty ? (
                     <p className="pnl-nodata muted">
-                        Waiting for Uniswap hourly history
-                        {hours.length === 0 ? " (subgraph refresh on the dev server)." : "…"}
+                        Building ship→now series…
                     </p>
                 ) : (
-                    <div className="pnl-rechart" style={{ width: "100%", height: 220 }}>
+                    <div className="pnl-rechart" style={{ width: "100%", height: liveWindow ? 260 : 220 }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={data} margin={{ top: 16, right: 28, bottom: 4, left: 12 }}>
                             <CartesianGrid strokeDasharray="2 2" stroke={GRID} />
@@ -258,7 +334,7 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
                                 tickFormatter={(ts: number) => fmtTime(ts, spanMs)}
                                 stroke={AXIS}
                                 tickMargin={8}
-                                minTickGap={56}
+                                minTickGap={liveWindow ? 40 : 56}
                                 fontSize={11}
                                 scale="time"
                             />
@@ -288,12 +364,13 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
                             />
                             <Line
                                 yAxisId="usd"
-                                type="monotone"
+                                type={liveWindow ? "stepAfter" : "monotone"}
                                 dataKey="positionUsdc"
                                 name="Position"
                                 stroke={POS}
-                                strokeWidth={1.5}
-                                dot={false}
+                                strokeWidth={2}
+                                dot={posDot}
+                                activeDot={{ r: 4, fill: POS }}
                                 isAnimationActive={false}
                             />
                             </LineChart>
@@ -320,7 +397,10 @@ export default function PnlChart({ hours, bases, live, spot, forkSpot, priceErro
                                 key={r.id}
                                 type="button"
                                 className={r.id === rangeId ? "on" : ""}
-                                onClick={() => setRangeId(r.id)}
+                                onClick={() => {
+                                    setUserPickedRange(true);
+                                    setRangeId(r.id);
+                                }}
                             >
                                 {r.label}
                             </button>

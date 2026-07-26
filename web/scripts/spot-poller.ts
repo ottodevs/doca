@@ -90,7 +90,7 @@ async function loadActivePositions(d: Deployment): Promise<{
         if (dockedHashes.has(hash)) continue;
         const token = String(e.args.token).toLowerCase();
         const amount = Number(e.args.amount);
-        const slot = initial[hash] ?? { weth: 0, usdc: 0, shippedAt: Date.now() };
+        const slot = initial[hash] ?? { weth: 0, usdc: 0, shippedAt: 0 };
         if (token === d.weth.toLowerCase() && slot.weth === 0) slot.weth = amount / 1e18;
         if (token === d.usdc.toLowerCase() && slot.usdc === 0) slot.usdc = amount / 1e6;
         initial[hash] = slot;
@@ -98,6 +98,21 @@ async function loadActivePositions(d: Deployment): Promise<{
 
     const prevBases = readPositionHistory().bases;
     const prevByHash = new Map(prevBases.map((b) => [b.hash.toLowerCase(), b]));
+
+    // Resolve block timestamps once per unique ship block (prefer chain time over Date.now()).
+    const shipBlockNums = [...new Set(
+        shipped
+            .filter((e) => String(e.args.maker).toLowerCase() === maker
+                && String(e.args.app).toLowerCase() === app)
+            .map((e) => e.blockNumber),
+    )];
+    const blockTs = new Map<number, number>();
+    await Promise.all(shipBlockNums.map(async (n) => {
+        try {
+            const block = await provider.getBlock(n);
+            if (block?.timestamp) blockTs.set(n, block.timestamp * 1000);
+        } catch { /* keep Date.now fallback */ }
+    }));
 
     const activeHashes: string[] = [];
     for (const e of shipped) {
@@ -107,10 +122,13 @@ async function loadActivePositions(d: Deployment): Promise<{
         if (dockedHashes.has(hash.toLowerCase())) continue;
         activeHashes.push(hash);
         const key = hash.toLowerCase();
-        if (!initial[key]) initial[key] = { weth: 0, usdc: 0, shippedAt: Date.now() };
+        const chainAt = blockTs.get(e.blockNumber) ?? Date.now();
+        if (!initial[key]) initial[key] = { weth: 0, usdc: 0, shippedAt: chainAt };
+        else if (!initial[key]!.shippedAt) initial[key]!.shippedAt = chainAt;
         const prev = prevByHash.get(key);
         if (prev) {
-            initial[key]!.shippedAt = prev.shippedAt;
+            // Keep the earliest known ship time.
+            initial[key]!.shippedAt = Math.min(prev.shippedAt || chainAt, chainAt);
             if (initial[key]!.weth === 0) initial[key]!.weth = prev.weth;
             if (initial[key]!.usdc === 0) initial[key]!.usdc = prev.usdc;
         }

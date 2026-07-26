@@ -10,8 +10,8 @@ import {
 import { fetchWethUsdcSpot } from "./lib/uniswap-price";
 import {
     basisFromLive, dropBasis, loadPersistedBases, persistBases, reconcileBases,
-    fetchSpotHours,
-    type PositionBasisLive, type SpotHour,
+    fetchPositionHistory, postPositionTick, sumHold, sumPosition,
+    type PositionBasisLive, type PositionHistoryTick,
 } from "./lib/pnl";
 import PnlChart from "./PnlChart";
 
@@ -72,8 +72,9 @@ export default function LpDesk() {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [bases, setBases] = useState<PositionBasisLive[]>([]);
-    const [hours, setHours] = useState<SpotHour[]>([]);
+    const [ticks, setTicks] = useState<PositionHistoryTick[]>([]);
     const [spot, setSpot] = useState<number | null>(null);
+    const spotRef = useRef<number | null>(null);
     const [forkSpot, setForkSpot] = useState<number | null>(null);
     const [priceError, setPriceError] = useState<string | null>(null);
     const [loadingChain, setLoadingChain] = useState(true);
@@ -94,11 +95,14 @@ export default function LpDesk() {
     const basesRef = useRef(bases);
     basesRef.current = bases;
 
-    const refreshHours = useCallback(async () => {
-        const next = await fetchSpotHours();
-        setHours((prev) => {
+    const refreshHistory = useCallback(async () => {
+        const next = await fetchPositionHistory();
+        setTicks((prev) => {
             if (prev.length === next.length
                 && prev[0]?.at === next[0]?.at
+                && prev[prev.length - 1]?.at === next[next.length - 1]?.at
+                && prev[prev.length - 1]?.wethLeft === next[next.length - 1]?.wethLeft
+                && prev[prev.length - 1]?.usdcLeft === next[next.length - 1]?.usdcLeft
                 && prev[prev.length - 1]?.usdcPerWeth === next[next.length - 1]?.usdcPerWeth) {
                 return prev;
             }
@@ -106,6 +110,29 @@ export default function LpDesk() {
         });
         return next;
     }, []);
+
+    const recordPositionTick = useCallback(async (
+        strategies?: LiveStrategy[],
+        basesNow?: PositionBasisLive[],
+        usdcPerWeth?: number | null,
+    ) => {
+        const liveNow = strategies ?? liveRef.current;
+        const basesUse = basesNow ?? basesRef.current;
+        const px = usdcPerWeth ?? spotRef.current;
+        if (liveNow.length === 0 || px == null || !(px > 0)) return false;
+        const pos = sumPosition(liveNow);
+        const hold = sumHold(basesUse);
+        const ok = await postPositionTick({
+            usdcPerWeth: px,
+            wethLeft: pos.weth,
+            usdcLeft: pos.usdc,
+            holdWeth: hold.weth,
+            holdUsdc: hold.usdc,
+            strategyCount: liveNow.length,
+        });
+        if (ok) await refreshHistory();
+        return ok;
+    }, [refreshHistory]);
 
     const refreshLive = useCallback(async () => {
         const current = liveRef.current;
@@ -137,6 +164,7 @@ export default function LpDesk() {
         try {
             const s = await fetchWethUsdcSpot();
             setSpot(s.usdcPerWeth);
+            spotRef.current = s.usdcPerWeth;
             setPriceError(null);
             const nextBases = reconcileBases(liveNow, basesRef.current);
             basesRef.current = nextBases;
@@ -179,7 +207,7 @@ export default function LpDesk() {
                     basesRef.current = persisted;
                     setBases(persisted);
                 }
-                await Promise.all([refreshWallet(), refreshHours()]);
+                await Promise.all([refreshWallet(), refreshHistory()]);
                 const fromChain = await loadShippedFromChain();
                 if (cancelled) return;
                 liveRef.current = fromChain;
@@ -189,7 +217,10 @@ export default function LpDesk() {
                     return null;
                 });
                 if (cancelled) return;
-                if (spotNow) setSpot(spotNow.usdcPerWeth);
+                if (spotNow) {
+                    setSpot(spotNow.usdcPerWeth);
+                    spotRef.current = spotNow.usdcPerWeth;
+                }
                 const nextBases = reconcileBases(fromChain, basesRef.current);
                 basesRef.current = nextBases;
                 setBases(nextBases);
@@ -197,6 +228,7 @@ export default function LpDesk() {
                 if (fromChain.length) {
                     setTradeHash((h) => h || fromChain[0]!.hash);
                     await refreshForkSpot(fromChain);
+                    if (spotNow) await recordPositionTick(fromChain, nextBases, spotNow.usdcPerWeth);
                 }
             } catch (e: any) {
                 if (!cancelled) setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
@@ -205,25 +237,28 @@ export default function LpDesk() {
             }
         })();
         return () => { cancelled = true; };
-    }, [refreshWallet, refreshHours, refreshForkSpot]);
+    }, [refreshWallet, refreshHistory, refreshForkSpot, recordPositionTick]);
 
     useEffect(() => {
         if (live.length === 0) return;
         const tick = async () => {
             try {
                 const next = await refreshLive();
-                if (next) await refreshSpot(next);
+                if (next) {
+                    const s = await refreshSpot(next);
+                    await recordPositionTick(next, basesRef.current, s?.usdcPerWeth ?? spotRef.current);
+                }
             } catch { /* ignore */ }
         };
         void tick();
         const t = setInterval(tick, 30_000);
         return () => clearInterval(t);
-    }, [live.length, refreshLive, refreshSpot]);
+    }, [live.length, refreshLive, refreshSpot, recordPositionTick]);
 
     useEffect(() => {
-        const t = setInterval(() => { void refreshHours(); }, 5 * 60_000);
+        const t = setInterval(() => { void refreshHistory(); }, 5 * 60_000);
         return () => clearInterval(t);
-    }, [refreshHours]);
+    }, [refreshHistory]);
 
     const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
         setForm((f) => {
@@ -268,7 +303,8 @@ export default function LpDesk() {
             setDrafts((ds) => ds.filter((d) => d.id !== draft.id));
             setTradeHash((h) => h || shipped.hash);
             await refreshWallet();
-            await refreshSpot(nextLive);
+            const s = await refreshSpot(nextLive);
+            await recordPositionTick(nextLive, nextBases, s?.usdcPerWeth ?? spotRef.current);
         } catch (e: any) {
             resetMakerNonce();
             setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
@@ -310,7 +346,10 @@ export default function LpDesk() {
             setDrafts(remaining);
             if (shipped[0]) setTradeHash((h) => h || shipped[0]!.hash);
             await refreshWallet();
-            if (shipped.length) await refreshSpot(nextLive);
+            if (shipped.length) {
+                const s = await refreshSpot(nextLive);
+                await recordPositionTick(nextLive, basesRef.current, s?.usdcPerWeth ?? spotRef.current);
+            }
         } finally {
             setBusy(false);
         }
@@ -340,6 +379,37 @@ export default function LpDesk() {
         }
     };
 
+    const onDockAll = async () => {
+        const toDock = [...liveRef.current];
+        if (toDock.length === 0) return;
+        setBusy(true);
+        setError(null);
+        try {
+            for (const s of toDock) {
+                try {
+                    await dock(s);
+                    const nextLive = liveRef.current.filter((x) => x.hash !== s.hash);
+                    liveRef.current = nextLive;
+                    setLive(nextLive);
+                    const nextBases = dropBasis(basesRef.current, s.hash);
+                    basesRef.current = nextBases;
+                    setBases(nextBases);
+                    persistBases(nextBases);
+                } catch (e: any) {
+                    resetMakerNonce();
+                    setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
+                    break;
+                }
+            }
+            setTradeHash(liveRef.current[0]?.hash ?? "");
+            await refreshWallet();
+            if (liveRef.current.length) await refreshSpot(liveRef.current);
+            else setForkSpot(null);
+        } finally {
+            setBusy(false);
+        }
+    };
+
     const onTrade = async () => {
         const target = live.find((s) => s.hash === tradeHash) ?? live[0];
         if (!target) {
@@ -356,8 +426,9 @@ export default function LpDesk() {
             }
             const next = await refreshLive();
             await refreshWallet();
-            if (next) await refreshSpot(next);
-            else await refreshSpot(liveRef.current);
+            const liveNow = next ?? liveRef.current;
+            const s = await refreshSpot(liveNow);
+            await recordPositionTick(liveNow, basesRef.current, s?.usdcPerWeth ?? spotRef.current);
         } catch (e: any) {
             resetTakerNonce();
             setError(String(e?.shortMessage ?? e?.message ?? e).slice(0, 200));
@@ -383,7 +454,7 @@ export default function LpDesk() {
             </header>
 
             <PnlChart
-                hours={hours}
+                ticks={ticks}
                 bases={bases}
                 live={live}
                 spot={spot}
@@ -402,11 +473,11 @@ export default function LpDesk() {
                     </div>
                 </div>
                 <p className="muted" style={{ margin: "8px 0 0", fontSize: 13 }}>
-                    Fill against a live Aqua strategy to move fork inventory and implied price.
-                    Position marks at fork; HOLD at real Base.
+                    Fill against a live Aqua strategy to move fork inventory.
+                    Chart marks Position and HOLD at real Base spot; fork mid is shown below.
                 </p>
                 <div className="desk-form" style={{ marginTop: 14 }}>
-                    <label>
+                    <label className="desk-form-wide">
                         Strategy
                         <select
                             value={tradeHash || live[0]?.hash || ""}
@@ -415,8 +486,8 @@ export default function LpDesk() {
                         >
                             {live.length === 0 && <option value="">No live strategies</option>}
                             {live.map((s) => (
-                                <option key={s.hash} value={s.hash}>
-                                    {s.label} · {shortHash(s.hash)} · {fmtWeth(s.wethLeft)} WETH / {fmtUsdc(s.usdcLeft)} USDC
+                                <option key={s.hash} value={s.hash} title={`${s.label} · ${s.hash}`}>
+                                    {s.label} · {shortHash(s.hash)} · {fmtWeth(s.wethLeft)}/{fmtUsdc(s.usdcLeft)}
                                 </option>
                             ))}
                         </select>
@@ -603,9 +674,20 @@ export default function LpDesk() {
             <section className="card">
                 <div className="row">
                     <h2 className="desk-h">Live ({live.length})</h2>
-                    <button type="button" className="ghost" disabled={busy || live.length === 0} onClick={() => refreshLive()}>
-                        Refresh balances
-                    </button>
+                    <div className="desk-actions" style={{ display: "flex", gap: 8 }}>
+                        <button type="button" className="ghost" disabled={busy || live.length === 0} onClick={() => refreshLive()}>
+                            Refresh balances
+                        </button>
+                        <button
+                            type="button"
+                            className="primary"
+                            style={{ width: "auto" }}
+                            disabled={busy || live.length === 0}
+                            onClick={onDockAll}
+                        >
+                            Dock all
+                        </button>
+                    </div>
                 </div>
                 {live.length === 0 ? (
                     <p className="muted">
@@ -647,7 +729,7 @@ export default function LpDesk() {
             {busy && <p className="busy">Working</p>}
 
             <footer>
-                AquaSwapVMRouter · fork trades · Position@fork · HOLD@Base
+                AquaSwapVMRouter · fork trades · Position vs HOLD @ Base spot
             </footer>
         </div>
     );

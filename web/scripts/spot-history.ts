@@ -108,6 +108,8 @@ export function appendPositionTick(tick: PositionTick, bases: StoredBasis[]) {
         && Math.abs(last.at - tick.at) < 15_000
         && Math.abs(last.usdcPerWeth - tick.usdcPerWeth) < 0.01
         && Math.abs(last.positionUsdc - tick.positionUsdc) < 0.05
+        && Math.abs((last.wethLeft ?? 0) - (tick.wethLeft ?? 0)) < 1e-9
+        && Math.abs((last.usdcLeft ?? 0) - (tick.usdcLeft ?? 0)) < 1e-6
     ) {
         return writePositionHistory(bases, stored.ticks);
     }
