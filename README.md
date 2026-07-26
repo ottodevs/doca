@@ -10,6 +10,7 @@ exceed your real balance, and the Harbormaster docks and re-ships when the balan
 Built at ETHGlobal Lisbon 2026.
 
 **[Landing](https://doca-finance.pages.dev)** ·
+[Demo video, 3:30](https://doca-finance.pages.dev/assets/demo.mp4) ·
 [App](https://doca-finance.pages.dev/app/) ·
 [Deck](https://doca-finance.pages.dev/deck/) ·
 [Design dossier](https://doca-finance.pages.dev/dossier/) ·
