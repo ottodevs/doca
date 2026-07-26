@@ -68,6 +68,10 @@ not. Every strategy carries a budget of what it is allowed to consume, sized aga
 wallet really holds. Doca prices depletion on-chain as a budget drains and repairs allocations
 off-chain before underfunding turns into persistent failed quotes.
 
+<p align="center">
+  <img src="assets/diagrams/04-diagram-system-architecture.png" alt="System architecture: on-chain flow from Maker Wallet through Aqua and SwapVM into DocaApp's InventorySkewProvider and the Harbormaster, fed off-chain by market data, routes, quotes and events" width="720">
+</p>
+
 **On-chain — `InventorySkewProvider`.** An `IProtocolFeeProvider` plugged into SwapVM's stock
 `AquaDynamicProtocolFeeAmountIn` instruction (opcode 30). The fee is flat while a budget is healthy
 and rises quadratically as it drains. Three properties:
@@ -81,6 +85,10 @@ and rises quadratically as it drains. Three properties:
 **Off-chain — the Harbormaster.** Watches every strategy a maker has shipped; when one goes under
 its waterline it docks it and re-promises against the balances the wallet holds now — the
 whitepaper's manual recommendation, automated.
+
+<p align="center">
+  <img src="assets/diagrams/02-diagram-protection-loop.png" alt="Protection loop: quote, directional flow, budget drains, crosses line, dock, resize, re-ship, looping back to quote" width="720">
+</p>
 
 **Trust model.** Demo: a local demo signer lets the Harbormaster act autonomously on camera. Real
 connected wallet: the same actions currently require your signature. Production: a scoped session
