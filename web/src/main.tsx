@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
+// ThirdwebProvider supplies the query client the header's sign-in fallback needs.
+import { ThirdwebProvider } from "thirdweb/react";
 import App from "./App";
 import LpDesk from "./LpDesk";
 import type { ViewId } from "./nav";
@@ -22,4 +24,4 @@ function Root() {
         : <LpDesk view={view} onViewChange={setView} />;
 }
 
-createRoot(document.getElementById("root")!).render(<Root />);
+createRoot(document.getElementById("root")!).render(<ThirdwebProvider><Root /></ThirdwebProvider>);

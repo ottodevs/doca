@@ -190,52 +190,164 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
 
 const ONBOARD_KEY = "doca-onboarded";
 
-const ONBOARD_PANELS: { title: string; body: string; note: string }[] = [
-    {
-        title: "Your money works from your wallet",
-        body: "Doca puts an idle wallet balance to work in live markets, for people whose crypto sits untouched between trades.",
-        note: "Keep your wallet. Put it to work anyway.",
-    },
-    {
-        title: "One balance, many markets",
-        body: "You sign price rules for several markets at once, never a deposit.",
-        note: "The Harbormaster watches your positions so you don't have to.",
-    },
-    {
-        title: "Try it in practice waters",
-        body: "This preview runs on a mirrored copy of Base, with real contracts and real tokens, so nothing you do here touches real funds.",
-        note: "Everything here is real. The risk is not.",
-    },
-];
-
-// Shown once (localStorage doca-onboarded), reopenable from the header "?".
+// First run with a reachable node: one soft card over the journey's first screen, not a
+// tour. Dismissable, shown once (localStorage doca-onboarded), reopenable from the header "?".
 function Onboarding({ onClose }: { onClose: () => void }) {
-    const [step, setStep] = useState(0);
-    const last = step === ONBOARD_PANELS.length - 1;
-    const panel = ONBOARD_PANELS[step]!;
     return (
         <div className="onboard" role="dialog" aria-modal="true" aria-label="Welcome to Doca">
             <div className="onboard-card">
-                <button type="button" className="onboard-skip" onClick={onClose}>Skip</button>
                 <Mark size={26} />
-                <h2>{panel.title}</h2>
-                <p>{panel.body}</p>
-                <p className="onboard-note">{panel.note}</p>
+                <h2>Practice waters</h2>
+                <p>Real 1inch Aqua contracts on a mirrored Base network. Nothing here spends real funds.</p>
                 <div className="onboard-foot">
-                    <div className="onboard-dots" aria-hidden>
-                        {ONBOARD_PANELS.map((_, i) => (
-                            <i key={i} className={i === step ? "on" : ""} />
-                        ))}
-                    </div>
-                    <button
-                        type="button"
-                        className="primary onboard-next"
-                        onClick={() => (last ? onClose() : setStep((s) => s + 1))}
-                    >
-                        {last ? "Start" : "Next"}
-                    </button>
+                    <button type="button" className="primary onboard-next" onClick={onClose}>Start</button>
                 </div>
             </div>
+        </div>
+    );
+}
+
+// ---------- welcome sequence: hosted preview with no reachable node ----------
+// The public deploy has no fork behind it. Instead of a bare "Preview" banner over an
+// empty screen, this walks through what the app does, in the app's own diagrammatic
+// language, then offers the real thing: a local practice fork with the real contracts.
+
+function SvgFleet() {
+    return (
+        <svg className="welcome-svg" viewBox="0 0 200 100" fill="none" aria-hidden>
+            <circle cx="24" cy="50" r="11" stroke="currentColor" strokeWidth="2" />
+            <path d="M24 39 V27" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <path d="M35 43 L92 18M35 50 H92M35 57 L92 82" stroke="currentColor" strokeWidth="1.6" strokeDasharray="3 4" strokeLinecap="round" />
+            <circle cx="35" cy="50" r="2.4" fill="currentColor" />
+            <g stroke="currentColor" strokeWidth="1.8">
+                <rect x="92" y="8" width="42" height="20" rx="4" />
+                <rect x="92" y="40" width="42" height="20" rx="4" />
+                <rect x="92" y="72" width="42" height="20" rx="4" />
+            </g>
+        </svg>
+    );
+}
+
+function SvgWaterline() {
+    return (
+        <svg className="welcome-svg" viewBox="0 0 200 100" fill="none" aria-hidden>
+            <rect x="34" y="14" width="132" height="72" rx="8" stroke="currentColor" strokeWidth="1.8" />
+            <rect x="35" y="58" width="130" height="27" fill="currentColor" opacity="0.14" />
+            <path d="M34 58 H166" stroke="currentColor" strokeWidth="1.6" strokeDasharray="4 4" />
+            <path d="M20 58 h10 M26 54 l4 4 -4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M82 26 H118 L106 40 H72 Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        </svg>
+    );
+}
+
+function SvgHarbormaster() {
+    return (
+        <svg className="welcome-svg" viewBox="0 0 200 100" fill="none" aria-hidden>
+            <g stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M100 8 84 16l16 8 16-8Z" />
+                <path d="M90 18v13c0 5 4.5 9 10 9s10-4 10-9V18" />
+            </g>
+            <rect x="26" y="58" width="52" height="26" rx="5" stroke="currentColor" strokeWidth="1.6" opacity="0.4" />
+            <path d="M26 70 H78" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 3" opacity="0.4" />
+            <path d="M84 68 C102 68 98 54 118 54" stroke="currentColor" strokeWidth="1.6" strokeDasharray="3 4" strokeLinecap="round" />
+            <rect x="120" y="44" width="52" height="26" rx="5" stroke="currentColor" strokeWidth="1.8" />
+            <path d="M120 56 H172" stroke="currentColor" strokeWidth="1.4" strokeDasharray="3 3" />
+        </svg>
+    );
+}
+
+const WELCOME_PANELS = [
+    {
+        title: "One balance, several markets.",
+        body: "Your wallet stays put. Each strategy gets a promise, not a deposit, so one balance can quote in several markets at once.",
+        Svg: SvgFleet,
+    },
+    {
+        title: "The budget is the line.",
+        body: "A promise may exceed your wallet. That is how Aqua works, by design. A budget may not: every strategy carries a line it cannot cross.",
+        Svg: SvgWaterline,
+    },
+    {
+        title: "The Harbormaster watches.",
+        body: "Cross the line and the Harbormaster docks the strategy, then re-ships it against what the wallet actually holds right now.",
+        Svg: SvgHarbormaster,
+    },
+];
+
+const DEMO_CMD = `git clone https://github.com/ottodevs/doca && cd doca
+
+# 1. a node forking Base at the pinned block
+anvil --fork-url https://mainnet.base.org --fork-block-number 49093600 --chain-id 8453
+
+# 2. contracts + seed the demo wallet
+cd contracts && yarn && npx hardhat run scripts/deploy-for-web.ts --network localhost
+
+# 3. the app, http://127.0.0.1:5273
+cd ../web && bun install && bun run dev`;
+
+// Rendered instead of the journey when the fork is unreachable (hosted preview, no node
+// behind it): three panels advanced by Continue + dots on desktop, all stacked on mobile.
+function WelcomeNoNode() {
+    const [step, setStep] = useState(0);
+    const [demoOpen, setDemoOpen] = useState(false);
+    const last = step === WELCOME_PANELS.length - 1;
+
+    return (
+        <div className="welcome">
+            <div className="welcome-panels">
+                {WELCOME_PANELS.map((p, i) => (
+                    <section key={p.title} className={`welcome-panel ${i === step ? "active" : ""}`} aria-hidden={i !== step}>
+                        <p.Svg />
+                        <h2>{p.title}</h2>
+                        <p>{p.body}</p>
+                    </section>
+                ))}
+            </div>
+
+            <div className="welcome-controls">
+                <div className="welcome-dots" role="tablist" aria-label="Welcome panels">
+                    {WELCOME_PANELS.map((p, i) => (
+                        <button
+                            key={p.title}
+                            type="button"
+                            role="tab"
+                            aria-selected={i === step}
+                            aria-label={p.title}
+                            className={i === step ? "on" : ""}
+                            onClick={() => setStep(i)}
+                        />
+                    ))}
+                </div>
+                {!last && (
+                    <button
+                        type="button"
+                        className="primary welcome-continue"
+                        onClick={() => setStep((s) => Math.min(s + 1, WELCOME_PANELS.length - 1))}
+                    >
+                        Continue
+                    </button>
+                )}
+            </div>
+
+            <div className="welcome-cta">
+                <button type="button" className="primary" onClick={() => setDemoOpen((o) => !o)}>
+                    Run the practice demo
+                </button>
+                <a className="welcome-link" href="/#mechanism">See the mechanism</a>
+                <a className="welcome-link" href="/agents/">Agent surface</a>
+            </div>
+
+            {demoOpen && (
+                <div className="welcome-demo">
+                    <p>Runs locally against a fork of Base, with the same contracts and demo wallet as the video.</p>
+                    <pre><code>{DEMO_CMD}</code></pre>
+                </div>
+            )}
+
+            <p className="welcome-note">
+                This hosted preview isn't connected to a network. The full app runs against a
+                practice fork with real Aqua contracts.
+            </p>
         </div>
     );
 }
@@ -492,14 +604,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
 
     return (
         <div className={`page ${storm ? "storm" : ""}`}>
-            {nodeDown && (
-                <div className="node-down" role="status">
-                    <strong>Preview.</strong> The interactive build follows the demo node.
-                    <a href="/deck/">See the walkthrough</a>
-                    <a href="/">How the budgets work</a>
-                </div>
-            )}
-            {onboardOpen && <Onboarding onClose={closeOnboarding} />}
+            {!nodeDown && onboardOpen && <Onboarding onClose={closeOnboarding} />}
             <header className="app-header">
                 <div className="brand">
                     <Mark />
@@ -509,59 +614,65 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 <TabNav view={view} onChange={onViewChange} />
 
                 <div className="header-right">
-                    <div className="header-group">
-                        <span
-                            className="pill-seg"
-                            title={`Base fork, block ${block ? block.toLocaleString() : d.forkBlock.toLocaleString()} · Aqua ${d.aqua.slice(0, 10)}… · canonical registry`}
-                        >
-                            <span className="dot" />Practice waters
-                        </span>
-                        {mark && (
+                    {!nodeDown && (
+                        <div className="header-group">
                             <span
                                 className="pill-seg"
-                                title="Live Base mainnet WETH/USDC price from the Uniswap Trading API. The Harbormaster marks its decisions against the real market, not the practice fork."
+                                title={`Base fork, block ${block ? block.toLocaleString() : d.forkBlock.toLocaleString()} · Aqua ${d.aqua.slice(0, 10)}… · canonical registry`}
                             >
-                                ${mark.usdcPerWeth.toFixed(0)} · Uniswap live
+                                <span className="dot" />Practice waters
                             </span>
-                        )}
-                        {account
-                            ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
-                            : hasInjectedWallet()
-                                ? <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>
-                                : thirdwebClient
-                                    ? (
-                                        <span className="pill-seg thirdweb-seg">
-                                            <ConnectButton
-                                                client={thirdwebClient}
-                                                wallets={thirdwebWallets}
-                                                chain={base}
-                                                theme="light"
-                                                connectButton={{ label: "Sign in", className: "thirdweb-connect-btn" }}
-                                            />
-                                        </span>
-                                    )
-                                    : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
-                    </div>
+                            {mark && (
+                                <span
+                                    className="pill-seg"
+                                    title="Live Base mainnet WETH/USDC price from the Uniswap Trading API. The Harbormaster marks its decisions against the real market, not the practice fork."
+                                >
+                                    ${mark.usdcPerWeth.toFixed(0)} · Uniswap live
+                                </span>
+                            )}
+                            {account
+                                ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
+                                : hasInjectedWallet()
+                                    ? <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>
+                                    : thirdwebClient
+                                        ? (
+                                            <span className="pill-seg thirdweb-seg">
+                                                <ConnectButton
+                                                    client={thirdwebClient}
+                                                    wallets={thirdwebWallets}
+                                                    chain={base}
+                                                    theme="light"
+                                                    connectButton={{ label: "Sign in", className: "thirdweb-connect-btn" }}
+                                                />
+                                            </span>
+                                        )
+                                        : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
+                        </div>
+                    )}
                     <div className="header-aux">
-                        <button
-                            type="button"
-                            className="help-btn"
-                            title="Replay the intro"
-                            aria-label="Replay the intro"
-                            onClick={() => setOnboardOpen(true)}
-                        >
-                            ?
-                        </button>
+                        {!nodeDown && (
+                            <button
+                                type="button"
+                                className="help-btn"
+                                title="Replay the intro"
+                                aria-label="Replay the intro"
+                                onClick={() => setOnboardOpen(true)}
+                            >
+                                ?
+                            </button>
+                        )}
                         <ThemeToggle mode={theme} onChange={setTheme} />
                     </div>
                 </div>
             </header>
 
-            <Waterline stage={working ? Math.max(stage, 2) : stage} />
+            {nodeDown && <WelcomeNoNode />}
 
-            {!wallet && <p className="muted">reading your wallet…</p>}
+            {!nodeDown && <Waterline stage={working ? Math.max(stage, 2) : stage} />}
 
-            {wallet && !working && (
+            {!nodeDown && !wallet && <p className="muted">reading your wallet…</p>}
+
+            {!nodeDown && wallet && !working && (
                 <>
                     {stage === 5 && receipt && (
                         <div className="stats">
@@ -627,7 +738,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 </>
             )}
 
-            {wallet && working && (
+            {!nodeDown && wallet && working && (
                 <>
                     <div className="narr">
                         <h2>One balance, working in {strategies.length} markets</h2>
@@ -772,9 +883,11 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 ))}
             </section>
 
-            <footer>
-                Preview environment: real 1inch Aqua contracts on a mirrored Base network.
-            </footer>
+            {!nodeDown && (
+                <footer>
+                    Practice waters: real 1inch Aqua contracts on a mirrored Base network.
+                </footer>
+            )}
         </div>
     );
 }
