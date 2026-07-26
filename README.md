@@ -1,4 +1,4 @@
-# Plimsoll
+# Doca Finance
 
 **Keep your wallet. Put it to work anyway.**
 
@@ -36,7 +36,7 @@ put numbers on the same gap: 85% of concentrated liquidity sat idle in H1 2026, 
 idle capital was in wallets managed by people rather than by contracts
 ([CoinDesk, 2026-07-18](https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away)).
 
-## What Plimsoll is
+## What Doca is
 
 Two pieces and one invariant.
 

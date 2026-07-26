@@ -1,17 +1,17 @@
-# Plimsoll — design rationale
+# Doca — design rationale
 
 Full illustrated dossier: [docs/dossier.html](docs/dossier.html). This is the terse in-repo version.
 
 ## Narrative
 
 Aqua solved custody: you promise liquidity, you never deposit it. Promises can exceed the wallet
-by design, and the whitepaper's fix (§3) is a human docking positions by hand. Plimsoll turns that
+by design, and the whitepaper's fix (§3) is a human docking positions by hand. Doca turns that
 chore into a product: budgets keep every promise honest, a Harbormaster keeps them honest while
 you sleep.
 
 ## The name is the design system
 
-The Plimsoll line is the mark on a ship's hull: load past it and you sink. Every visual maps to a
+The load line — the "Plimsoll line" — is the mark on a ship's hull: load past it and you sink. Every visual maps to a
 protocol primitive — nothing is decorative:
 
 | On screen | Means | Protocol reality |

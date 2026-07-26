@@ -22,12 +22,19 @@ const STEPS = [
 
 const ICON: Record<Entry["kind"], string> = { info: "·", agent: "●", warn: "▲", fill: "⇄" };
 
-// The Plimsoll mark: a circle crossed by the load line.
+// The Doca mark: a D half-submerged at the waterline.
 function Mark({ size = 30 }: { size?: number }) {
     return (
         <svg className="mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-            <circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" strokeWidth="2.6" />
-            <line x1="1" y1="16" x2="31" y2="16" stroke="currentColor" strokeWidth="2.6" />
+            <defs>
+                <clipPath id="mt"><rect x="0" y="0" width="32" height="16" /></clipPath>
+                <clipPath id="mb"><rect x="0" y="16" width="32" height="16" /></clipPath>
+            </defs>
+            <g fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round">
+                <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clipPath="url(#mt)" />
+                <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clipPath="url(#mb)" opacity="0.45" />
+                <line x1="2" y1="16" x2="30" y2="16" />
+            </g>
         </svg>
     );
 }
@@ -311,7 +318,7 @@ export default function App() {
                 <div className="brand">
                     <Mark />
                     <div>
-                        <h1>Plimsoll</h1>
+                        <h1>Doca</h1>
                         <p className="tagline">Keep your wallet. Put it to work anyway.</p>
                     </div>
                 </div>
