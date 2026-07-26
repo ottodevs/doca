@@ -265,6 +265,7 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
 .hull-foot em { display: block; font-style: normal; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
 .hull-foot span { color: var(--muted); font-size: 10.5px; }
 .feebadge { margin-top: 8px; text-align: center; font-size: 12px; color: var(--muted); transition: color 0.3s ease; }
+.hull-metrics { display: flex; justify-content: center; gap: 10px; margin-top: 3px; font-size: 10.5px; color: var(--faint); }
 .vessel.warn .water { background: linear-gradient(180deg, color-mix(in srgb, var(--warn) 32%, transparent), color-mix(in srgb, var(--warn) 50%, transparent)); border-top-color: color-mix(in srgb, var(--warn) 65%, transparent); }
 .vessel.warn .feebadge { color: var(--warn); }
 .vessel.sinking .hull { border-color: color-mix(in srgb, var(--danger) 55%, transparent); }

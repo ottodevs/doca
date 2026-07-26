@@ -503,8 +503,8 @@
       </div>
       <p class="arch-note" data-reveal>
         InventorySkewProvider plugs into SwapVM's stock fee opcode: flat while a strategy's budget is
-        healthy, quadratic as it drains. The Harbormaster docks and re-ships before the wallet ever
-        comes up short.
+        healthy, quadratic as it drains. The Harbormaster docks and re-ships before underfunding
+        turns into persistent failed quotes.
       </p>
     </div>
   </section>
@@ -532,7 +532,7 @@
         </details>
         <details class="faq-item">
           <summary>Is it only for 1inch Aqua?</summary>
-          <p class="a">Aqua-native today, by design: the fee provider plugs into SwapVM's own opcode, and every settling transaction runs through 1inch's official, unmodified contracts. The idea underneath, a budget that can never exceed what you actually hold, isn't Aqua-specific, and credit is the clearest place it generalizes next.</p>
+          <p class="a">Aqua-native today, by design: the fee provider plugs into SwapVM's own opcode, and every settling transaction runs through 1inch's official, unmodified contracts. The idea underneath, a budget sized against what the wallet actually holds, isn't Aqua-specific, and credit is the clearest place it generalizes next.</p>
         </details>
         <details class="faq-item">
           <summary>What about lending?</summary>

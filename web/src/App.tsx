@@ -10,6 +10,10 @@ import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 const WATERLINE = 1_000n;         // must match the curve the provider was configured with
 const FILL_SIZE = 500_000_000n;   // 500 USDC per market fill
 const SPEND = 250_000_000_000_000_000n; // 0.25 WETH
+// Consumed % of a strategy's budget that triggers the Harbormaster's auto-dock (derived from WATERLINE/FRAC).
+const DOCK_LINE_PCT = Math.round(100 - (Number(WATERLINE) / Number(FRAC)) * 100);
+// Two-decimal WETH formatter for the compact capacity/coverage summary (legible on camera).
+const fmt2 = (v: bigint) => (Number(v) / 1e18).toFixed(2);
 
 type Entry = { at: string; text: string; kind: "info" | "agent" | "warn" | "fill" };
 
@@ -165,11 +169,15 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
                 </div>
                 <div className="hull-foot">
                     <div><em>{fmtWeth(s.wethLeft)}</em><span>WETH aboard</span></div>
-                    <div style={{ textAlign: "right" }}><em>{fmtPct(s.remaining)}%</em><span>budget left</span></div>
+                    <div style={{ textAlign: "right" }}><em>{fmtPct(s.remaining)}%</em><span>budget remaining</span></div>
                 </div>
             </div>
             <div className="feebadge">
                 {state === "sinking" ? "below the line, docking next" : `${fmtFee(s.surchargeBps)}% surcharge`}
+            </div>
+            <div className="hull-metrics">
+                <span>Current surcharge {fmtFee(s.surchargeBps)}%</span>
+                <span>Dock line {DOCK_LINE_PCT}%</span>
             </div>
         </div>
     );
@@ -453,6 +461,8 @@ export default function App() {
     const promisedWeth = strategies.reduce((a, s) => a + s.promisedWeth, 0n);
     // What the strategies may still consume: each budget scaled by how much of it is left.
     const budgetLeftWeth = strategies.reduce((a, s) => a + (s.budgetWeth * s.remaining) / FRAC, 0n);
+    // Total risk budget allocated across every strategy (full budgets, not what remains).
+    const totalBudgetWeth = strategies.reduce((a, s) => a + s.budgetWeth, 0n);
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
     const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
 
@@ -523,14 +533,14 @@ export default function App() {
                     {stage === 5 && receipt && (
                         <div className="stats">
                             <div className="stat-hero">
-                                <span>Fills settled</span>
-                                <strong>{receipt.fills}</strong>
-                                <em>across {receipt.markets} market{receipt.markets === 1 ? "" : "s"}, nothing left unresolved</em>
+                                <span>End value</span>
+                                <strong>{easedWeth.toFixed(4)} WETH</strong>
+                                <em>+ {easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC, same wallet, nothing to unwind</em>
                             </div>
                             <div className="stat-strip">
+                                <div><span>Fills settled</span><strong>{receipt.fills}</strong></div>
                                 <div><span>Markets served</span><strong>{receipt.markets}</strong></div>
                                 <div><span>Protections</span><strong>{receipt.protections}</strong></div>
-                                <div><span>Deposits to unwind</span><strong>0</strong></div>
                             </div>
                         </div>
                     )}
@@ -596,25 +606,23 @@ export default function App() {
 
                     <section className="stats">
                         <div className="stat-hero">
-                            <span>Market coverage</span>
-                            <strong>{fmtWeth(promisedWeth)} WETH</strong>
-                            <em>{amplification.toFixed(2)}× your wallet, spread across every market</em>
+                            <span>Coverage</span>
+                            <strong>{amplification.toFixed(2)}×</strong>
+                            <em>quoted liquidity spread across every market, from one wallet balance</em>
                         </div>
                         <div className="stat-strip">
                             <div>
-                                <span>In your wallet</span>
-                                <strong>{easedWeth.toFixed(4)} WETH</strong>
-                                <em>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC</em>
+                                <span>Wallet capacity</span>
+                                <strong>{easedWeth.toFixed(2)} WETH</strong>
                             </div>
                             <div>
-                                <span>Budget left</span>
-                                <strong>{fmtWeth(budgetLeftWeth)} WETH</strong>
-                                <em>{honorable ? "within wallet" : "over budget"}</em>
+                                <span>Quoted liquidity</span>
+                                <strong>{fmt2(promisedWeth)} WETH</strong>
                             </div>
                             <div className={honorable ? "good" : "bad"}>
-                                <span>Promises kept</span>
-                                <strong><i className="state-dot" />{honorable ? "100%" : "at risk"}</strong>
-                                <em>{rebalances} protection{rebalances === 1 ? "" : "s"} by the Harbormaster</em>
+                                <span>Allocated risk budget</span>
+                                <strong><i className="state-dot" />{fmt2(totalBudgetWeth)} WETH</strong>
+                                <em>{honorable ? "within wallet" : "over budget"} · {rebalances} protection{rebalances === 1 ? "" : "s"}</em>
                             </div>
                         </div>
                     </section>
@@ -634,7 +642,7 @@ export default function App() {
                         <div className="harbor">
                             <span className={`beacon ${agentOn ? "on" : ""}`} />
                             <div className="harbor-txt">
-                                <strong>Harbormaster <em className="role">· autopilot</em></strong>
+                                <strong>Harbormaster <em className="role">· keeper</em></strong>
                                 <span>
                                     {agentOn
                                         ? `watching ${strategies.length} strategies, docking anything below its line and re-shipping against real balances`
