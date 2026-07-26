@@ -160,7 +160,8 @@ export const PRESETS: Preset[] = [
 ];
 
 // Curve: nothing while the budget is healthy, prohibitive once it is gone.
-const CURVE = { baseFeeBps: 0n, maxFeeBps: BPS / 5n, kink: 4_000n, waterlineFrac: 1_000n };
+// Exported so lib/replay.ts can mirror the exact same curve instead of inventing its own.
+export const CURVE = { baseFeeBps: 0n, maxFeeBps: BPS / 5n, kink: 4_000n, waterlineFrac: 1_000n };
 
 // Reads always go through the fork provider: the injected wallet may sit on another
 // network where these addresses hold no code, which turns balanceOf into empty data.
