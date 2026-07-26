@@ -19,74 +19,88 @@
 <link rel="icon" href="../brand/favicon.svg" />
 <title>Doca: ETHGlobal Lisbon 2026</title>
 <style>
-  @font-face {
-    font-family: "Inter Variable";
-    src: url("./inter.woff2") format("woff2-variations");
-    font-weight: 100 900;
-    font-display: swap;
-  }
+  @font-face { font-family: "Fraunces"; src: url("./fraunces-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("./fraunces-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("./schibsted-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("./schibsted-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("./schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+  /* Day ("Manhã") tokens from BRAND.md — the deck is a daylight surface, same system as app + landing. */
   :root {
-    --bg: #05080d; --text: #e8eef5; --muted: #7e8ea0; --faint: #55647a;
-    --accent: #3dd6f5; --good: #34d399; --warn: #fbbf24; --bad: #f87171;
-    --line: rgba(148, 190, 233, 0.16);
+    --ground: #f7f3ea; --surface: #ffffff; --paper: #efe9dc;
+    --ink: #1c2733; --muted: rgba(28, 39, 51, 0.68); --faint: rgba(28, 39, 51, 0.46);
+    --line: rgba(28, 39, 51, 0.13); --line-strong: rgba(28, 39, 51, 0.24);
+    --accent: #1f5fd6; --support: #2aa198; --warn: #c97b2d; --danger: #c0392b; --positive: #1e8a5e;
+    --font-display: "Fraunces", ui-serif, Georgia, serif;
+    --font-body: "Schibsted Grotesk", ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    --ease-tidal: cubic-bezier(0.22, 1, 0.36, 1);
+    --elev: 0 22px 54px -30px rgba(28, 39, 51, 0.32), 0 2px 10px -6px rgba(28, 39, 51, 0.14);
+    color-scheme: light;
   }
   * { box-sizing: border-box; margin: 0; }
   html, body { height: 100%; }
   body {
-    background: radial-gradient(1100px 480px at 70% -10%, rgba(31,118,170,0.16), transparent 60%),
-                radial-gradient(900px 500px at 0% 110%, rgba(20,60,110,0.18), transparent 55%), var(--bg);
-    color: var(--text);
-    font: 20px/1.5 "Inter Variable", ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: radial-gradient(1100px 480px at 72% -10%, rgba(31, 95, 214, 0.09), transparent 60%),
+                radial-gradient(900px 500px at -4% 112%, rgba(42, 161, 152, 0.08), transparent 55%), var(--ground);
+    color: var(--ink);
+    font: 20px/1.5 var(--font-body);
     font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
     overflow: hidden;
   }
   .slide {
     position: absolute; inset: 0; display: none; flex-direction: column;
     justify-content: center; padding: 7vh 9vw; gap: 3.2vh;
   }
-  .slide.on { display: flex; animation: fade 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+  .slide.on { display: flex; animation: fade 0.4s var(--ease-tidal); }
   @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
-  .kicker { color: var(--accent); font-size: 2.1vh; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 650; }
-  h1 { font-size: 8.2vh; line-height: 1.06; letter-spacing: -0.025em; font-weight: 680; }
-  h2 { font-size: 5.6vh; line-height: 1.12; letter-spacing: -0.02em; font-weight: 660; max-width: 78vw; }
+  @media (prefers-reduced-motion: reduce) { .slide.on { animation: none; } }
+  .kicker { color: var(--accent); font-size: 2.1vh; font-weight: 700; letter-spacing: 0.01em; }
+  h1 { font-family: var(--font-display); font-size: 8.4vh; line-height: 1.04; letter-spacing: -0.015em; font-weight: 600; }
+  h2 { font-family: var(--font-display); font-size: 5.6vh; line-height: 1.12; letter-spacing: -0.012em; font-weight: 600; max-width: 78vw; }
   .sub { color: var(--muted); font-size: 2.9vh; max-width: 68vw; }
   .quote {
     border-left: 3px solid var(--accent); padding: 2vh 3vw; max-width: 74vw;
-    font-size: 3.4vh; line-height: 1.45; color: var(--text); background: rgba(61,214,245,0.05);
-    border-radius: 0 14px 14px 0;
+    font-size: 3.4vh; line-height: 1.45; color: var(--ink);
+    background: rgba(31, 95, 214, 0.05); border-radius: 0 14px 14px 0;
   }
   .quote cite { display: block; margin-top: 1.4vh; color: var(--faint); font-size: 2vh; font-style: normal; }
-  .quote em { color: var(--accent); font-style: normal; font-weight: 650; }
+  .quote em { color: var(--accent); font-style: normal; font-weight: 700; }
   .cols { display: flex; gap: 3vw; }
-  .box { flex: 1; border: 1px solid var(--line); background: #0a1017; border-radius: 16px; padding: 3vh 2.4vw; }
-  .box h3 { font-size: 2.4vh; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.4vh; }
+  .box { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 3vh 2.4vw; box-shadow: var(--elev); }
+  .box h3 { font-family: var(--font-body); font-size: 2.3vh; color: var(--accent); font-weight: 700; margin-bottom: 1.4vh; display: flex; align-items: center; gap: 0.9vh; }
   .box p { color: var(--muted); font-size: 2.5vh; }
-  .box strong { color: var(--text); }
-  .big { font-size: 12vh; font-weight: 680; letter-spacing: -0.03em; line-height: 1; }
-  .big small { font-size: 3vh; color: var(--muted); font-weight: 500; display: block; margin-top: 1.4vh; letter-spacing: 0; }
-  table { border-collapse: collapse; font-size: 2.7vh; }
+  .box strong { color: var(--ink); }
+  .big { font-family: var(--font-display); font-size: 12vh; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .big small { font-family: var(--font-body); font-size: 3vh; color: var(--muted); font-weight: 400; display: block; margin-top: 1.6vh; letter-spacing: 0; line-height: 1.45; }
+  table { border-collapse: collapse; font-size: 2.7vh; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--elev); }
   th, td { padding: 1.2vh 2.2vw; text-align: right; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: none; }
   th:first-child, td:first-child { text-align: left; }
-  th { color: var(--faint); font-size: 2vh; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
-  .good { color: var(--good); font-weight: 650; }
-  .bad { color: var(--bad); font-weight: 650; }
-  .mark { color: var(--accent); filter: drop-shadow(0 0 14px rgba(61,214,245,0.4)); }
+  th { color: var(--faint); font-size: 2vh; font-weight: 600; }
+  .good { color: var(--positive); font-weight: 700; }
+  .bad { color: var(--danger); font-weight: 700; }
+  .mark { color: var(--accent); }
   .brand { display: flex; align-items: center; gap: 2vw; }
   .foot { position: absolute; bottom: 3.4vh; left: 9vw; right: 9vw; display: flex; justify-content: space-between; color: var(--faint); font-size: 1.9vh; }
   .num { color: var(--faint); }
   a { color: var(--accent); text-decoration: none; }
-  .demo-cue { border: 1px dashed rgba(61,214,245,0.5); color: var(--accent); border-radius: 14px; padding: 2.4vh 3vw; font-size: 3.2vh; max-width: 60vw; }
-  ul.plain { list-style: none; display: grid; gap: 1.8vh; font-size: 3vh; }
-  ul.plain li::before { content: "- "; color: var(--accent); }
-  ul.plain li { color: var(--muted); } ul.plain li strong { color: var(--text); font-weight: 620; }
-  .diagram { max-width: 46vw; max-height: 26vh; border: 1px solid var(--line); border-radius: 16px; align-self: center; }
-  svg.diagram { border: none; border-radius: 0; overflow: visible; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.92em; background: var(--paper); border-radius: 6px; padding: 0.1em 0.4em; }
+  .demo-cue { border: 1px dashed rgba(31, 95, 214, 0.5); color: var(--accent); background: rgba(31, 95, 214, 0.04); border-radius: 14px; padding: 2.4vh 3vw; font-size: 3.2vh; max-width: 60vw; font-weight: 600; }
+  ul.plain { list-style: none; display: grid; gap: 1.8vh; font-size: 3vh; padding: 0; }
+  ul.plain li { color: var(--muted); }
+  ul.plain li::before { content: "· "; color: var(--accent); font-weight: 700; }
+  ul.plain li strong { color: var(--ink); font-weight: 600; }
+  .diagram { max-width: 46vw; max-height: 26vh; align-self: center; }
+  svg.diagram { overflow: visible; }
   svg.diagram.loop { max-width: 80vw; max-height: 24vh; margin-top: 0.6vh; }
   .lighthouse-mark { color: var(--faint); align-self: flex-start; margin-top: 0.4vh; }
-  .box h3 svg { width: 2.4vh; height: 2.4vh; vertical-align: -0.5vh; margin-right: 0.8vh; }
+  .box h3 svg { width: 2.6vh; height: 2.6vh; flex: none; }
   .waterline-divider { display: flex; align-items: center; gap: 2vw; color: var(--faint); }
-  .waterline-divider span { flex: 1; height: 1px; background: var(--line); }
+  .waterline-divider span { flex: 1; height: 1px; background: var(--line-strong); }
   .waterline-divider svg { width: 4.4vh; height: 4.4vh; flex: none; }
+  .cove { position: absolute; left: 0; right: 0; bottom: 0; height: 9vh; color: var(--accent); pointer-events: none; }
+  .cove svg { width: 100%; height: 100%; display: block; }
 </style>
 </head>
 <body>
@@ -94,19 +108,20 @@
 <!-- 1 · title -->
 <section class="slide on">
   <div class="brand">
-    <svg class="mark" width="110" height="110" viewBox="0 0 32 32"><defs><clipPath id="dt1"><rect x="0" y="0" width="32" height="16"/></clipPath><clipPath id="db1"><rect x="0" y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#dt1)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#db1)" opacity="0.45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
+    <svg class="mark" width="104" height="104" viewBox="0 0 32 32"><defs><clipPath id="dt1"><rect x="0" y="0" width="32" height="16"/></clipPath><clipPath id="db1"><rect x="0" y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#dt1)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#db1)" opacity="0.45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
     <h1>Doca</h1>
-    <svg class="lighthouse-mark" width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 9H18.6L21 25H11L13.4 9Z"/><path d="M12.3 15.5H19.7"/><path d="M11.6 20H20.4"/><path d="M9 25H23"/><rect x="13.2" y="5.2" width="5.6" height="3.8"/><path d="M12 5.2L16 2.4L20 5.2"/></g></svg>
+    <svg class="lighthouse-mark" width="46" height="46" viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 9H18.6L21 25H11L13.4 9Z"/><path d="M12.3 15.5H19.7"/><path d="M11.6 20H20.4"/><path d="M9 25H23"/><rect x="13.2" y="5.2" width="5.6" height="3.8"/><path d="M12 5.2L16 2.4L20 5.2"/></g><path d="M4.5 20.6C6.2 19.4 7.8 19.4 9.5 20.6" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/><path d="M22.5 20.6C24.2 19.4 25.8 19.4 27.5 20.6" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/><circle cx="16" cy="7.1" r="1" fill="#1F5FD6" stroke="none"/></svg>
   </div>
   <h2>Keep your wallet.<br/>Put it to work anyway.</h2>
   <p class="sub">Non-custodial market making on 1inch Aqua: budgets sized to the wallet's actual balance.</p>
+  <div class="cove" aria-hidden="true"><svg viewBox="0 0 240 32" fill="none" preserveAspectRatio="none"><path d="M0 10C20 2 40 2 60 10S100 18 120 10 160 2 180 10 220 18 240 10V32H0Z" fill="currentColor" opacity=".08"/><path d="M0 17C20 9 40 9 60 17S100 25 120 17 160 9 180 17 220 25 240 17V32H0Z" fill="currentColor" opacity=".16"/></svg></div>
 </section>
 
 <!-- 2 · problem -->
 <section class="slide">
   <div class="kicker">Adjacent evidence: 1inch's own numbers, one week old</div>
   <div class="big">85% <small>of tracked concentrated liquidity underutilized in H1 2026: $1.6B of $1.84B analyzed, mostly individually managed positions<br/>(1inch-commissioned Dune research, July 18)</small></div>
-  <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em>by design</em>, and when flow turns directional, quotes go phantom.</p>
+  <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em style="font-style:normal; color:var(--accent); font-weight:700">by design</em>, and when flow turns directional, quotes go phantom.</p>
 </section>
 
 <!-- 3 · whitepaper -->
@@ -123,50 +138,50 @@
 <!-- 4 · what it is -->
 <section class="slide">
   <div class="kicker">Doca: one invariant, three pieces</div>
-  <h2>A <span style="color:var(--accent)">promise</span> may exceed your wallet.<br/>A <span style="color:var(--good)">budget</span> may not.</h2>
+  <h2>A <span style="color:var(--accent)">promise</span> may exceed your wallet.<br/>A <span style="color:var(--positive)">budget</span> may not.</h2>
   <div class="cols">
-    <div class="box"><h3>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional: takers get paid to rebalance you.</p></div>
-    <div class="box"><h3>Harbormaster</h3><p>A <strong>keeper</strong> that docks any strategy crossing its line and re-ships against the wallet's current balance. The whitepaper's advice, automated in this demo; with a connected wallet it prompts you to sign.</p></div>
-    <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend without withdrawing.</p></div>
+    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 16H29"/><path d="M9 13.2V15"/><path d="M9 17V18.8"/><path d="M23 13.2V15"/><path d="M23 17V18.8"/></g><circle cx="16" cy="16" r="1.6" fill="#1F5FD6" stroke="none"/></svg>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional: takers get paid to rebalance you.</p></div>
+    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.4 9H18.6L21 25H11L13.4 9Z"/><path d="M12.3 15.5H19.7"/><path d="M11.6 20H20.4"/><path d="M9 25H23"/><rect x="13.2" y="5.2" width="5.6" height="3.8"/><path d="M12 5.2L16 2.4L20 5.2"/></g><circle cx="16" cy="7.1" r="1" fill="#1F5FD6" stroke="none"/></svg>Harbormaster</h3><p>A <strong>keeper</strong> that docks any strategy crossing its line and re-ships against the wallet's current balance. The whitepaper's advice, automated in this demo; with a connected wallet it prompts you to sign.</p></div>
+    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12.5" width="24" height="3" rx="1"/><path d="M16 12.5V9.2"/><circle cx="16" cy="7.6" r="1.6"/><path d="M8 15.5V25"/><path d="M8 25L6.2 27.5"/><path d="M8 25L9.8 27.5"/><path d="M16 15.5V25"/><path d="M16 25L14.2 27.5"/><path d="M16 25L17.8 27.5"/><path d="M24 15.5V25"/><path d="M24 25L22.2 27.5"/><path d="M24 25L25.8 27.5"/></g></svg>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend without withdrawing.</p></div>
   </div>
   <svg class="diagram" viewBox="0 0 1000 320" role="img" aria-label="Execution boundary: on-chain pricing, quotes and committed state on one side, off-chain watch, dock, resize and re-ship on the other, held by the Harbormaster">
-    <rect x="16" y="16" width="404" height="288" rx="16" fill="#0a1017" stroke="var(--line)"/>
-    <rect x="580" y="16" width="404" height="288" rx="16" fill="#0a1017" stroke="var(--line)"/>
-    <text x="32" y="45" font-size="15" font-weight="650" letter-spacing="1.6" fill="var(--accent)">ON-CHAIN</text>
-    <text x="968" y="45" font-size="15" font-weight="650" letter-spacing="1.6" fill="var(--good)" text-anchor="end">OFF-CHAIN</text>
+    <rect x="16" y="16" width="404" height="288" rx="16" fill="var(--surface)" stroke="var(--line)"/>
+    <rect x="580" y="16" width="404" height="288" rx="16" fill="var(--surface)" stroke="var(--line)"/>
+    <text x="32" y="45" font-size="15" font-weight="700" letter-spacing="0.4" fill="var(--accent)">On-chain</text>
+    <text x="968" y="45" font-size="15" font-weight="700" letter-spacing="0.4" fill="var(--support)" text-anchor="end">Off-chain</text>
 
-    <circle cx="500" cy="40" r="17" fill="#05080d" stroke="var(--line)" stroke-width="1.2"/>
+    <circle cx="500" cy="40" r="17" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.2"/>
     <g stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
       <circle cx="500" cy="34.4" r="2.1"/>
       <path d="M500 36.5V45.6"/>
       <path d="M495.8 39.6H504.2"/>
     </g>
-    <text x="500" y="67" font-size="10.5" fill="var(--faint)" text-anchor="middle" letter-spacing="0.8">HARBORMASTER</text>
+    <text x="500" y="67" font-size="10.5" fill="var(--faint)" text-anchor="middle" letter-spacing="0.4">Harbormaster</text>
 
-    <rect x="32" y="74" width="372" height="65" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="52" y="112.5" font-size="23" fill="var(--text)" font-weight="560">Pricing</text>
-    <rect x="32" y="153" width="372" height="65" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="52" y="191.5" font-size="23" fill="var(--text)" font-weight="560">Quotes</text>
-    <rect x="32" y="232" width="372" height="65" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="52" y="270.5" font-size="23" fill="var(--text)" font-weight="560">Committed state</text>
+    <rect x="32" y="74" width="372" height="65" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="52" y="112.5" font-size="23" fill="var(--ink)" font-weight="600">Pricing</text>
+    <rect x="32" y="153" width="372" height="65" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="52" y="191.5" font-size="23" fill="var(--ink)" font-weight="600">Quotes</text>
+    <rect x="32" y="232" width="372" height="65" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="52" y="270.5" font-size="23" fill="var(--ink)" font-weight="600">Committed state</text>
 
-    <rect x="596" y="74" width="372" height="48" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="616" y="103.6" font-size="19" fill="var(--text)" font-weight="560">Watch</text>
-    <rect x="596" y="132" width="372" height="48" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="616" y="161.6" font-size="19" fill="var(--text)" font-weight="560">Dock</text>
-    <rect x="596" y="190" width="372" height="48" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="616" y="219.6" font-size="19" fill="var(--text)" font-weight="560">Resize</text>
-    <rect x="596" y="248" width="372" height="48" rx="10" fill="rgba(255,255,255,0.02)" stroke="var(--line)"/>
-    <text x="616" y="277.6" font-size="19" fill="var(--text)" font-weight="560">Re-ship</text>
+    <rect x="596" y="74" width="372" height="48" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="616" y="103.6" font-size="19" fill="var(--ink)" font-weight="600">Watch</text>
+    <rect x="596" y="132" width="372" height="48" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="616" y="161.6" font-size="19" fill="var(--ink)" font-weight="600">Dock</text>
+    <rect x="596" y="190" width="372" height="48" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="616" y="219.6" font-size="19" fill="var(--ink)" font-weight="600">Resize</text>
+    <rect x="596" y="248" width="372" height="48" rx="10" fill="rgba(28,39,51,0.03)" stroke="var(--line)"/>
+    <text x="616" y="277.6" font-size="19" fill="var(--ink)" font-weight="600">Re-ship</text>
 
-    <line x1="500" y1="82" x2="500" y2="296" stroke="rgba(61,214,245,0.32)" stroke-width="1.3"/>
-    <g stroke="rgba(61,214,245,0.55)" stroke-width="1.2" stroke-linecap="round">
+    <line x1="500" y1="82" x2="500" y2="296" stroke="rgba(31,95,214,0.35)" stroke-width="1.3"/>
+    <g stroke="rgba(31,95,214,0.55)" stroke-width="1.2" stroke-linecap="round">
       <line x1="493" y1="106.5" x2="507" y2="106.5"/>
       <line x1="493" y1="185.5" x2="507" y2="185.5"/>
       <line x1="493" y1="264.5" x2="507" y2="264.5"/>
     </g>
 
-    <g stroke="var(--line)" stroke-width="1.2" stroke-dasharray="2 4" fill="none">
+    <g stroke="var(--line-strong)" stroke-width="1.2" stroke-dasharray="2 4" fill="none">
       <line x1="404" y1="106.5" x2="500" y2="106.5"/>
       <line x1="404" y1="185.5" x2="500" y2="185.5"/>
       <line x1="404" y1="264.5" x2="500" y2="264.5"/>
@@ -181,7 +196,7 @@
       <circle cx="500" cy="185.5" r="2.3"/>
       <circle cx="500" cy="264.5" r="2.3"/>
     </g>
-    <g fill="var(--good)">
+    <g fill="var(--support)">
       <circle cx="500" cy="98" r="2.3"/>
       <circle cx="500" cy="156" r="2.3"/>
       <circle cx="500" cy="214" r="2.3"/>
@@ -197,10 +212,10 @@
   <svg class="diagram loop" viewBox="0 0 1200 200" role="img" aria-label="Protection loop: quote, flow, drain, cross line, dock, resize, re-ship, then back to quote">
     <defs>
       <marker id="loop-arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-        <path d="M0 0L8 4L0 8Z" fill="rgba(148,190,233,0.5)"/>
+        <path d="M0 0L8 4L0 8Z" fill="rgba(28,39,51,0.35)"/>
       </marker>
     </defs>
-    <g stroke="rgba(148,190,233,0.45)" stroke-width="1.4" marker-end="url(#loop-arr)">
+    <g stroke="rgba(28,39,51,0.3)" stroke-width="1.4" marker-end="url(#loop-arr)">
       <line x1="82" y1="70" x2="218" y2="70"/>
       <line x1="262" y1="70" x2="398" y2="70"/>
       <line x1="442" y1="70" x2="578" y2="70"/>
@@ -208,29 +223,29 @@
       <line x1="802" y1="70" x2="938" y2="70"/>
       <line x1="982" y1="70" x2="1118" y2="70"/>
     </g>
-    <circle cx="60" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+    <circle cx="60" cy="70" r="20" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/>
     <text x="60" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">1</text>
-    <text x="60" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Quote</text>
-    <circle cx="240" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+    <text x="60" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Quote</text>
+    <circle cx="240" cy="70" r="20" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/>
     <text x="240" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">2</text>
-    <text x="240" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Flow</text>
-    <circle cx="420" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+    <text x="240" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Flow</text>
+    <circle cx="420" cy="70" r="20" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.6"/>
     <text x="420" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">3</text>
-    <text x="420" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Drain</text>
-    <circle cx="600" cy="70" r="20" fill="rgba(251,191,36,0.12)" stroke="var(--warn)" stroke-width="1.8"/>
+    <text x="420" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Drain</text>
+    <circle cx="600" cy="70" r="20" fill="rgba(201,123,45,0.1)" stroke="var(--warn)" stroke-width="1.8"/>
     <text x="600" y="34" font-size="13" fill="var(--warn)" text-anchor="middle">4</text>
-    <text x="600" y="112" font-size="15" fill="var(--warn)" text-anchor="middle" font-weight="620">Cross line</text>
-    <circle cx="780" cy="70" r="20" fill="none" stroke="var(--good)" stroke-width="1.6"/>
+    <text x="600" y="112" font-size="15" fill="var(--warn)" text-anchor="middle" font-weight="700">Cross line</text>
+    <circle cx="780" cy="70" r="20" fill="var(--surface)" stroke="var(--support)" stroke-width="1.6"/>
     <text x="780" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">5</text>
-    <text x="780" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Dock</text>
-    <circle cx="960" cy="70" r="20" fill="none" stroke="var(--good)" stroke-width="1.6"/>
+    <text x="780" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Dock</text>
+    <circle cx="960" cy="70" r="20" fill="var(--surface)" stroke="var(--support)" stroke-width="1.6"/>
     <text x="960" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">6</text>
-    <text x="960" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Resize</text>
-    <circle cx="1140" cy="70" r="20" fill="none" stroke="var(--good)" stroke-width="1.6"/>
+    <text x="960" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Resize</text>
+    <circle cx="1140" cy="70" r="20" fill="var(--surface)" stroke="var(--support)" stroke-width="1.6"/>
     <text x="1140" y="34" font-size="13" fill="var(--faint)" text-anchor="middle">7</text>
-    <text x="1140" y="112" font-size="15" fill="var(--text)" text-anchor="middle" font-weight="560">Re-ship</text>
-    <path d="M1140 91 C1140 158 60 158 60 91" fill="none" stroke="rgba(148,190,233,0.4)" stroke-width="1.3" stroke-dasharray="2 4" marker-end="url(#loop-arr)"/>
-    <circle cx="600" cy="158" r="13" fill="#05080d" stroke="var(--line)" stroke-width="1"/>
+    <text x="1140" y="112" font-size="15" fill="var(--ink)" text-anchor="middle" font-weight="600">Re-ship</text>
+    <path d="M1140 91 C1140 158 60 158 60 91" fill="none" stroke="rgba(28,39,51,0.25)" stroke-width="1.3" stroke-dasharray="2 4" marker-end="url(#loop-arr)"/>
+    <circle cx="600" cy="158" r="13" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1"/>
     <g stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none">
       <circle cx="600" cy="152.6" r="1.9"/>
       <path d="M600 154.5V163.5"/>
@@ -268,9 +283,9 @@
   <div class="kicker">Trust model</div>
   <h2>Who signs, who watches.</h2>
   <div class="cols">
-    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H26L23 23.5C20.8 24.7 11.2 24.7 9 23.5L6 18Z"/><rect x="13" y="12.5" width="6" height="5.5"/><path d="M16 12.5V8.2"/><path d="M16 8.2L20 10"/></g></svg>Demo</h3><p>A <strong>local signer</strong> lets the Harbormaster act autonomously, on camera.</p></div>
+    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H26L23 23.5C20.8 24.7 11.2 24.7 9 23.5L6 18Z"/><rect x="13" y="12.5" width="6" height="5.5"/><path d="M16 12.5V8.2"/><path d="M16 8.2L20 10"/></g><path d="M3 24C6 22.4 9 22.4 12 24C15 25.6 18 25.6 21 24C24 22.4 27 22.4 29 24" stroke="#2AA198" stroke-width="1.3" stroke-linecap="round"/></svg>Demo</h3><p>A <strong>local signer</strong> lets the Harbormaster act autonomously, on camera.</p></div>
     <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="6.4" r="2.6"/><path d="M16 9V23.5"/><path d="M10 13.4H22"/><path d="M16 23.5C16 27.6 12.4 29.6 8.4 29"/><path d="M8.4 29L10.4 26.4"/><path d="M16 23.5C16 27.6 19.6 29.6 23.6 29"/><path d="M23.6 29L21.6 26.4"/></g></svg>Connected wallet</h3><p>The same actions require the <strong>maker's signature</strong>.</p></div>
-    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="14.5" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="11.6" stroke="currentColor" stroke-width="1" stroke-dasharray="1.4 2.2"/><g stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12.5H18L19.6 21H12.4L14 12.5Z"/><path d="M11 21H21"/><rect x="14.4" y="10.2" width="3.2" height="2.3"/></g></svg>Production</h3><p>A <strong>scoped session key</strong> would authorize only dock, ship and waterline updates, with limits and expiry.</p></div>
+    <div class="box"><h3><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.6V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16 6L18.3 16L16 26L13.7 16Z"/><path d="M6 16L16 13.7L26 16L16 18.3Z"/></g><path d="M16 6L18.3 16L16 16Z" fill="#1F5FD6" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg>Production</h3><p>A <strong>scoped session key</strong> would authorize only dock, ship and waterline updates, with limits and expiry.</p></div>
   </div>
   <p class="sub">MCP surface: read-only observability, not the transaction executor.</p>
 </section>
@@ -283,15 +298,15 @@
     <li><strong>7 tests green</strong>: curve asserted against its closed form, retention proven with real balance changes.</li>
     <li><strong>Every number reproducible</strong> from a script in the repo.</li>
   </ul>
-  <div class="waterline-divider"><span></span><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 16H29"/><path d="M9 13.2V15"/><path d="M9 17V18.8"/><path d="M23 13.2V15"/><path d="M23 17V18.8"/></g><circle cx="16" cy="16" r="1.6" fill="var(--accent)" stroke="none"/></svg><span></span></div>
-  <p class="sub" style="color:var(--text); font-size:2.9vh;">Keep your wallet. Put it to work anyway.</p>
+  <div class="waterline-divider"><span></span><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 16H29"/><path d="M9 13.2V15"/><path d="M9 17V18.8"/><path d="M23 13.2V15"/><path d="M23 17V18.8"/></g><circle cx="16" cy="16" r="1.6" fill="#1F5FD6" stroke="none"/></svg><span></span></div>
+  <p style="font-family:var(--font-display); font-size:3.8vh; font-weight:600; letter-spacing:-0.012em;">Keep your wallet. Put it to work anyway.</p>
   <div class="brand" style="margin-top:2vh">
     <svg class="mark" width="64" height="64" viewBox="0 0 32 32"><defs><clipPath id="dt2"><rect x="0" y="0" width="32" height="16"/></clipPath><clipPath id="db2"><rect x="0" y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#dt2)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#db2)" opacity="0.45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
     <div><h2 style="font-size:4.4vh">github.com/ottodevs/doca</h2><p class="sub" style="font-size:2.3vh">ETHGlobal Lisbon 2026 · built on 1inch Aqua + SwapVM</p></div>
   </div>
 </section>
 
-<div class="foot"><span>Doca: ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
+<div class="foot"><span>Doca · ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
 
 <script>
   const slides = [...document.querySelectorAll('.slide')];
