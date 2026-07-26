@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-label="Doca">
+  <rect width="32" height="32" rx="7" fill="#F7F3EA"/>
+  <path d="M6 4H14C22 4 27 8.8 27 16S22 28 14 28H6V4Z" fill="none" stroke="#1F5FD6" stroke-width="4.6" stroke-linejoin="round"/>
+  <path d="M7 17H29" stroke="#1F5FD6" stroke-width="2.6" stroke-linecap="round"/>
+</svg>
