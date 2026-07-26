@@ -4,92 +4,170 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#F7F3EA" />
 <title>Doca: agent surface</title>
 <meta name="description" content="A minimal MCP server so AI agents can read Doca positions: wallet balances, per-strategy state, and the honorability invariant. Read-only by design." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CclipPath id='t'%3E%3Crect width='32' height='16'/%3E%3C/clipPath%3E%3CclipPath id='b'%3E%3Crect y='16' width='32' height='16'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg fill='none' stroke='%231f5fd6' stroke-width='2.6' stroke-linejoin='round'%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23t)'/%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23b)' opacity='.45'/%3E%3Cline x1='2' y1='16' x2='30' y2='16'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preload" href="/vendor/fonts/fraunces-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/vendor/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+  /* ================= fonts (same self-hosted set as landing/index.html) ================= */
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("/vendor/fonts/fraunces-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("/vendor/fonts/schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+  /* ================= tokens (matches docs/brand.html) ================= */
   :root {
-    --font-display: Fraunces, ui-serif, Georgia, "Iowan Old Style", serif;
+    --font-display: "Fraunces", ui-serif, Georgia, serif;
     --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
     --ease-tidal: cubic-bezier(0.22, 1, 0.36, 1);
+    --radius: 16px;
     --ground: #f7f3ea; --surface: #ffffff; --paper: #efe9dc; --ink: #1c2733;
     --accent: #1f5fd6; --support: #2aa198; --warn: #c97b2d; --positive: #1e8a5e;
-    --line: rgba(28, 39, 51, 0.14); --muted: rgba(28, 39, 51, 0.64);
+    --line: rgba(28, 39, 51, 0.13); --line-strong: rgba(28, 39, 51, 0.24); --muted: rgba(28, 39, 51, 0.68);
     color-scheme: light;
   }
+  :root[data-theme="night"], html.night {
+    --ground: #0d1626; --surface: #141f33; --paper: #101a2b; --ink: #e9eef7;
+    --accent: #5b9cf5; --support: #37c2b4; --warn: #e8b34b; --positive: #4fd1a6;
+    --line: rgba(233, 238, 247, 0.16); --line-strong: rgba(233, 238, 247, 0.28); --muted: rgba(233, 238, 247, 0.68);
+    color-scheme: dark;
+  }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --ground: #0d1626; --surface: #141f33; --paper: #101b2d; --ink: #e9eef7;
+    :root:not([data-theme="day"]) {
+      --ground: #0d1626; --surface: #141f33; --paper: #101a2b; --ink: #e9eef7;
       --accent: #5b9cf5; --support: #37c2b4; --warn: #e8b34b; --positive: #4fd1a6;
-      --line: rgba(233, 238, 247, 0.16); --muted: rgba(233, 238, 247, 0.68);
+      --line: rgba(233, 238, 247, 0.16); --line-strong: rgba(233, 238, 247, 0.28); --muted: rgba(233, 238, 247, 0.68);
       color-scheme: dark;
     }
   }
+
   * { box-sizing: border-box; }
   html, body { max-width: 100%; overflow-x: hidden; }
   body {
     margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-body);
     font-size: 16px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+    transition: background 0.4s var(--ease-tidal), color 0.4s var(--ease-tidal);
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 72px 24px 120px; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 56px 24px 120px; }
   a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* ---- header ---- */
+  .top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px 22px; margin-bottom: 48px; }
+  .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .brand svg { color: var(--accent); flex: none; }
+  .crumbs { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+  .crumbs a { color: var(--muted); text-decoration: none; font-weight: 600; }
+  .crumbs a:hover { color: var(--accent); }
+
+  /* ---- hero ---- */
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin: 0 0 16px; }
+  .eyebrow svg { width: 16px; height: 16px; flex: none; }
   h1, h2 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; line-height: 1.15; margin: 0 0 0.4em; }
   h1 { font-size: clamp(28px, 4.5vw, 40px); }
-  h2 { font-size: 21px; margin-top: 2.4em; }
+  h2 { display: flex; align-items: center; gap: 10px; font-size: 21px; margin-top: 2.6em; }
+  h2 svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
   p { margin: 0.9em 0; max-width: 62ch; }
   .lede { color: var(--muted); font-size: 18px; max-width: 58ch; }
-  .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: var(--ink); font-family: var(--font-display); font-weight: 600; font-size: 16px; margin-bottom: 40px; }
-  .brand svg { color: var(--accent); }
+  .section-note { color: var(--muted); font-size: 14.5px; font-style: italic; margin: -0.3em 0 1.1em; }
+
+  /* ---- code ---- */
   code, pre { font-family: var(--font-mono); font-size: 13.5px; }
   code { background: var(--paper); border-radius: 5px; padding: 0.15em 0.4em; }
+  .code-label { display: block; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 1.4em 0 8px; }
   pre {
-    background: var(--paper); border: 1px solid var(--line); border-radius: 12px;
-    padding: 16px 18px; overflow-x: auto; line-height: 1.55;
+    background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px 18px; overflow-x: auto; line-height: 1.55; margin: 0;
   }
   pre code { background: none; padding: 0; }
-  table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 14.5px; }
-  th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { color: var(--muted); font-weight: 600; }
-  ul { padding-left: 1.3em; }
-  li { margin: 0.4em 0; }
+
+  /* ---- tools panel ---- */
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 6px 20px; margin: 1em 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  th, td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td:first-child code { white-space: nowrap; }
   .pill { display: inline-block; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--muted); }
   .pill.read { color: var(--positive); border-color: color-mix(in srgb, var(--positive) 40%, var(--line)); }
   .pill.no { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); }
-  .foot { margin-top: 4em; padding-top: 1.6em; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+  /* ---- roadmap ---- */
+  .roadmap { list-style: none; padding: 0; display: grid; gap: 10px; margin: 1em 0; }
+  .roadmap li { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin: 0; }
+
+  /* ---- footer ---- */
+  .foot { margin-top: 4.5em; padding-top: 22px; border-top: 1px solid var(--line); }
+  .foot-motto { display: flex; align-items: center; gap: 9px; font-family: var(--font-display); font-weight: 600; font-size: 15px; margin: 0 0 14px; }
+  .foot-motto svg { width: 19px; height: 19px; color: var(--muted); flex: none; }
+  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+  .foot-links a { color: var(--accent); }
+
+  @media (max-width: 480px) {
+    .top { flex-direction: column; align-items: flex-start; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <a class="brand" href="/">
-    <svg width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z"/><line x1="2" y1="16" x2="30" y2="16"/></svg>
-    Doca
-  </a>
+  <div class="top">
+    <a class="brand" href="/">
+      <svg width="22" height="22" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z"/><line x1="2" y1="16" x2="30" y2="16"/></svg>
+      Doca
+    </a>
+    <nav class="crumbs" aria-label="Site">
+      <a href="/">Landing</a><a href="/app/">App</a><a href="/deck/">Deck</a>
+      <a href="/brand/">Brand</a><a href="/dossier/">Design dossier</a>
+      <a href="https://github.com/ottodevs/doca">GitHub</a>
+    </nav>
+  </div>
 
+  <p class="eyebrow">
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.5"/><path d="M16 3.6V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><g stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M16 6L18.3 16L16 26L13.7 16Z"/><path d="M6 16L16 13.7L26 16L16 18.3Z"/></g><path d="M16 6L18.3 16L16 16Z" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg>
+    The agent surface
+  </p>
   <h1>Read your positions from anywhere an agent can run</h1>
   <p class="lede">Doca ships an MCP server: five tools that let an AI agent check a
   maker's wallet, look up strategy state, and verify the one invariant that matters: can the
   wallet actually cover every promise it's made, at once.</p>
 
-  <h2>What it exposes</h2>
-  <table>
-    <tr><th>Tool</th><th>Returns</th><th></th></tr>
-    <tr><td><code>doca_market</code></td><td>Chain, RPC, Aqua registry and Doca addresses: self-configure in one call</td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>doca_strategies</code></td><td>A maker's live strategy hashes, discovered from chain logs</td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>doca_wallet</code></td><td>Maker's WETH / USDC balance</td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>doca_positions</code></td><td>Per-strategy WETH aboard, budget remaining, fee surcharge</td><td><span class="pill read">read</span></td></tr>
-    <tr><td><code>doca_health</code></td><td>Committed WETH vs. wallet balance, <code>honorable: true/false</code></td><td><span class="pill read">read</span></td></tr>
-  </table>
+  <h2>
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 16H29"/><path d="M9 13.2V15"/><path d="M9 17V18.8"/><path d="M23 13.2V15"/><path d="M23 17V18.8"/></g><circle cx="16" cy="16" r="1.6" fill="currentColor" stroke="none"/></svg>
+    What it exposes
+  </h2>
+  <div class="panel">
+    <table>
+      <tr><th>Tool</th><th>Returns</th><th></th></tr>
+      <tr><td><code>doca_market</code></td><td>Chain, RPC, Aqua registry and Doca addresses: self-configure in one call</td><td><span class="pill read">read</span></td></tr>
+      <tr><td><code>doca_strategies</code></td><td>A maker's live strategy hashes, discovered from chain logs</td><td><span class="pill read">read</span></td></tr>
+      <tr><td><code>doca_wallet</code></td><td>Maker's WETH / USDC balance</td><td><span class="pill read">read</span></td></tr>
+      <tr><td><code>doca_positions</code></td><td>Per-strategy WETH aboard, budget remaining, fee surcharge</td><td><span class="pill read">read</span></td></tr>
+      <tr><td><code>doca_health</code></td><td>Committed WETH vs. wallet balance, <code>honorable: true/false</code></td><td><span class="pill read">read</span></td></tr>
+    </table>
+  </div>
 
-  <h2>Safe to hand out</h2>
+  <h2>
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="6.4" r="2.6"/><path d="M16 9V23.5"/><path d="M10 13.4H22"/><path d="M16 23.5C16 27.6 12.4 29.6 8.4 29"/><path d="M8.4 29L10.4 26.4"/><path d="M16 23.5C16 27.6 19.6 29.6 23.6 29"/><path d="M23.6 29L21.6 26.4"/></g></svg>
+    Safe to hand out
+  </h2>
+  <p class="section-note">Why there's no write tool: the server holds no key, so it has nothing to authorize.</p>
   <p>The server holds no key, so the endpoint can be given to an agent, a teammate or a monitoring
   bot without granting any of them custody. Bearer auth turns on with a single environment variable,
   it binds to loopback by default, and every call is a fresh read with no session to hijack.</p>
   <p>An agent watches the book and says when a position is drifting. The wallet owner decides when a
   promise is made or revoked. That split is the product, not a limitation of it.</p>
 
-  <h2>Run it</h2>
+  <h2>
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2.6 2.8"><path d="M16 2V10.5"/><path d="M16 21.5V30"/><path d="M2 16H10.5"/><path d="M21.5 16H30"/></g><circle cx="16" cy="16" r="3.4" stroke="currentColor" stroke-width="1.5"/><circle cx="16" cy="16" r="1.3" fill="currentColor" stroke="none"/></svg>
+    Run it
+  </h2>
+  <span class="code-label">Terminal</span>
   <pre><code>bun mcp/server.ts
 # doca-mcp listening on :8420 -> POST /mcp
 
@@ -100,6 +178,7 @@
   fresh read.</p>
 
   <h2>Example call</h2>
+  <span class="code-label">HTTP</span>
   <pre><code>curl localhost:8420/mcp -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
   "params":{"name":"doca_health","arguments":{"hashes":["0x8c9e..."]}}}'
 
@@ -110,7 +189,7 @@
            nothing was ever deposited into Aqua." }</code></pre>
 
   <h2>Roadmap</h2>
-  <ul>
+  <ul class="roadmap">
     <li><strong>Authenticated write actions</strong>: <code>ship</code>/<code>dock</code>/fill
     behind an explicit, scoped authorization the wallet owner grants, not a standing key.</li>
     <li><strong>x402-metered premium data</strong> (concept only, not built): deeper analytics
@@ -120,9 +199,15 @@
   </ul>
 
   <div class="foot">
-    Full tool schemas, session transcript, and the encoding notes:
-    <a href="https://github.com/ottodevs/doca/blob/main/mcp/README.md">mcp/README.md</a> ·
-    <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
+    <p class="foot-motto">
+      <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><defs><clipPath id="ft"><rect width="32" height="16"/></clipPath><clipPath id="fb"><rect y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ft)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#fb)" opacity=".45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
+      Read-only today. The wallet owner keeps every key.
+    </p>
+    <div class="foot-links">
+      <span>Full tool schemas, session transcript, and the encoding notes:</span>
+      <a href="https://github.com/ottodevs/doca/blob/main/mcp/README.md">mcp/README.md</a>
+      <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
+    </div>
   </div>
 
 </div>
