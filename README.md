@@ -92,6 +92,11 @@ live on Base mainnet:
 | `DocaApp` | [`0x8A15…9694`](https://basescan.org/address/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) | ours — 93 lines, builds the SwapVM program |
 | `AquaAMM` | [`0x400a…8234`](https://basescan.org/address/0x400a7692A205C426b0bD49a6e7A22c3D9DeC8234) | template code, our deployment |
 
+Both of our contracts are source-verified with an exact bytecode match on Sourcify —
+[`InventorySkewProvider`](https://repo.sourcify.dev/8453/0x768FDce0cD1b6237811CA50D7758698e7EDe54D9) ·
+[`DocaApp`](https://repo.sourcify.dev/8453/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694) — so the
+source above is provably the code at those addresses.
+
 Full addresses in [`web/src/deployment.base.json`](web/src/deployment.base.json). The demo runs on
 a fork of the same chain, so what you see in the video executes against these exact contracts.
 
