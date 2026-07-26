@@ -31,7 +31,7 @@ const config: HardhatUserConfig = {
         }
       : {},
     localhost: {
-      url: "http://127.0.0.1:8545",
+      url: process.env.LOCAL_RPC_URL || "http://127.0.0.1:8545",
     },
     base: {
       url: process.env.BASE_RPC_URL || "https://mainnet.base.org",

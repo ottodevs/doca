@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-    d, provider, readWallet, readStrategy, start, dock, marketFill, spendWeth, shipStrategy, resetNonces,
+    d, provider,
     hasInjectedWallet, connectWallet, seedConnectedWallet, session,
     PRESETS, fmtWeth, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
+// Action functions go through the backend facade, not doca.ts directly: it forwards to the real
+// chain calls unless guided replay is active, see lib/backend.ts.
+import { readWallet, readStrategy, start, dock, marketFill, spendWeth, shipStrategy, resetNonces, setBackendMode } from "./lib/backend";
 import { useThirdwebMaker } from "./lib/use-thirdweb-maker";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
 import { Mark, TabNav, type ViewId } from "./nav";
@@ -290,7 +293,9 @@ cd ../web && bun install && bun run dev`;
 
 // Rendered instead of the journey when the fork is unreachable (hosted preview, no node
 // behind it): three panels advanced by Continue + dots on desktop, all stacked on mobile.
-function WelcomeNoNode() {
+// The CTA row below is reachable from every panel, not just the last one, so the sequence never
+// dead-ends into a single option.
+function WelcomeNoNode({ onStartReplay }: { onStartReplay: () => void }) {
     const [step, setStep] = useState(0);
     const [demoOpen, setDemoOpen] = useState(false);
     const last = step === WELCOME_PANELS.length - 1;
@@ -333,8 +338,11 @@ function WelcomeNoNode() {
             </div>
 
             <div className="welcome-cta">
-                <button type="button" className="primary" onClick={() => setDemoOpen((o) => !o)}>
-                    Run the practice demo
+                <button type="button" className="primary" onClick={onStartReplay}>
+                    Watch it work
+                </button>
+                <button type="button" className="secondary" onClick={() => setDemoOpen((o) => !o)}>
+                    Run it locally
                 </button>
                 <a className="welcome-link" href="/#mechanism">See the mechanism</a>
                 <a className="welcome-link" href="/agents/">Agent surface</a>
@@ -382,7 +390,38 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
         setOnboardOpen(false);
     }, []);
 
+    // ---- guided replay: scripted client-side journey for the hosted preview (no fork behind it) ----
+    const [replayMode, setReplayMode] = useState(false);
+
+    const startReplay = useCallback(async () => {
+        setBackendMode("replay");
+        setReplayMode(true);
+        setStrategies([]); setLog([]); setEvent(null); setReceipt(null);
+        setRebalances(0); setFills(0); setAgentOn(false); setStage(1);
+        setWallet(await readWallet());
+    }, []);
+
+    const exitReplay = useCallback(() => {
+        setBackendMode("chain");
+        setAgentOn(false);
+        setReplayMode(false);
+        setStrategies([]); setLog([]); setEvent(null); setReceipt(null);
+        setRebalances(0); setFills(0); setStage(1); setWallet(null);
+    }, []);
+
+    // ?replay=1 also drops straight into guided replay, e.g. for a shared link.
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        if (new URLSearchParams(window.location.search).get("replay") === "1") startReplay();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const onConnect = async () => {
+        // Without a reachable practice network there is nothing a wallet could act on.
+        if (nodeDown) {
+            say("connected wallets stay view-only here: this preview has no practice network behind it", "info");
+            return;
+        }
         try {
             const addr = await connectWallet();
             setAccount(addr);
@@ -397,7 +436,12 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 say(`connected ${addr.slice(0, 6)}…${addr.slice(-4)}: your wallet is now the maker`, "info");
             }
         } catch (e: any) {
-            say(`wallet connect failed: ${String(e?.shortMessage ?? e?.message ?? e).slice(0, 70)}`, "warn");
+            const msg = String(e?.shortMessage ?? e?.message ?? e);
+            if (/practice (fork|network)/i.test(msg) || /failed to fetch|network error|timeout/i.test(msg)) {
+                say("connected wallets stay view-only here: this preview runs on a practice network, not real funds", "info");
+            } else {
+                say(`wallet connect failed: ${msg.slice(0, 70)}`, "warn");
+            }
         }
     };
 
@@ -471,7 +515,14 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
             if (agentBusyRef.current) return;
             const current = strategiesRef.current;
             if (current.length === 0) return;
-            const fresh = await Promise.all(current.map(readStrategy));
+            // A stale read (e.g. a strategy docked or reset between the ref snapshot and this
+            // tick) should skip the interval, not crash it: the next tick reads fresh state.
+            let fresh: Strategy[];
+            try {
+                fresh = await Promise.all(current.map(readStrategy));
+            } catch {
+                return;
+            }
             const sinking = fresh.find((s) => s.remaining <= WATERLINE);
             if (!sinking) return;
             agentBusyRef.current = true;
@@ -502,7 +553,8 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                     );
                     setStrategies((prev) => prev.map((s) => (s.hash === sinking.hash ? replacement : s)));
                     setRebalances((n) => n + 1);
-                    const m = markRef.current;
+                    // Never attribute a live market check to a scripted replay.
+                    const m = replayMode ? null : markRef.current;
                     setEvent({
                         title: "Harbormaster protected your wallet",
                         detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; the strategy detected it and re-shipped a safe reallocation.`
@@ -519,7 +571,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
             }
         }, 3500);
         return () => clearInterval(t);
-    }, [agentOn, say]);
+    }, [agentOn, say, replayMode]);
 
     const onStart = async () => {
         if (!wallet) return;
@@ -672,6 +724,12 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                 )}
                         </div>
                     )}
+                    {replayMode && (
+                        <div className="header-group replay-group">
+                            <span className="pill-seg replay-chip">Guided replay · recorded practice data</span>
+                            <button type="button" className="pill-seg replay-exit" title="Exit replay" aria-label="Exit replay" onClick={exitReplay}>✕</button>
+                        </div>
+                    )}
                     <div className="header-aux">
                         {!nodeDown && (
                             <button
@@ -689,13 +747,13 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 </div>
             </header>
 
-            {nodeDown && <WelcomeNoNode />}
+            {nodeDown && !replayMode && <WelcomeNoNode onStartReplay={startReplay} />}
 
-            {!nodeDown && <Waterline stage={working ? Math.max(stage, 2) : stage} />}
+            {(!nodeDown || replayMode) && <Waterline stage={working ? Math.max(stage, 2) : stage} />}
 
-            {!nodeDown && !wallet && <p className="muted">reading your wallet…</p>}
+            {(!nodeDown || replayMode) && !wallet && <p className="muted">reading your wallet…</p>}
 
-            {!nodeDown && wallet && !working && (
+            {(!nodeDown || replayMode) && wallet && !working && (
                 <>
                     {stage === 5 && receipt && (
                         <div className="stats">
@@ -761,7 +819,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 </>
             )}
 
-            {!nodeDown && wallet && working && (
+            {(!nodeDown || replayMode) && wallet && working && (
                 <>
                     <div className="narr">
                         <h2>One balance, working in {strategies.length} markets</h2>

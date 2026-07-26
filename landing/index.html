@@ -283,7 +283,7 @@
     transform: rotate(-0.6deg); transition: transform 0.5s var(--ease-tidal);
   }
   .shot-frame:hover { transform: rotate(0deg); }
-  .shot-frame img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .shot-frame img, .shot-frame video { display: block; width: 100%; height: auto; border-radius: 12px; }
   @media (prefers-reduced-motion: reduce) { .shot-frame { transition: none; } }
 
   /* ================= for agents ================= */
@@ -402,6 +402,7 @@
     <span>Doca</span>
   </a>
   <nav class="head-nav" aria-label="Site">
+    <a class="quiet" href="#harbor">Demo</a>
     <a class="quiet" href="https://github.com/ottodevs/doca">GitHub</a>
     <a class="btn primary compact" href="http://100.64.0.1:5273">Launch app</a>
   </nav>
@@ -564,10 +565,11 @@
   <section class="harbor-shot section-pad" id="harbor">
     <div class="wrap">
       <h2 data-reveal>The harbor, live.</h2>
-      <p class="lede center" data-reveal style="--d:1">Not a mockup. This is the app running against a Base fork, three strategies shipped, each riding its own load line.</p>
+      <p class="lede center" data-reveal style="--d:1">Not a mockup. The full 3:30 run against a Base fork: three strategies shipped, real fills, a crossing, the Harbormaster repairing it on camera, and a clean walk-away.</p>
       <div class="shot-frame" data-reveal style="--d:2">
-        <img src="assets/app-harbor.png" width="1440" height="900" loading="lazy" decoding="async"
-             alt="Doca app screen showing one wallet working three strategies at once: wallet capacity, budget remaining and promises kept at 100%, with three strategy cards below each carrying its own auto-dock line." />
+        <video src="assets/demo.mp4" poster="assets/app-harbor.png" controls preload="metadata"
+               width="1440" height="900" playsinline
+               aria-label="Doca demo video: the deck, the contracts, and the app running against a Base fork, ending with the Harbormaster repairing a crossed budget on camera."></video>
       </div>
     </div>
   </section>
