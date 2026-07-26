@@ -174,6 +174,58 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
     );
 }
 
+const ONBOARD_KEY = "doca-onboarded";
+
+const ONBOARD_PANELS: { title: string; body: string; note: string }[] = [
+    {
+        title: "Your money works from your wallet",
+        body: "Doca puts an idle wallet balance to work in live markets, for people whose crypto sits untouched between trades.",
+        note: "Keep your wallet. Put it to work anyway.",
+    },
+    {
+        title: "One balance, many markets",
+        body: "You sign price rules for several markets at once, never a deposit.",
+        note: "The Harbormaster watches your positions so you don't have to.",
+    },
+    {
+        title: "Try it in practice waters",
+        body: "This preview runs on a mirrored copy of Base, with real contracts and real tokens, so nothing you do here touches real funds.",
+        note: "Everything here is real. The risk is not.",
+    },
+];
+
+// Shown once (localStorage doca-onboarded), reopenable from the header "?".
+function Onboarding({ onClose }: { onClose: () => void }) {
+    const [step, setStep] = useState(0);
+    const last = step === ONBOARD_PANELS.length - 1;
+    const panel = ONBOARD_PANELS[step]!;
+    return (
+        <div className="onboard" role="dialog" aria-modal="true" aria-label="Welcome to Doca">
+            <div className="onboard-card">
+                <button type="button" className="onboard-skip" onClick={onClose}>Skip</button>
+                <Mark size={26} />
+                <h2>{panel.title}</h2>
+                <p>{panel.body}</p>
+                <p className="onboard-note">{panel.note}</p>
+                <div className="onboard-foot">
+                    <div className="onboard-dots" aria-hidden>
+                        {ONBOARD_PANELS.map((_, i) => (
+                            <i key={i} className={i === step ? "on" : ""} />
+                        ))}
+                    </div>
+                    <button
+                        type="button"
+                        className="primary onboard-next"
+                        onClick={() => (last ? onClose() : setStep((s) => s + 1))}
+                    >
+                        {last ? "Start" : "Next"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function App() {
     const [theme, setTheme] = useTheme();
     const [wallet, setWallet] = useState<Wallet | null>(null);
@@ -190,7 +242,14 @@ export default function App() {
     const [storm, setStorm] = useState(false);
     const [receipt, setReceipt] = useState<{ markets: number; fills: number; protections: number } | null>(null);
     const [account, setAccount] = useState<string | null>(null);
+    const [onboardOpen, setOnboardOpen] = useState(() =>
+        typeof localStorage !== "undefined" ? localStorage.getItem(ONBOARD_KEY) !== "true" : false);
     const saltRef = useRef(1);
+
+    const closeOnboarding = useCallback(() => {
+        localStorage.setItem(ONBOARD_KEY, "true");
+        setOnboardOpen(false);
+    }, []);
 
     const onConnect = async () => {
         try {
@@ -298,7 +357,7 @@ export default function App() {
 
     const onStart = async () => {
         if (!wallet) return;
-        setBusy(`shipping ${preset.count} promises through the canonical Aqua registry`);
+        setBusy(`putting ${preset.count} promises to work`);
         try {
             const shipped = await start(preset, wallet);
             setStrategies(shipped);
@@ -384,6 +443,7 @@ export default function App() {
 
     return (
         <div className={`page ${storm ? "storm" : ""}`}>
+            {onboardOpen && <Onboarding onClose={closeOnboarding} />}
             <header>
                 <div className="brand">
                     <Mark />
@@ -393,15 +453,28 @@ export default function App() {
                     </div>
                 </div>
                 <div className="header-right">
+                    <button
+                        type="button"
+                        className="help-btn"
+                        title="Replay the intro"
+                        aria-label="Replay the intro"
+                        onClick={() => setOnboardOpen(true)}
+                    >
+                        ?
+                    </button>
                     <ThemeToggle mode={theme} onChange={setTheme} />
                     <div className="chain">
-                        <span><span className="dot" />Base fork · block {block ? block.toLocaleString() : d.forkBlock.toLocaleString()}</span><br />
-                        <code>Aqua {d.aqua.slice(0, 10)}… · canonical registry</code><br />
+                        <span
+                            className="pill"
+                            title={`Base fork, block ${block ? block.toLocaleString() : d.forkBlock.toLocaleString()} · Aqua ${d.aqua.slice(0, 10)}… · canonical registry`}
+                        >
+                            <span className="dot" />Practice waters
+                        </span>
                         {account
                             ? <span className="acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                             : hasInjectedWallet()
                                 ? <button className="connect" onClick={onConnect}>Connect wallet</button>
-                                : <span className="acct dim"><i className="state-dot" />demo signer</span>}
+                                : <span className="acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
                     </div>
                 </div>
             </header>
@@ -478,7 +551,7 @@ export default function App() {
             {wallet && working && (
                 <>
                     <div className="narr">
-                        <h2>One balance, quoting in {strategies.length} markets</h2>
+                        <h2>One balance, working in {strategies.length} markets</h2>
                         <p>
                             Nothing deposited, spend any time: the Harbormaster keeps every promise honest.
                         </p>
@@ -488,7 +561,7 @@ export default function App() {
                         <div className="stat-hero">
                             <span>Market coverage</span>
                             <strong>{fmtWeth(promisedWeth)} WETH</strong>
-                            <em>SLAC {amplification.toFixed(2)}× amplified from one wallet</em>
+                            <em>{amplification.toFixed(2)}× your wallet, spread across every market</em>
                         </div>
                         <div className="stat-strip">
                             <div>
@@ -538,8 +611,17 @@ export default function App() {
                             </label>
                         </div>
 
+                        <details className="practice">
+                            <summary>
+                                <span className="practice-caret" aria-hidden>▸</span>
+                                Practice controls
+                            </summary>
+                            <div className="practice-body">
+                                <button onClick={onFlow} disabled={!!busy}>Simulate market flow</button>
+                            </div>
+                        </details>
+
                         <div className="actions">
-                            <button onClick={onFlow} disabled={!!busy}>Simulate market flow</button>
                             <button onClick={onSpend} disabled={!!busy}>Spend 0.25 WETH</button>
                             <button className="ghost" onClick={onStop} disabled={!!busy}>Dock everything</button>
                         </div>
@@ -549,8 +631,8 @@ export default function App() {
                     <div className="horizon">
                         <span>Credit, next</span>
                         <p>
-                            The same budgets that keep quotes honest can back credit offers: lender promises,
-                            borrower collateral, Dutch-auction liquidation on SwapVM.
+                            The same budgets that keep quotes honest could back loans too: lenders promise funds,
+                            borrowers post collateral, and any default unwinds automatically and fairly.
                         </p>
                     </div>
                 </>
@@ -565,8 +647,7 @@ export default function App() {
             </section>
 
             <footer>
-                Canonical 1inch Aqua registry, official SwapVM router code, real WETH and USDC on a fork of Base.
-                Demo signs with a local development key; on a public chain this is a wallet connector.
+                Preview environment: real 1inch Aqua contracts on a mirrored Base network.
             </footer>
         </div>
     );
