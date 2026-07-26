@@ -91,6 +91,20 @@ export async function connectWallet(): Promise<string> {
     const browser = new ethers.BrowserProvider(injected);
     const signer = await browser.getSigner();
     const addr = await signer.getAddress();
+    // The wallet must sit on the practice network before it can act as maker; on any
+    // other chain these contract addresses hold different (or no) code and every call
+    // would come back undecodable. Ask for a switch once, otherwise stay in demo mode.
+    const net = await browser.getNetwork();
+    if (Number(net.chainId) !== Number(deployment.chainId)) {
+        try {
+            await injected.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: "0x" + Number(deployment.chainId).toString(16) }],
+            });
+        } catch {
+            throw new Error(`wallet is on chain ${net.chainId}; switch it to the practice network (chain ${deployment.chainId}) to act as maker`);
+        }
+    }
     rebind(signer);
     session.mode = "wallet";
     session.maker = addr;
@@ -137,16 +151,23 @@ export const PRESETS: Preset[] = [
 // Curve: nothing while the budget is healthy, prohibitive once it is gone.
 const CURVE = { baseFeeBps: 0n, maxFeeBps: BPS / 5n, kink: 4_000n, waterlineFrac: 1_000n };
 
+// Reads always go through the fork provider: the injected wallet may sit on another
+// network where these addresses hold no code, which turns balanceOf into empty data.
+const wethRead = new ethers.Contract(deployment.weth, ERC20_ABI, provider);
+const usdcRead = new ethers.Contract(deployment.usdc, ERC20_ABI, provider);
+const aquaRead = new ethers.Contract(deployment.aqua, AQUA_ABI, provider);
+const skewRead = new ethers.Contract(deployment.skewProvider, SKEW_ABI, provider);
+
 export async function readWallet(): Promise<Wallet> {
-    const [w, u] = await Promise.all([weth.balanceOf(session.maker), usdc.balanceOf(session.maker)]);
+    const [w, u] = await Promise.all([wethRead.balanceOf(session.maker), usdcRead.balanceOf(session.maker)]);
     return { weth: BigInt(w), usdc: BigInt(u) };
 }
 
 export async function readStrategy(s: { hash: string; order: Order; promisedWeth: bigint; promisedUsdc: bigint; budgetWeth: bigint }): Promise<Strategy> {
     const [raw, remaining, fee] = await Promise.all([
-        aqua.rawBalances(session.maker, d.router, s.hash, d.weth),
-        skew.remainingFraction(s.hash, d.weth),
-        skew.feeBpsFor(s.hash, d.weth),
+        aquaRead.rawBalances(session.maker, d.router, s.hash, d.weth),
+        skewRead.remainingFraction(s.hash, d.weth),
+        skewRead.feeBpsFor(s.hash, d.weth),
     ]);
     return { ...s, wethLeft: BigInt(raw[0]), remaining: BigInt(remaining), surchargeBps: BigInt(fee) };
 }
