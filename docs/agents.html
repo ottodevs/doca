@@ -93,7 +93,7 @@
   <pre><code>bun mcp/server.ts
 # doca-mcp listening on :8420 -> POST /mcp
 
-claude mcp add --transport http doca http://127.0.0.1:8420/mcp</code></pre>
+# Any MCP client (HTTP transport): connect to http://127.0.0.1:8420/mcp</code></pre>
   <p>One file, zero new dependencies: <code>Bun.serve</code> plus raw JSON-RPC <code>eth_call</code>
   against <code>RPC_URL</code>, reading addresses from the same
   <code>web/src/deployment.json</code> the app uses. Bearer auth via <code>DOCA_MCP_TOKEN</code>, loopback by default, and every call is a
