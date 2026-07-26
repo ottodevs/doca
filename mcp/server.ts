@@ -242,16 +242,20 @@ async function callTool(name: string, args: any) {
             : await liveStrategies(maker, fromBlock);
         const positions = await Promise.all(hashes.map(async (raw) => {
             const hash = normalizeHash(raw);
-            const [bal, remaining, fee] = await Promise.all([
+            const [bal, balUsdc, remaining, remainingUsdc, fee] = await Promise.all([
                 rawBalances(maker, deployment.router, hash, deployment.weth),
+                rawBalances(maker, deployment.router, hash, deployment.usdc),
                 remainingFraction(hash, deployment.weth),
+                remainingFraction(hash, deployment.usdc),
                 feeBpsFor(hash, deployment.weth),
             ]);
             return {
                 hash,
                 wethAboard: { raw: bal.balance.toString(), formatted: fmtWeth(bal.balance) },
+                usdcAboard: { raw: balUsdc.balance.toString(), formatted: fmtUsdc(balUsdc.balance) },
                 strategyTokenCount: Number(bal.tokensCount),
-                budgetRemaining: { raw: remaining.toString(), pct: `${fmtPct(remaining)}%`, note: "fraction of the waterline budget set at ship time, not an absolute token amount" },
+                budgetRemaining: { raw: remaining.toString(), pct: `${fmtPct(remaining)}%`, note: "WETH-leg fraction of the waterline budget set at ship time, not an absolute token amount" },
+                budgetRemainingUsdc: { raw: remainingUsdc.toString(), pct: `${fmtPct(remainingUsdc)}%`, note: "USDC-leg fraction of the waterline budget set at ship time" },
                 surcharge: { pct: `${fmtFee(fee)}%`, note: "current AMM fee surcharge as the budget depletes (0% while healthy, rises toward the curve's max near the kink)" },
             };
         }));
@@ -262,24 +266,37 @@ async function callTool(name: string, args: any) {
         const hashes: string[] = Array.isArray(args?.hashes) && args.hashes.length
             ? args.hashes
             : await liveStrategies(maker, fromBlock);
-        const wallet = await erc20BalanceOf(deployment.weth, maker);
+        const [wallet, walletUsdc] = await Promise.all([
+            erc20BalanceOf(deployment.weth, maker),
+            erc20BalanceOf(deployment.usdc, maker),
+        ]);
         const committedAmounts = await Promise.all(hashes.map(async (raw) => {
             const hash = normalizeHash(raw);
-            const bal = await rawBalances(maker, deployment.router, hash, deployment.weth);
-            return bal.balance;
+            const [bal, balUsdc] = await Promise.all([
+                rawBalances(maker, deployment.router, hash, deployment.weth),
+                rawBalances(maker, deployment.router, hash, deployment.usdc),
+            ]);
+            return [bal.balance, balUsdc.balance] as const;
         }));
-        const committed = committedAmounts.reduce((a, b) => a + b, 0n);
-        const honorable = committed <= wallet;
+        const committed = committedAmounts.reduce((a, b) => a + b[0], 0n);
+        const committedUsdc = committedAmounts.reduce((a, b) => a + b[1], 0n);
+        // Health is the worse leg: both tokens are budgeted at ship time, so either side
+        // outrunning the wallet makes the book unhonorable.
+        const honorable = committed <= wallet && committedUsdc <= walletUsdc;
         const headroom = wallet - committed;
+        const headroomUsdc = walletUsdc - committedUsdc;
         return ok({
             maker,
             checkedStrategies: hashes.length,
             walletWeth: { raw: wallet.toString(), formatted: fmtWeth(wallet) },
+            walletUsdc: { raw: walletUsdc.toString(), formatted: fmtUsdc(walletUsdc) },
             committedWeth: { raw: committed.toString(), formatted: fmtWeth(committed) },
+            committedUsdc: { raw: committedUsdc.toString(), formatted: fmtUsdc(committedUsdc) },
             headroomWeth: { raw: headroom.toString(), formatted: (headroom < 0n ? "-" : "") + fmtWeth(headroom < 0n ? -headroom : headroom) },
+            headroomUsdc: { raw: headroomUsdc.toString(), formatted: (headroomUsdc < 0n ? "-" : "") + fmtUsdc(headroomUsdc < 0n ? -headroomUsdc : headroomUsdc) },
             honorable,
-            note: "honorable=true means the wallet holds enough WETH to cover every checked strategy at once, "
-                + "with nothing deposited into Aqua.",
+            note: "honorable=true means the wallet holds enough of BOTH legs (WETH and USDC) to cover "
+                + "every checked strategy at once, with nothing deposited into Aqua. Health is the worse leg.",
         });
     }
 

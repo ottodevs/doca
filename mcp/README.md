@@ -67,11 +67,11 @@ work this server deliberately doesn't take on. The hash is the return value of
 live.
 
 ### `doca_health`
-The invariant check: sum the WETH committed (`rawBalances`) across the given strategies and compare
-against the maker's actual wallet balance. `honorable: true` means the wallet holds enough WETH to
-cover every checked commitment at once. The check is scoped to the WETH leg today; two-sided
-accounting is on the roadmap alongside the BudgetGuard instruction. Nothing is ever deposited into
-Aqua up front.
+The invariant check: sum the committed amounts (`rawBalances`) across the given strategies on both
+legs and compare each against the maker's actual wallet balances. `honorable: true` means the wallet
+holds enough WETH *and* enough USDC to cover every checked commitment at once — health is the worse
+leg. On-chain enforcement (the BudgetGuard instruction) remains on the roadmap. Nothing is ever
+deposited into Aqua up front.
 
 ```json
 { "hashes": ["0x8c9e8bbe7562b574872b55e472f6df9548e1e64ed6c14132a53d9ad009a5e995"] }

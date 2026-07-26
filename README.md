@@ -73,7 +73,8 @@ off-chain before underfunding turns into persistent failed quotes.
 </p>
 
 **On-chain: `InventorySkewProvider`.** An `IProtocolFeeProvider` plugged into SwapVM's stock
-`AquaDynamicProtocolFeeAmountIn` instruction (opcode 30). The fee is flat while a budget is healthy
+`AquaDynamicProtocolFeeAmountIn` instruction (opcode 30 at the pinned `swap-vm#b44977a1`; upstream
+`main` has since re-banked the opcode space). The fee is flat while a budget is healthy
 and rises quadratically as it drains. Three properties:
 
 | Property | What it means |
@@ -310,6 +311,7 @@ against a budget. The two compose rather than compete.
 |---|---|
 | `contracts/` | `InventorySkewProvider.sol`, `DocaApp.sol`, tests, measurement scripts |
 | `web/` | the app: `src/lib/doca.ts` is every chain call the UI makes |
+| `src/` | scaffold for a future headless keeper — not wired into anything; the live Harbormaster keeper runs in `web/src/App.tsx` |
 | `mcp/` | read-only MCP server (`bun mcp/server.ts`): wallet, positions, health |
 | `landing/`, `deck/`, `docs/` | landing page, pitch deck, design dossier and agent docs |
 | `site/` | static site assembly and deploy (`bun site/build.mjs`, `site/deploy.sh`) |
