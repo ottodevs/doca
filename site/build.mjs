@@ -4,6 +4,7 @@
 //   /deck    pitch deck
 //   /brand   brand assets
 //   /dossier design dossier
+//   /agents  agent (MCP) integration surface
 // Run from repo root: bun site/build.mjs  (expects web/ already built)
 import { cpSync, mkdirSync, rmSync, writeFileSync, existsSync } from "fs";
 import { execSync } from "child_process";
@@ -23,8 +24,9 @@ cpSync("web/dist", `${out}/app`, { recursive: true });
 cpSync("deck", `${out}/deck`, { recursive: true });
 cpSync("assets/brand", `${out}/brand`, { recursive: true });
 if (existsSync("docs/dossier.html")) cpSync("docs/dossier.html", `${out}/dossier.html`);
+if (existsSync("docs/agents.html")) cpSync("docs/agents.html", `${out}/agents.html`);
 
 // SPA-ish niceties + trailing-slash routes handled by Pages automatically via directories.
-writeFileSync(`${out}/_redirects`, "/dossier /dossier.html 200\n");
+writeFileSync(`${out}/_redirects`, "/dossier /dossier.html 200\n/agents /agents.html 200\n");
 
 console.log("site assembled at", out);
