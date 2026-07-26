@@ -96,6 +96,40 @@ key or smart-account module would authorize only `dock`, `ship` and waterline up
 limits, budget limits and expiry. MCP: read-only observability (see [`mcp/`](mcp/)), not the
 transaction executor. It is a deterministic risk keeper, not an autonomous AI agent.
 
+### The next layer: a BudgetGuard instruction
+
+InventorySkewProvider prices cumulative depletion measured before a fill runs; it has no notion of
+what the fill about to execute does to the budget it consumes. The single-large-fill test in
+[`contracts/test/adversarial.test.ts`](contracts/test/adversarial.test.ts) documents the
+consequence directly: one trade sized past the waterline settles at the pre-fill base rate, not the
+max rate its own resulting state would justify. Closing that gap is a separate SwapVM instruction,
+not a change to the pricing curve described above, and it does not exist yet.
+
+```solidity
+// Not built. Sketch of a SwapVM instruction that checks a fill against the budget it is about to
+// consume, instead of only pricing depletion measured before the fill runs.
+interface IBudgetGuard {
+    enum OnBreach { Revert, CapOutput, PricePostTradeState }
+
+    // consumedAfterFill = consumed-before-fill + amountOut
+    // if consumedAfterFill > orderBudget, apply onBreach: revert, cap amountOut down to the
+    // budget, or reprice using the post-trade remaining fraction instead of the pre-fill one.
+    function checkFill(
+        bytes32 orderHash,
+        address maker,
+        address tokenOut,
+        uint256 amountOut,
+        OnBreach onBreach
+    ) external returns (uint256 allowedAmountOut, uint32 postTradeFeeBps);
+}
+```
+
+A revert is the simplest option and the cheapest one gas-wise. A capped output changes the amount
+the taker actually receives mid-instruction, which SwapVM's current pipeline is not set up to do
+after a fee opcode has already run. Pricing the post-trade state is the closest match to what the
+single-large-fill test shows missing, but it needs the fee to be computed after the curve runs
+instead of before it, which is a reordering of the instruction pipeline, not a parameter change.
+
 <sub>[↑ Contents](#contents)</sub>
 
 ## Ours and 1inch's
@@ -232,7 +266,7 @@ Other scripts: `demo-flow-base.ts` (the whole loop against the canonical registr
 
 ## Tests
 
-`npx hardhat test` runs 8, four of them the official template's own:
+`npx hardhat test` runs 11, four of them the official template's own:
 
 - a healthy budget quotes the base fee, so ordinary flow is untouched
 - the surcharge ramps quadratically past the kink and caps at the waterline, asserted against the
@@ -241,6 +275,17 @@ Other scripts: `demo-flow-base.ts` (the whole loop against the canonical registr
 - identical taker flow through a skewed and a plain program, shipped from the same wallet, leaves
   strictly more inventory standing in the skewed one, and the exact surcharge lands outside the
   pool — asserted with real ERC-20 balance changes
+
+Three more, in [`contracts/test/adversarial.test.ts`](contracts/test/adversarial.test.ts), document
+what InventorySkewProvider does and does not catch:
+
+- a single fill that crosses the waterline in one shot settles at the pre-fill base rate, not the
+  post-trade max rate its own resulting state would justify
+- an external wallet transfer, made outside Aqua entirely, leaves the fee curve quoting the base
+  rate against a wallet it can no longer see accurately; the fill only fails once the ERC20
+  transfer underneath `Aqua.pull()` runs out of real balance to move
+- two strategies shipped against the same wallet price independently, so one strategy's own budget
+  can look nearly untouched while the wallet backing it has already been drained by the other
 
 <sub>[↑ Contents](#contents)</sub>
 
