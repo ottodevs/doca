@@ -21,6 +21,7 @@ Built at ETHGlobal Lisbon 2026.
 - [The gap](#the-gap)
 - [The design](#the-design)
 - [Ours and 1inch's](#ours-and-1inchs)
+- [Live market reference — Uniswap API](#live-market-reference--uniswap-api)
 - [Measurements](#measurements)
 - [Run it](#run-it)
 - [Tests](#tests)
@@ -107,6 +108,29 @@ a fork of the same chain, so what you see in the video executes against these ex
 the June router by design. The template's own deploy flow ships a fresh router; we do the same and
 wire it to the canonical live Aqua registry, which the bounty permits. Our extension point is
 untouched by the skew: opcode 30 is `_aquaDynamicProtocolFeeAmountInXD` in both revisions.
+
+<sub>[↑ Contents](#contents)</sub>
+
+## Live market reference — Uniswap API
+
+The practice fork is frozen at a pinned block; the real market is not. Doca uses the
+**Uniswap Trading API** as its live Base mainnet reference so nothing the user sees is
+priced in a vacuum:
+
+- [`web/src/lib/uniswap-price.ts`](web/src/lib/uniswap-price.ts) — the client:
+  `POST /v1/quote` (EXACT_INPUT WETH→USDC, chain 8453, V3+V4). Handles both CLASSIC and
+  X response shapes.
+- [`web/src/App.tsx`](web/src/App.tsx) — the Harbormaster annotates every dock/re-ship
+  decision with the live price (`markRef`), and the header pill shows the current
+  Uniswap quote next to the fork state.
+- [`web/src/LpDesk.tsx`](web/src/LpDesk.tsx) +
+  [`web/src/lib/pnl.ts`](web/src/lib/pnl.ts) — positions are valued mark-to-market
+  against the quote; the PnL chart and history ticks are denominated in it.
+- [`web/plugins/lp-desk-dev.ts`](web/plugins/lp-desk-dev.ts) — dev proxy that injects
+  `x-api-key` server-side (the key never reaches the browser bundle) and polls spot
+  for position history.
+
+Developer feedback for the Uniswap team lives in [`FEEDBACK.md`](FEEDBACK.md).
 
 <sub>[↑ Contents](#contents)</sub>
 
