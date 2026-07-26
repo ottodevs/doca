@@ -34,3 +34,9 @@ Reset demo state at any time by re-running step 2's deploy script (it `anvil_res
 - GitHub rejects pushes with a private email: `git config user.email "<id>+<user>@users.noreply.github.com"`.
 - The fork inherits real Base nonces — the app handles it with NonceManager; scripts should too.
 - `main` must always `bun run build` green.
+
+## Unified site (doca.pages.dev)
+
+`bun site/build.mjs` assembles everything into `site/dist`: `/` landing · `/app` · `/deck` ·
+`/brand` · `/dossier`. Deploy: `bunx wrangler pages deploy site/dist --project-name doca`
+(needs a Cloudflare API token with Pages:Edit, or `bunx wrangler login`).
