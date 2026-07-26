@@ -1,82 +1,55 @@
-# Doca — Brand North Star
+# Doca · Brand
 
-Single source of truth for every design agent and session tonight. If your output contradicts
-this file, this file wins. If you improve on it, PR the change here first.
+Tokens, type and voice for every Doca surface. The rendered version lives at
+[docs/brand.html](docs/brand.html).
 
 ## Concept: Lisbon light over deep water
 
-Doca is a **day-first** product — the single loudest break from DeFi's black-screen slop. Day is
-a Lisbon summer morning on the docks; night is the Atlantic after dark. Same geometry, two lights.
+Doca is a day-first product. Day is a Lisbon summer morning on the docks; night is the Atlantic
+after dark. Same geometry, two lights.
 
-## Palettes (tokens, not suggestions)
+## Palettes
 
-**Day ("Manhã")** — primary theme:
-- ground `#f7f3ea` (warm limestone, not cream-AI-beige: cooler, mineral)
+**Day ("Manhã")**, the primary theme:
+
+- ground `#f7f3ea` (warm limestone)
 - surface `#ffffff` at 60% / paper `#efe9dc`
 - ink `#1c2733` (harbor slate, never pure black)
-- accent `#1f5fd6` (azulejo cobalt — THE brand color)
-- support `#2aa198` (sea glass) · warn `#c97b2d` (terracotta, SPARINGLY — warnings only)
+- accent `#1f5fd6` (azulejo cobalt, the brand color)
+- support `#2aa198` (sea glass) · warn `#c97b2d` (terracotta, warnings only)
 - danger `#c0392b` · positive `#1e8a5e`
 
 **Night ("Madrugada")**:
-- ground `#0d1626` (deep Atlantic indigo — NOT #000, NOT the old #05080d)
+
+- ground `#0d1626` (deep Atlantic indigo, never `#000`)
 - surface `#141f33` · ink `#e9eef7`
 - accent `#5b9cf5` (moonlit cobalt) · support `#37c2b4`
-- lamps `#e8b34b` (harbor-lamp amber for highlights/CTAs' glow)
+- lamps `#e8b34b` (harbor-lamp amber, highlights only)
 
-Theme switch: **day / night / system** control, `data-theme` attribute + `prefers-color-scheme`
-fallback, tokens only — no component-level colors.
+Theme switch: day / night control with a `prefers-color-scheme` fallback, tokens only. No
+component-level colors.
 
 ## Type
 
-- Display: **Fraunces** (vendored via @fontsource) — warm, characterful, the azulejo-shop serif.
-  Headlines only, tight leading, optical sizes.
-- UI/body: **Schibsted Grotesk** (vendored) — fresh, not Inter, not Space Grotesk.
-- Numerals/data: tabular-nums always; mono only for hashes.
+- Display: **Fraunces** (vendored via @fontsource). Headlines only, tight leading.
+- UI/body: **Schibsted Grotesk** (vendored).
+- Numerals: tabular-nums always; mono only for hashes.
 
 ## Motion
 
-Tidal, not springy: long ease-outs (`cubic-bezier(0.22, 1, 0.36, 1)`), slow ambient water, GSAP
-ScrollTrigger on the landing (vendored, no CDN), R3F/three only where it carries meaning (water).
-`prefers-reduced-motion` kills all ambient motion, always.
+Tidal, not springy: long ease-outs (`cubic-bezier(0.22, 1, 0.36, 1)`), motion only where it
+carries meaning. `prefers-reduced-motion` disables all ambient motion, always.
 
-## Voice & journey
+## Voice
 
-- Guide, don't label: **no numbered rails, no "step 3/5" chrome**. Progress is a thin waterline
-  that fills along the top edge. The interface accompanies; it never lectures.
+- Guide, don't label: no numbered rails, no "step 3 of 5" chrome. Progress is a thin waterline
+  that fills along the top edge.
 - One idea per screen, one sentence per idea. No protocol prose in the UI.
-- Never say "user journey/persona/happy path" in any user-facing surface — that is our internal
-  scaffolding, invisible by definition.
-
-## Numbers (which ones lead)
-
-- LEAD: **"Under 4× leverage, half of an unmanaged maker's quotes failed. With Doca: zero."**
-- LEAD: **"+29% inventory retained under identical flow."**
-- SUPPORT (never headline): +1.99% realized price, $-figures.
-- PROBLEM STAT: 85% ($1.6B of $1.84B analyzed), 1inch-commissioned Dune research — keep, attributed;
-  frame as adjacent evidence of the manual-LP-management gap, never as a direct size of Doca's own
-  problem.
-
-## Components — kill list
-
-- ❌ left-border accent cards · ❌ uppercase-letterspaced labels everywhere · ❌ glow-on-everything
-- ❌ 4-equal-tiles rows · ❌ numbered step circles · ❌ cyan-on-near-black defaults
-- ✅ soft warm shadows (day), thin strokes (night) · ✅ one hero number per view
-- ✅ state shown as water level + a small word, not chips shouting in caps
+- State is shown as a water level plus a small word, not chips shouting in caps.
+- Numbers that lead are measured ones; supporting figures stay supporting.
 
 ## Mark
 
-The **D half-submerged at the waterline** stays as the core idea — refine toward "a floating
-dock": rounded pontoon D, gentle reflection, subtle bob animation on hover. Assets in
-`assets/brand/` (SVG first; every asset works on both themes).
-
-## Centerpiece hierarchy (what the product is about)
-
-1. **The Harbormaster** — ease: it watches so you don't.
-2. **Vs a traditional AMM** — nothing deposited, spend without withdrawing (Doca resizes around
-   it), one balance many markets.
-3. **The credit horizon** — lending/borrowing as a visible concept (teaser panel, "coming next"),
-   powered by the same budget primitive. Concept only; no fake numbers.
-
-Aligned with what 1inch expects from Aqua apps: sophisticated position, SwapVM depth, real
-transfers in the demo, honest limitations.
+The D half-submerged at the waterline: a floating dock. Rounded pontoon D, gentle reflection,
+subtle bob on hover. Assets in `assets/brand/` (SVG first; every asset works on both themes).
+The lighthouse appears in illustrations, never as the logo.

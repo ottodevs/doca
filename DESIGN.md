@@ -1,4 +1,4 @@
-# Doca — design rationale
+# Doca · Design rationale
 
 Full illustrated dossier: [docs/dossier.html](docs/dossier.html). This is the terse in-repo version.
 
@@ -11,8 +11,8 @@ the Harbormaster watches for drift and re-ships before underfunding turns into f
 
 ## The name is the design system
 
-Doca is Portuguese for the dock. The load line painted on a hull is the mark: load past it and you sink. Every visual maps to a
-protocol primitive — nothing is decorative:
+Doca is Portuguese for the dock. The load line painted on a hull is the mark: load past it and you
+sink. Every visual maps to a protocol primitive; nothing is decorative.
 
 | On screen | Means | Protocol reality |
 |---|---|---|
@@ -26,24 +26,16 @@ protocol primitive — nothing is decorative:
 
 ## The journey is the UI
 
-Mentor's explicit ranking: UX > user journey > legitimate use case > contracts. The rail across
-the top advances as the user acts:
+The rail across the top advances as the user acts:
 
-1. **Wallet** — recognition. Idle balances + one attributed fact (1inch's July research).
-2. **Put to work** — capacity, not leverage. Presets = one human decision. "Price rules, not a deposit."
-3. **Live market** — watching it work. Water rises, surcharge wakes on the drained side only.
-4. **Protected** — the punch. Storm → event strip: docked → re-shipped. Invariant stays green.
-5. **Walk away** — the receipt. Markets, fills, protections, 0 deposits · 0 to unwind.
+1. **Wallet**: recognition. Idle balances plus one attributed fact (1inch's July research).
+2. **Put to work**: capacity, not leverage. Presets are one human decision. "Price rules, not a deposit."
+3. **Live market**: watching it work. Water rises, surcharge wakes on the drained side only.
+4. **Protected**: the punch. Storm, then the event strip: docked, resized, re-shipped. Invariant stays green.
+5. **Walk away**: the receipt. Markets, fills, protections, 0 deposits · 0 to unwind.
 
 The remembered line: **"Wallet balance changed. Your strategy detected the change and prepared a
 safe reallocation."**
-
-## Process
-
-v1 rebuilt the app around the journey; then an independent vision critique over the real
-screenshots vs our own review. 9 decisions accepted (event strip, hero metric, labelled metaphor,
-chips, receipt, storm, solid surfaces, type scale, rail rename), 1 rejected with cause (the $1.6B
-stat stays — it is 1inch's own commissioned research, so it is attributed inline, not deleted).
 
 ## Seams
 
