@@ -6,21 +6,32 @@
 <meta name="color-scheme" content="light dark" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Doca" />
-<meta property="og:title" content="Doca — Keep your wallet. Put it to work anyway." />
+<meta property="og:title" content="Doca: Keep your wallet. Put it to work anyway." />
 <meta property="og:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, each sized to what the wallet actually holds." />
 <meta property="og:url" content="https://doca-finance.pages.dev/" />
 <meta property="og:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Doca — Keep your wallet. Put it to work anyway." />
+<meta name="twitter:title" content="Doca: Keep your wallet. Put it to work anyway." />
 <meta name="twitter:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, each sized to what the wallet actually holds." />
 <meta name="twitter:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
-<title>Doca — keep your wallet, put it to work</title>
+<title>Doca: keep your wallet, put it to work</title>
 <meta name="description" content="Keep your wallet. Put it to work anyway. Non-custodial market making on 1inch Aqua: budgets sized to what the wallet holds, and a Harbormaster that watches and resizes them." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CclipPath id='t'%3E%3Crect width='32' height='16'/%3E%3C/clipPath%3E%3CclipPath id='b'%3E%3Crect y='16' width='32' height='16'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg fill='none' stroke='%231f5fd6' stroke-width='2.6' stroke-linejoin='round'%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23t)'/%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23b)' opacity='.45'/%3E%3Cline x1='2' y1='16' x2='30' y2='16'/%3E%3C/g%3E%3C/svg%3E" />
 <link rel="preload" href="vendor/fonts/fraunces-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="vendor/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+<script>
+  // Theme before first paint; buttons live in the footer.
+  (function () {
+    try {
+      var c = localStorage.getItem("doca-theme-choice") || "day";
+      if (c === "system") c = matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day";
+      document.documentElement.setAttribute("data-theme", c);
+    } catch (e) { document.documentElement.setAttribute("data-theme", "day"); }
+    document.documentElement.classList.add("js");
+  })();
+</script>
 <style>
   /* ================= fonts ================= */
   @font-face { font-family: "Fraunces"; src: url("vendor/fonts/fraunces-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
@@ -31,7 +42,7 @@
   @font-face { font-family: "Schibsted Grotesk"; src: url("vendor/fonts/schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
 
   /* ================= tokens (BRAND.md) ================= */
- :root {
+  :root {
     --font-display: "Fraunces", ui-serif, Georgia, serif;
     --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     --container: 1120px;
@@ -39,11 +50,10 @@
     --radius-panel: 18px;
     --radius-pill: 999px;
   }
- :root,:root[data-theme="day"] {
+  :root, :root[data-theme="day"] {
     color-scheme: light;
     --ground: #f7f3ea;
     --surface: #ffffff;
-    --surface-a: rgba(255, 255, 255, 0.6);
     --paper: #efe9dc;
     --ink: #1c2733;
     --accent: #1f5fd6;
@@ -54,17 +64,15 @@
     --positive: #1e8a5e;
     --line: rgba(28, 39, 51, 0.13);
     --line-strong: rgba(28, 39, 51, 0.24);
-    --muted: rgba(28, 39, 51, 0.64);
-    --faint: rgba(28, 39, 51, 0.42);
+    --muted: rgba(28, 39, 51, 0.68);
+    --faint: rgba(28, 39, 51, 0.46);
     --elev: 0 22px 54px -30px rgba(28, 39, 51, 0.32), 0 2px 10px -6px rgba(28, 39, 51, 0.14);
     --water-fill: 31, 95, 214;
-    --water-fill-2: 42, 161, 152;
   }
- :root[data-theme="night"] {
+  :root[data-theme="night"] {
     color-scheme: dark;
     --ground: #0d1626;
     --surface: #141f33;
-    --surface-a: rgba(20, 31, 51, 0.6);
     --paper: #101b2d;
     --ink: #e9eef7;
     --accent: #5b9cf5;
@@ -75,16 +83,16 @@
     --positive: #4fd1a6;
     --line: rgba(233, 238, 247, 0.14);
     --line-strong: rgba(233, 238, 247, 0.26);
-    --muted: rgba(233, 238, 247, 0.66);
-    --faint: rgba(233, 238, 247, 0.44);
+    --muted: rgba(233, 238, 247, 0.7);
+    --faint: rgba(233, 238, 247, 0.48);
     --elev: 0 0 0 1px var(--line-strong);
     --water-fill: 91, 156, 245;
-    --water-fill-2: 55, 194, 180;
   }
 
   * { box-sizing: border-box; }
-  html { scroll-behavior: auto; }
   html, body { overflow-x: hidden; max-width: 100%; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   body {
     margin: 0;
     background: var(--ground);
@@ -97,189 +105,221 @@
     transition: background 0.4s var(--ease-tidal), color 0.4s var(--ease-tidal);
   }
   a { color: inherit; }
-  img, svg, canvas { max-width: 100%; display: block; }
- .wrap { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 24px; }
+  img, svg { max-width: 100%; }
+  svg { display: block; }
+  .wrap { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 24px; }
   h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
-  em, i.emph { font-style: italic; line-height: 1.15; padding-bottom: 0.08em; display: inline-block; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  /* ================= reveal on view ================= */
+  html.js [data-reveal] {
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 0.7s var(--ease-tidal), transform 0.7s var(--ease-tidal);
+    transition-delay: calc(var(--d, 0) * 90ms);
+  }
+  html.js [data-reveal].in-view { opacity: 1; transform: none; }
+  html.js.rm [data-reveal] { opacity: 1; transform: none; transition: none; }
+
+  /* ================= waterline progress (CSS scroll timeline) ================= */
+  .waterline-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; z-index: 90; pointer-events: none; }
+  .waterline-progress span {
+    display: block; height: 100%; width: 100%;
+    background: linear-gradient(90deg, var(--support), var(--accent));
+    transform-origin: 0 50%; transform: scaleX(0);
+  }
+  @supports (animation-timeline: scroll()) {
+    .waterline-progress span { animation: waterline-fill linear both; animation-timeline: scroll(root); }
+  }
+  @keyframes waterline-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
   /* ================= mark ================= */
- .mark { flex: none; color: var(--accent); }
- .mark.refl { opacity: 0.4; }
- .brand-lockup { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
- .brand-lockup.mark svg { transition: transform 0.5s var(--ease-tidal); transform-origin: 50% 100%; }
- .brand-lockup:hover.mark svg,.brand-lockup:focus-visible.mark svg { animation: bob 1.8s var(--ease-tidal) infinite; }
- .brand-lockup span { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
+  .mark { flex: none; color: var(--accent); }
+  .mark .refl { opacity: 0.45; }
+  .brand-lockup { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+  .brand-lockup .mark svg { transition: transform 0.5s var(--ease-tidal); transform-origin: 50% 100%; }
+  .brand-lockup:hover .mark svg, .brand-lockup:focus-visible .mark svg { animation: bob 1.8s var(--ease-tidal) infinite; }
+  .brand-lockup span:last-child { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
   @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(-2deg); } }
 
-  /* ================= waterline progress ================= */
- .waterline-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--line); z-index: 90; }
- .waterline-progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--support), var(--accent)); }
-
   /* ================= header ================= */
- .site-head {
-    position: fixed; top: 3px; left: 0; right: 0; z-index: 80;
+  .site-head {
+    position: fixed; top: 3px; left: 0; right: 0; z-index: 80; height: 64px;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 24px; backdrop-filter: blur(14px) saturate(140%);
+    padding: 0 24px; backdrop-filter: blur(14px) saturate(140%);
     background: color-mix(in srgb, var(--ground) 72%, transparent);
     border-bottom: 1px solid transparent;
     transition: border-color 0.4s var(--ease-tidal), background 0.4s var(--ease-tidal);
   }
- .site-head.scrolled { border-bottom-color: var(--line); }
- .theme-toggle { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-pill); background: var(--paper); border: 1px solid var(--line); }
- .theme-toggle button {
-    font: inherit; font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
-    border: 0; background: transparent; color: var(--muted); cursor: pointer;
-    padding: 6px 13px; border-radius: var(--radius-pill); transition: background 0.25s var(--ease-tidal), color 0.25s var(--ease-tidal);
-  }
- .theme-toggle button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--elev); }
- .theme-toggle button:hover { color: var(--ink); }
+  .site-head.scrolled { border-bottom-color: var(--line); }
+  .head-nav { display: flex; align-items: center; gap: 22px; }
+  .head-nav .quiet { font-size: 14.5px; font-weight: 600; text-decoration: none; color: var(--muted); }
+  .head-nav .quiet:hover { color: var(--ink); }
 
   /* ================= buttons ================= */
- .btn {
+  .btn {
     font: inherit; font-family: var(--font-body); font-size: 15.5px; font-weight: 600; text-decoration: none;
     display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-pill);
     padding: 13px 26px; white-space: nowrap;
     transition: transform 0.18s var(--ease-tidal), background 0.25s var(--ease-tidal), border-color 0.25s var(--ease-tidal), box-shadow 0.25s var(--ease-tidal);
   }
- .btn:active { transform: translateY(1px) scale(0.98); }
- .btn.primary { border: 0; color: var(--accent-ink); background: var(--accent); box-shadow: 0 14px 32px -14px rgba(var(--water-fill), 0.55); }
- .btn.primary:hover { box-shadow: 0 18px 38px -14px rgba(var(--water-fill), 0.68); }
- .btn.ghost { color: var(--ink); border: 1px solid var(--line-strong); background: transparent; }
- .btn.ghost:hover { background: var(--paper); }
+  .btn:active { transform: translateY(1px) scale(0.98); }
+  .btn.primary { border: 0; color: var(--accent-ink); background: var(--accent); box-shadow: 0 14px 32px -14px rgba(var(--water-fill), 0.55); }
+  .btn.primary:hover { box-shadow: 0 18px 38px -14px rgba(var(--water-fill), 0.68); }
+  .btn.ghost { color: var(--ink); border: 1px solid var(--line-strong); background: transparent; }
+  .btn.ghost:hover { background: var(--paper); }
+  .btn.compact { padding: 9px 18px; font-size: 14px; }
 
   /* ================= layout helpers ================= */
   section { position: relative; }
- .section-pad { padding: 108px 0; }
- .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
+  .section-pad { padding: 104px 0; }
+  .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
 
   /* ================= hero ================= */
- .hero { padding: 168px 0 96px; text-align: center; overflow: hidden; }
- .hero.brand-lockup { justify-content: center; margin-bottom: 30px; }
- .hero.brand-lockup.mark svg { width: 46px; height: 46px; }
- .hero.brand-lockup span { font-size: 20px; }
- .hero h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.08; max-width: 15ch; margin: 0 auto; }
- .hero.lede { margin: 22px auto 0; font-size: clamp(16px, 1.9vw, 18.5px); }
- .hero.cta { display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap; }
- .hero-water { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; pointer-events: none; opacity: 0.55; }
+  .hero { padding: 132px 0 72px; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr); gap: 48px; align-items: center; }
+  .hero h1 { font-size: clamp(32px, 3.4vw, 48px); line-height: 1.08; }
+  .hero .lede { margin: 22px 0 0; font-size: clamp(16px, 1.9vw, 18px); }
+  .hero .cta { display: flex; gap: 14px; margin-top: 36px; flex-wrap: wrap; }
+  .hero-map-wrap { min-width: 0; }
+  .hero-map { width: 100%; height: auto; }
+  .map-caption { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); max-width: 52ch; }
 
-  /* ================= stage sections (pinned/scrubbed) ================= */
-  html:not(.rm).stage-wrap { height: 230vh; }
-  html.rm.stage-wrap { height: auto; padding: 88px 0; }
- .stage-wrap { position: relative; }
- .stage {
-    position: sticky; top: 0; height: 100dvh; min-height: 560px;
-    display: flex; align-items: center; overflow: hidden;
+  /* hero map internals */
+  .hero-map .ws1 { stop-color: rgba(var(--water-fill), 0.09); }
+  .hero-map .ws2 { stop-color: rgba(var(--water-fill), 0); }
+  .hero-map .wl { stop-color: var(--accent); }
+  .hero-map .waterline { stroke: url(#wlx); stroke-width: 1.5; }
+  .hero-map .route { stroke: var(--accent); stroke-width: 1.6; fill: none; stroke-dasharray: 5 7; stroke-linecap: round; }
+  .hero-map .route.dim { stroke-opacity: 0.35; stroke-width: 1.2; }
+  .hero-map .hull { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.4; }
+  .hero-map .budget { fill: rgba(var(--water-fill), 0.17); }
+  .hero-map .budget.low { fill: color-mix(in srgb, var(--warn) 26%, transparent); }
+  .hero-map .loadline { stroke: var(--line-strong); stroke-width: 1.5; fill: none; }
+  .hero-map .loadline.hot { stroke: var(--warn); stroke-width: 1.8; }
+  .hero-map .market { fill: none; stroke: var(--line-strong); stroke-width: 1.6; }
+  .hero-map .maplabel { font-family: var(--font-body); font-size: 16px; font-weight: 600; fill: var(--muted); }
+  html:not(.rm) .hero-map .route { animation: drift 9s linear infinite; }
+  html:not(.rm) .hero-map .route.dim { animation-duration: 14s; }
+  @keyframes drift { to { stroke-dashoffset: -48; } }
+  @media (prefers-reduced-motion: reduce) { .hero-map .route { animation: none !important; } }
+
+  /* ================= mechanism: one balance + three truths ================= */
+  .mechanism h2 { font-size: clamp(26px, 3.4vw, 36px); max-width: 18ch; }
+  .mechanism .support { color: var(--muted); font-size: 16.5px; max-width: 52ch; margin: 16px 0 0; }
+  .truths { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; margin-top: 56px; }
+  .truth { padding: 6px 32px 2px 0; }
+  .truth + .truth { border-left: 1px solid var(--line); padding-left: 32px; }
+  .truth h3 { font-size: clamp(19px, 2vw, 22px); line-height: 1.3; max-width: 16ch; }
+  .truth p { color: var(--muted); font-size: 15px; max-width: 34ch; margin: 12px 0 0; }
+  .evidence {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 14.5px; color: var(--muted); max-width: 76ch;
   }
-  html.rm.stage { position: static; height: auto; min-height: 0; padding-block: 8px; }
+  .evidence a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
- .stage-grid { width: 100%; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; }
- .stage-grid.reverse { grid-template-columns: 0.95fr 1.05fr; }
- .stage-grid.reverse.stage-visual { order: 2; }
- .stage-visual { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-panel); background: var(--paper); overflow: hidden; box-shadow: var(--elev); }
- .stage-visual canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
- .stage-tag { position: absolute; font-size: 13px; font-weight: 600; color: var(--ink); opacity: 0; transition: opacity 0.3s var(--ease-tidal); pointer-events: none; }
-  html.rm.stage-tag { opacity: 1 !important; }
- .stage-copy h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; }
- .stage-copy p { color: var(--muted); font-size: 16.5px; max-width: 42ch; margin: 16px 0 0; }
- .stat-line { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink); }
- .stat-line a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
- .provenance { display: block; margin-top: 6px; font-size: 12.5px; color: var(--faint); font-family: var(--font-body); }
-
-  /* invariant: full-width typographic reveal, no split */
- .invariant-stage { justify-content: center; text-align: center; }
- .invariant-copy { width: 100%; max-width: 900px; margin: 0 auto; }
- .invariant-line { font-family: var(--font-display); font-weight: 600; font-size: clamp(28px, 5.4vw, 52px); line-height: 1.28; letter-spacing: -0.015em; margin: 0; }
- .invariant-line.w { display: inline-block; opacity: 0.14; }
-  html.rm.invariant-line.w { opacity: 1; }
- .invariant-line.promise { color: var(--accent); }
- .invariant-line.budget { color: var(--positive); }
- .invariant-caption { max-width: 56ch; margin: 30px auto 0; color: var(--muted); font-size: 15px; opacity: 0; transform: translateY(8px); }
-  html.rm.invariant-caption { opacity: 1; transform: none; }
-
-  /* harbormaster: full-bleed canvas with overlay copy */
- .harbor-stage { justify-content: flex-start; }
- .harbor-canvas-wrap { position: absolute; inset: 0; }
- .harbor-canvas-wrap canvas { width: 100%; height: 100%; }
- .harbor-copy { position: relative; z-index: 2; max-width: 480px; padding: 32px; margin-left: 4%; background: color-mix(in srgb, var(--ground) 74%, transparent); backdrop-filter: blur(10px); border-radius: var(--radius-panel); box-shadow: var(--elev); }
-  html.rm.harbor-copy { margin-left: 0; }
- .harbor-copy h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; }
- .harbor-copy p { color: var(--muted); font-size: 16px; margin: 14px 0 0; max-width: 40ch; }
- .harbor-punch { font-family: var(--font-display); font-weight: 600; font-size: clamp(19px, 2.4vw, 24px); margin-top: 20px; opacity: 0; transform: translateY(10px); }
-  html.rm.harbor-punch { opacity: 1; transform: none; }
- .harbor-state { position: absolute; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.35s var(--ease-tidal), color 0.35s var(--ease-tidal); pointer-events: none; }
-  html.rm.harbor-state { display: none; }
-
-  /* ================= numbers ================= */
- .numbers.wrap > h2 { font-size: clamp(24px, 3.4vw, 32px); max-width: 20ch; margin-bottom: 44px; }
- .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
- .stat-block {
-    background: var(--surface); border-radius: var(--radius-panel); padding: 34px 30px; box-shadow: var(--elev);
-    opacity: 0; transform: translateY(18px); transition: opacity 0.7s var(--ease-tidal), transform 0.7s var(--ease-tidal);
+  /* ================= proof ================= */
+  .proof { text-align: center; }
+  .proof h2 { font-size: clamp(26px, 3.6vw, 40px); line-height: 1.2; margin: 0 auto; }
+  .proof h2 .promise { color: var(--accent); }
+  .proof h2 .budget { color: var(--positive); }
+  .proof-pair {
+    display: grid; grid-template-columns: 1fr 1fr; align-items: baseline;
+    max-width: 720px; margin: 56px auto 0; position: relative;
   }
- .stat-block.in-view { opacity: 1; transform: translateY(0); }
-  html.rm.stat-block { opacity: 1; transform: none; }
- .stat-num { font-family: var(--font-display); font-weight: 700; font-size: clamp(38px, 5.4vw, 58px); line-height: 1; color: var(--accent); }
- .stat-num.ghost { font-size: 0.42em; font-weight: 600; color: var(--faint); font-family: var(--font-body); margin-right: 10px; vertical-align: middle; }
- .stat-block p.desc { margin: 14px 0 0; color: var(--ink); font-size: 15.5px; max-width: 34ch; }
- .stat-block.provenance { margin-top: 14px; }
+  .proof-pair::before { content: ""; position: absolute; left: 50%; top: 12%; bottom: 8%; width: 1px; background: var(--line); }
+  .proof-num { font-family: var(--font-display); font-weight: 700; font-size: clamp(88px, 14vw, 172px); line-height: 1; }
+  .proof-num.fail { color: var(--faint); }
+  .proof-num.zero { color: var(--accent); }
+  .proof-label { margin: 10px 0 0; font-size: 15px; color: var(--muted); }
+  .proof-punch { font-family: var(--font-display); font-weight: 600; font-size: clamp(20px, 2.4vw, 26px); margin: 52px 0 0; }
+  .proof-caption { color: var(--muted); font-size: 15.5px; margin: 10px 0 0; }
+  .provenance { display: block; margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .proof .provenance:first-of-type { margin-top: 26px; }
+  .proof-retained { margin: 34px 0 0; font-size: 15.5px; color: var(--ink); }
 
-  /* ================= credit horizon ================= */
- .credit-horizon.panel {
-    max-width: 660px; margin: 0 auto; text-align: center; background: var(--paper);
-    border: 1px solid var(--line); border-radius: var(--radius-panel); padding: 52px 40px;
-    opacity: 0; transform: translateY(18px); transition: opacity 0.7s var(--ease-tidal), transform 0.7s var(--ease-tidal);
+  /* ================= architecture ================= */
+  .arch h2 { font-size: clamp(24px, 3vw, 32px); max-width: 22ch; }
+  .arch-flow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-top: 52px; position: relative; }
+  .arch-flow::before { content: ""; position: absolute; left: 2%; right: 31%; top: 17px; height: 1px; background: var(--line-strong); }
+  .arch-col { position: relative; }
+  .arch-col .name {
+    position: relative; display: inline-block; background: var(--ground); padding-right: 16px;
+    font-family: var(--font-display); font-weight: 600; font-size: 21px; letter-spacing: 0.01em;
+    transition: background 0.4s var(--ease-tidal);
   }
- .credit-horizon.panel.in-view { opacity: 1; transform: translateY(0); }
-  html.rm.credit-horizon.panel { opacity: 1; transform: none; }
- .credit-horizon.panel.label { font-size: 13.5px; font-weight: 600; color: var(--support); margin: 0 0 12px; }
- .credit-horizon.panel h2 { font-size: clamp(23px, 3vw, 30px); }
- .credit-horizon.panel p { color: var(--muted); font-size: 16px; max-width: 46ch; margin: 16px auto 0; }
+  .arch-col .role { margin: 12px 0 0; color: var(--muted); font-size: 15px; max-width: 30ch; }
+  .arch-note { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; max-width: 68ch; }
 
   /* ================= faq ================= */
- .faq.section-pad h2 { font-size: clamp(24px, 3.4vw, 32px); max-width: 26ch; margin: 0 0 36px; }
- .faq-list { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
- .faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); padding: 0 26px; box-shadow: var(--elev); transition: border-color 0.25s var(--ease-tidal); }
- .faq-item[open] { border-color: var(--line-strong); }
- .faq-item summary { cursor: pointer; list-style: none; padding: 20px 0; font-family: var(--font-display); font-weight: 600; font-size: 17px; line-height: 1.3; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
- .faq-item summary::-webkit-details-marker { display: none; }
- .faq-item summary::after { content: "+"; font-family: var(--font-body); font-weight: 400; font-size: 22px; line-height: 1; color: var(--muted); transition: transform 0.3s var(--ease-tidal); flex: none; }
- .faq-item[open] summary::after { transform: rotate(45deg); }
- .faq-item p.a { color: var(--muted); font-size: 15.5px; line-height: 1.6; max-width: 64ch; margin: 0 0 22px; }
+  .faq h2 { font-size: clamp(24px, 3.4vw, 32px); margin: 0 0 20px; }
+  .faq-list { max-width: 780px; }
+  .faq-item { border-top: 1px solid var(--line); }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-item summary { cursor: pointer; list-style: none; padding: 22px 0; font-family: var(--font-display); font-weight: 600; font-size: 17.5px; line-height: 1.3; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after { content: "+"; font-family: var(--font-body); font-weight: 400; font-size: 22px; line-height: 1; color: var(--muted); transition: transform 0.3s var(--ease-tidal); flex: none; }
+  .faq-item[open] summary::after { transform: rotate(45deg); }
+  .faq-item p.a { color: var(--muted); font-size: 15.5px; line-height: 1.65; max-width: 64ch; margin: 0 0 24px; }
+
+  /* ================= close ================= */
+  .close { text-align: center; padding: 128px 0 136px; }
+  .close h2 { font-size: clamp(28px, 4vw, 44px); max-width: 18ch; margin: 0 auto; }
+  .close .cta { display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap; }
 
   /* ================= footer ================= */
- .site-foot { border-top: 1px solid var(--line); padding: 40px 0 56px; }
- .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
- .foot-brand { display: flex; align-items: center; gap: 10px; }
- .foot-brand.mark svg { width: 20px; height: 20px; }
- .foot-brand span { color: var(--faint); font-size: 13.5px; }
- .foot-links { display: flex; gap: 24px; }
- .foot-links a { font-size: 14px; font-weight: 600; text-decoration: none; color: var(--ink); }
- .foot-links a:hover { color: var(--accent); }
+  .site-foot { border-top: 1px solid var(--line); padding: 44px 0 56px; }
+  .foot-motto { font-family: var(--font-display); font-weight: 600; font-size: 17px; margin: 0 0 26px; }
+  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .foot-brand { display: flex; align-items: center; gap: 10px; }
+  .foot-brand .mark svg { width: 20px; height: 20px; }
+  .foot-brand span:last-child { color: var(--muted); font-size: 13.5px; }
+  .foot-side { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .foot-links { display: flex; gap: 22px; }
+  .foot-links a { font-size: 14px; font-weight: 600; text-decoration: none; color: var(--ink); }
+  .foot-links a:hover { color: var(--accent); }
+  .theme-toggle { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-pill); background: var(--paper); border: 1px solid var(--line); }
+  .theme-toggle button {
+    font: inherit; font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    padding: 4px 11px; border-radius: var(--radius-pill);
+    transition: background 0.25s var(--ease-tidal), color 0.25s var(--ease-tidal);
+  }
+  .theme-toggle button[aria-pressed="true"] { background: var(--surface); color: var(--ink); }
+  .theme-toggle button:hover { color: var(--ink); }
 
   /* ================= responsive ================= */
+  @media (max-width: 960px) {
+    .hero-grid { grid-template-columns: 1fr; gap: 8px; }
+    .hero h1 { max-width: 16ch; }
+    /* the map's empty sky (top of the viewBox) reads as a hole when stacked */
+    .hero-map { margin-top: -6%; }
+  }
   @media (max-width: 860px) {
-   .stage-grid,.stage-grid.reverse { grid-template-columns: 1fr; gap: 28px; }
-   .stage-grid.reverse.stage-visual { order: 0; }
-   .stage-visual { aspect-ratio: 16 / 10; }
-   .stage { flex-direction: column; justify-content: center; padding: 24px 0; }
-   .harbor-copy { margin: 0 20px; max-width: none; }
-   .stat-grid { grid-template-columns: 1fr; }
-   .foot-row { flex-direction: column; align-items: flex-start; }
+    .truths { grid-template-columns: 1fr; }
+    .truth { padding: 22px 0; }
+    .truth + .truth { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 22px; }
+    .arch-flow { grid-template-columns: 1fr; gap: 28px; }
+    .arch-flow::before { display: none; }
+    .arch-col .name { padding-right: 0; }
+    .foot-row { flex-direction: column; align-items: flex-start; }
   }
   @media (max-width: 760px) {
-   .section-pad { padding: 72px 0; }
-   .hero { padding: 132px 0 64px; }
-    html:not(.rm).stage-wrap { height: 195vh; }
+    .section-pad { padding: 72px 0; }
+    .hero { padding: 108px 0 56px; }
+    .close { padding: 88px 0 96px; }
+    .proof-pair { max-width: 100%; }
+    .proof h2 br { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-   .brand-lockup:hover.mark svg,.brand-lockup:focus-visible.mark svg { animation: none; }
+    .brand-lockup:hover .mark svg, .brand-lockup:focus-visible .mark svg { animation: none; }
   }
 </style>
 </head>
 <body>
 
-<div class="waterline-progress" aria-hidden="true"><span id="wpFill"></span></div>
+<div class="waterline-progress" aria-hidden="true"><span></span></div>
+<div id="headSentinel" aria-hidden="true"></div>
 
 <header class="site-head" id="siteHead">
   <a class="brand-lockup" href="#top" aria-label="Doca, back to top">
@@ -298,157 +338,205 @@
     </span>
     <span>Doca</span>
   </a>
-  <div class="theme-toggle" role="group" aria-label="Color theme">
-    <button type="button" data-theme-choice="day" aria-pressed="false">Day</button>
-    <button type="button" data-theme-choice="night" aria-pressed="false">Night</button>
-    <button type="button" data-theme-choice="system" aria-pressed="false">Auto</button>
-  </div>
+  <nav class="head-nav" aria-label="Site">
+    <a class="quiet" href="https://github.com/ottodevs/doca">GitHub</a>
+    <a class="btn primary compact" href="http://100.64.0.1:5273">Launch app</a>
+  </nav>
 </header>
 
 <main id="top">
 
   <!-- 1 · hero -->
   <section class="hero" id="hero">
-    <div class="wrap">
-      <a class="brand-lockup" href="#top" tabindex="-1" aria-hidden="true">
-        <span class="mark">
-          <svg width="46" height="46" viewBox="0 0 32 32" aria-hidden="true">
+    <div class="wrap hero-grid">
+      <div>
+        <h1 data-reveal>Keep your wallet.<br />Put it to work anyway.</h1>
+        <p class="lede" data-reveal style="--d:1">Non-custodial market making on 1inch Aqua: one balance, several strategies at once. No upfront deposit. Tokens move only when a trade settles.</p>
+        <div class="cta" data-reveal style="--d:2">
+          <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
+          <a class="btn ghost" href="#mechanism">See the mechanism</a>
+        </div>
+      </div>
+      <div class="hero-map-wrap" data-reveal style="--d:2">
+        <svg class="hero-map" viewBox="0 0 640 440" role="img" aria-label="Map of one wallet backing three strategies that quote into three markets. A waterline crosses the map: the strategy riding low is close to being docked and re-shipped.">
+          <defs>
+            <linearGradient id="wy" gradientUnits="userSpaceOnUse" x1="0" y1="252" x2="0" y2="424">
+              <stop offset="0" class="ws1" /><stop offset="1" class="ws2" />
+            </linearGradient>
+            <linearGradient id="wlx" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="640" y2="0">
+              <stop offset="0" class="wl" stop-opacity="0" />
+              <stop offset="0.08" class="wl" stop-opacity="0.55" />
+              <stop offset="0.92" class="wl" stop-opacity="0.55" />
+              <stop offset="1" class="wl" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="wx" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="640" y2="0">
+              <stop offset="0" stop-color="#000" /><stop offset="0.09" stop-color="#fff" />
+              <stop offset="0.91" stop-color="#fff" /><stop offset="1" stop-color="#000" />
+            </linearGradient>
+            <mask id="wmask"><rect x="0" y="240" width="640" height="200" fill="url(#wx)" /></mask>
+          </defs>
+
+          <!-- water below the line, fading out toward depth and edges -->
+          <rect x="0" y="252" width="640" height="172" fill="url(#wy)" mask="url(#wmask)" />
+          <line class="waterline" x1="0" y1="252" x2="640" y2="252" />
+
+          <!-- routes: wallet to strategies -->
+          <path class="route" d="M104,246 C 168,246 214,168 278,168" />
+          <path class="route" d="M104,246 C 172,246 216,244 278,244" />
+          <path class="route dim" d="M104,256 C 168,256 214,310 278,310" />
+
+          <!-- routes: strategies to markets -->
+          <path class="route" d="M382,168 C 448,168 512,168 575,168" />
+          <path class="route" d="M382,244 C 448,244 512,244 575,244" />
+          <path class="route dim" d="M382,310 C 448,310 512,310 575,310" />
+
+          <!-- wallet: the half-submerged dock mark -->
+          <g transform="translate(40,220) scale(2)">
             <defs>
-              <clipPath id="ht"><rect width="32" height="16" /></clipPath>
-              <clipPath id="hb"><rect y="16" width="32" height="16" /></clipPath>
+              <clipPath id="wt"><rect width="32" height="16" /></clipPath>
+              <clipPath id="wb"><rect y="16" width="32" height="16" /></clipPath>
             </defs>
-            <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
-              <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ht)" />
-              <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#hb)" />
-              <line x1="2" y1="16" x2="30" y2="16" />
+            <g fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round">
+              <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#wt)" />
+              <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#wb)" opacity="0.45" />
             </g>
-          </svg>
-        </span>
-        <span>Doca</span>
-      </a>
-      <h1>Keep your wallet.<br />Put it to work anyway.</h1>
-      <p class="lede">Non-custodial market making on 1inch Aqua: one balance, several strategies at once. No upfront deposit — tokens move only when a trade settles.</p>
-      <div class="cta">
-        <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
-        <a class="btn ghost" href="https://github.com/ottodevs/doca">GitHub</a>
-      </div>
-    </div>
-    <canvas class="hero-water" id="heroWater" aria-hidden="true"></canvas>
-  </section>
+          </g>
 
-  <!-- 2 · the problem -->
-  <section class="stage-wrap" id="problem">
-    <div class="stage">
-      <div class="wrap stage-grid">
-        <div class="stage-visual">
-          <canvas id="problemCanvas"></canvas>
-          <span class="stage-tag" id="tagPromise">promised</span>
-          <span class="stage-tag" id="tagWallet">wallet</span>
-        </div>
-        <div class="stage-copy">
-          <h2>A promise doesn't check what's in your wallet.</h2>
-          <p>Aqua lets a maker promise more liquidity than they hold, on purpose. Nothing checks the balance until a taker actually tries to fill.</p>
-          <p>When flow turns one-way, the wallet drains while every strategy's advertised book stays exactly where it started.</p>
-          <div class="stat-line">
-            Adjacent evidence: 85% of tracked concentrated liquidity — $1.6B of $1.84B analyzed — sat
-            underutilized through H1 2026, most of it in individually managed positions on Uniswap v3, by
-            <a href="https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away" target="_blank" rel="noopener">1inch-commissioned Dune research</a>.
-          </div>
-        </div>
+          <!-- strategies: pontoons riding at different heights, each with a Plimsoll mark -->
+          <g>
+            <rect class="hull" x="282" y="154" width="100" height="28" rx="14" />
+            <rect class="budget" x="288" y="160" width="58" height="16" rx="8" />
+            <g class="loadline"><circle cx="364" cy="168" r="3.2" /><line x1="356" y1="168" x2="372" y2="168" /></g>
+          </g>
+          <g>
+            <rect class="hull" x="282" y="230" width="100" height="28" rx="14" />
+            <rect class="budget" x="288" y="236" width="38" height="16" rx="8" />
+            <g class="loadline"><circle cx="364" cy="244" r="3.2" /><line x1="356" y1="244" x2="372" y2="244" /></g>
+          </g>
+          <g opacity="0.85">
+            <rect class="hull" x="282" y="296" width="100" height="28" rx="14" />
+            <rect class="budget low" x="288" y="302" width="13" height="16" rx="8" />
+            <g class="loadline hot"><circle cx="364" cy="310" r="3.2" /><line x1="356" y1="310" x2="372" y2="310" /></g>
+          </g>
+
+          <!-- markets -->
+          <circle class="market" cx="584" cy="168" r="5.5" />
+          <circle class="market" cx="584" cy="244" r="5.5" />
+          <circle class="market" cx="584" cy="310" r="5.5" />
+
+          <!-- column labels -->
+          <text class="maplabel" x="72" y="420" text-anchor="middle">wallet</text>
+          <text class="maplabel" x="332" y="420" text-anchor="middle">strategies</text>
+          <text class="maplabel" x="584" y="420" text-anchor="middle">markets</text>
+        </svg>
+        <p class="map-caption">Budgets are the waterline: a strategy riding low gets docked and re-shipped to what the wallet actually holds.</p>
       </div>
     </div>
   </section>
 
-  <!-- 3 · the invariant -->
-  <section class="stage-wrap" id="invariant">
-    <div class="stage invariant-stage">
-      <div class="wrap invariant-copy">
-        <p class="invariant-line" id="invLine1">
-          <span class="w">A</span> <span class="w promise">promise</span> <span class="w">may</span> <span class="w">exceed</span> <span class="w">your</span> <span class="w">wallet.</span>
-        </p>
-        <p class="invariant-line" id="invLine2">
-          <span class="w">A</span> <span class="w budget">budget</span> <span class="w">may</span> <span class="w">not.</span>
-        </p>
-        <p class="invariant-caption">InventorySkewProvider plugs into SwapVM's stock fee opcode: flat while a strategy's budget is healthy, quadratic as it drains. The Harbormaster docks and re-ships before the wallet ever comes up short.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4 · the harbormaster -->
-  <section class="stage-wrap" id="harbormaster">
-    <div class="stage harbor-stage">
-      <div class="harbor-canvas-wrap">
-        <canvas id="harborCanvas"></canvas>
-        <span class="harbor-state" id="harborState"></span>
-      </div>
-      <div class="wrap">
-        <div class="harbor-copy">
-          <h2>It watches so you don't.</h2>
-          <p>The Harbormaster watches every strategy you've shipped. When one drops under its load line, it docks the promise and re-ships it against the balance your wallet actually holds.</p>
-          <p class="harbor-punch" id="harborPunch">Wallet balance changed. Your strategy detected the change and prepared a safe reallocation.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5 · numbers -->
-  <section class="numbers section-pad" id="numbers">
+  <!-- 2 · mechanism: one balance, three truths -->
+  <section class="mechanism section-pad" id="mechanism">
     <div class="wrap">
-      <h2>What the budgets buy you, measured with a paired control.</h2>
-      <div class="stat-grid">
-        <div class="stat-block" data-reveal>
-          <p class="stat-num"><span class="ghost">half →</span>zero</p>
-          <p class="desc">Under 4× leverage, half of an unmanaged maker's quotes failed. With Doca: zero.</p>
-          <span class="provenance">43 of 86 attempted fills reverted, unmanaged · contracts/scripts/amplification-experiment.ts</span>
+      <h2 data-reveal>One balance. Several markets.</h2>
+      <p class="support" data-reveal style="--d:1">Aqua lets the same wallet support more than one strategy without depositing into isolated pools. Doca adds the budget that keeps those promises honest.</p>
+      <div class="truths">
+        <div class="truth" data-reveal>
+          <h3>Virtual liquidity can outlive real inventory.</h3>
+          <p>Under directional flow, strategies can continue quoting after wallet capacity has changed.</p>
         </div>
-        <div class="stat-block" data-reveal>
-          <p class="stat-num">+29%</p>
-          <p class="desc">Inventory retained under identical flow, against the same wallet left unmanaged.</p>
-          <span class="provenance">30 fills, paired control · contracts/scripts/waterline-scenario.ts</span>
+        <div class="truth" data-reveal style="--d:1">
+          <h3>The price defends the scarce side.</h3>
+          <p>Doca raises the surcharge as outgoing inventory consumes its budget. The direction that refills it stays inexpensive.</p>
+        </div>
+        <div class="truth" data-reveal style="--d:2">
+          <h3>When the wallet changes, the map redraws.</h3>
+          <p>The Harbormaster docks the stale strategy and prepares a safer allocation against what the wallet holds now.</p>
         </div>
       </div>
+      <p class="evidence" data-reveal>
+        Adjacent evidence: 85% of tracked concentrated liquidity ($1.6B of $1.84B analyzed) sat
+        underutilized through H1 2026, most of it in individually managed positions on Uniswap v3, per
+        <a href="https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away" target="_blank" rel="noopener">1inch-commissioned Dune research</a>.
+      </p>
     </div>
   </section>
 
-  <!-- 6 · credit horizon -->
-  <section class="credit-horizon section-pad" id="credit-horizon">
+  <!-- 3 · proof -->
+  <section class="proof section-pad" id="proof">
     <div class="wrap">
-      <div class="panel" data-reveal>
-        <p class="label">Coming next</p>
-        <h2>The same budget, applied to credit.</h2>
-        <p>A budget that's known, live, and never overcommitted is also what lending needs to trust a position without custody. We're extending the primitive there next.</p>
+      <h2 data-reveal>A <span class="promise">promise</span> may exceed your wallet.<br />A <span class="budget">budget</span> may not.</h2>
+      <div class="proof-pair" data-reveal style="--d:1">
+        <div>
+          <p class="proof-num fail">43</p>
+          <p class="proof-label">failed attempts, unmanaged</p>
+        </div>
+        <div>
+          <p class="proof-num zero">0</p>
+          <p class="proof-label">with Doca</p>
+        </div>
       </div>
+      <p class="proof-punch" data-reveal style="--d:2">Same wallet. Same flow.</p>
+      <p class="proof-caption" data-reveal style="--d:2">At 4&times; amplification in our paired experiment.</p>
+      <span class="provenance" data-reveal style="--d:3">43 of 86 attempted fills reverted, unmanaged · contracts/scripts/amplification-experiment.ts</span>
+      <p class="proof-retained" data-reveal style="--d:3">And +29% inventory retained under identical flow, against the same wallet left unmanaged.</p>
+      <span class="provenance" data-reveal style="--d:3">30 fills, paired control · contracts/scripts/waterline-scenario.ts</span>
     </div>
   </section>
 
-  <!-- 7 · faq -->
+  <!-- 4 · architecture -->
+  <section class="arch section-pad" id="architecture">
+    <div class="wrap">
+      <h2 data-reveal>Three layers, one flow.</h2>
+      <div class="arch-flow">
+        <div class="arch-col" data-reveal>
+          <span class="name">Aqua</span>
+          <p class="role">Holds strategy commitments. Settlement runs through 1inch's official, unmodified contracts.</p>
+        </div>
+        <div class="arch-col" data-reveal style="--d:1">
+          <span class="name">SwapVM</span>
+          <p class="role">Executes the pricing program that every quote runs through on-chain.</p>
+        </div>
+        <div class="arch-col" data-reveal style="--d:2">
+          <span class="name">Doca</span>
+          <p class="role">Prices depletion against each budget and manages the strategy lifecycle.</p>
+        </div>
+      </div>
+      <p class="arch-note" data-reveal>
+        InventorySkewProvider plugs into SwapVM's stock fee opcode: flat while a strategy's budget is
+        healthy, quadratic as it drains. The Harbormaster docks and re-ships before the wallet ever
+        comes up short.
+      </p>
+    </div>
+  </section>
+
+  <!-- 5 · faq -->
   <section class="faq section-pad" id="faq">
     <div class="wrap">
       <h2>Common questions</h2>
       <div class="faq-list">
         <details class="faq-item">
           <summary>What is Doca?</summary>
-          <p class="a">Doca is a budget layer for 1inch Aqua. Aqua lets one wallet back several trading strategies at once by shipping promises instead of deposits — a promise can outrun what you actually hold, by design. Doca adds the missing check: every strategy carries a budget of what it is allowed to consume, sized against what the wallet really holds, and Doca repairs allocations off-chain before underfunding turns into persistent failed quotes.</p>
+          <p class="a">Doca is a budget layer for 1inch Aqua. Aqua lets one wallet back several trading strategies at once by shipping promises instead of deposits: a promise can outrun what you actually hold, by design. Doca adds the missing check. Every strategy carries a budget of what it is allowed to consume, sized against what the wallet really holds, and Doca repairs allocations off-chain before underfunding turns into persistent failed quotes.</p>
         </details>
         <details class="faq-item">
           <summary>Is my money locked?</summary>
-          <p class="a">No. Nothing is ever deposited. Aqua only moves tokens straight out of your wallet during a fill, and you can spend from that same wallet without withdrawing anything first — Doca detects the balance change and resizes your strategies around it. There's nothing to withdraw, because there was never a custody step to begin with.</p>
+          <p class="a">No. Nothing is ever deposited. Aqua only moves tokens straight out of your wallet during a fill, and you can spend from that same wallet without withdrawing anything first: Doca detects the balance change and resizes your strategies around it. There's nothing to withdraw, because there was never a custody step to begin with.</p>
         </details>
         <details class="faq-item">
           <summary>What happens if my wallet balance changes?</summary>
-          <p class="a">The Harbormaster notices. It watches every strategy you've shipped, and when one's budget runs low it docks the promise and re-ships it against what your wallet actually holds now — the same fix Aqua's own whitepaper recommends doing by hand. In this demo a local signer lets it act on its own, on camera; with your own connected wallet, today it prompts you to sign, the same as any other transaction.</p>
+          <p class="a">The Harbormaster notices. It watches every strategy you've shipped, and when one's budget runs low it docks the promise and re-ships it against what your wallet actually holds now, the same fix Aqua's own whitepaper recommends doing by hand. In this demo a local signer lets it act on its own, on camera; with your own connected wallet, today it prompts you to sign, the same as any other transaction.</p>
         </details>
         <details class="faq-item">
           <summary>Is this a business or a public good?</summary>
-          <p class="a">The budget primitive is open by design: any Aqua maker should have it. The product is what gets built on top of it — the desk, the agent, and credit next.</p>
+          <p class="a">The budget primitive is open by design: any Aqua maker should have it. The product is what gets built on top of it: the desk, the agent, and credit next.</p>
         </details>
         <details class="faq-item">
           <summary>Is it only for 1inch Aqua?</summary>
-          <p class="a">Aqua-native today, by design: the fee provider plugs into SwapVM's own opcode, and every settling transaction runs through 1inch's official, unmodified contracts. The idea underneath — a budget that can never exceed what you actually hold — isn't Aqua-specific, and credit is the clearest place it generalizes next. </p>
+          <p class="a">Aqua-native today, by design: the fee provider plugs into SwapVM's own opcode, and every settling transaction runs through 1inch's official, unmodified contracts. The idea underneath, a budget that can never exceed what you actually hold, isn't Aqua-specific, and credit is the clearest place it generalizes next.</p>
         </details>
         <details class="faq-item">
           <summary>What about lending?</summary>
-          <p class="a">A budget already behaves like a line of credit: permission to spend against a real balance, with value pulled out when risk rises. Lending on Aqua would split into two honest halves — a non-custodial lender side using exactly this primitive, and an overcollateralized borrower side settled through escrow. The mechanism is designed and the primitive it needs is already live.</p>
+          <p class="a">A budget already behaves like a line of credit: permission to spend against a real balance, with value pulled out when risk rises. Lending on Aqua would split into two honest halves: a non-custodial lender side using exactly this primitive, and an overcollateralized borrower side settled through escrow. The mechanism is designed and the primitive it needs is already live.</p>
         </details>
         <details class="faq-item">
           <summary>Is it live on mainnet?</summary>
@@ -462,36 +550,53 @@
     </div>
   </section>
 
+  <!-- 6 · close -->
+  <section class="close" id="close">
+    <div class="wrap">
+      <h2 data-reveal>Shared liquidity needs a load line.</h2>
+      <div class="cta" data-reveal style="--d:1">
+        <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
+        <a class="btn ghost" href="https://basescan.org/address/0x8A151aF27a0Ae421A2222ed9b6c58cd8AC179694">Inspect contracts</a>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<!-- 8 · close -->
 <footer class="site-foot">
-  <div class="wrap foot-row">
-    <div class="foot-brand">
-      <span class="mark">
-        <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true">
-          <defs>
-            <clipPath id="ft"><rect width="32" height="16" /></clipPath>
-            <clipPath id="fb"><rect y="16" width="32" height="16" /></clipPath>
-          </defs>
-          <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
-            <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ft)" />
-            <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#fb)" />
-            <line x1="2" y1="16" x2="30" y2="16" />
-          </g>
-        </svg>
-      </span>
-      <span>Doca — ETHGlobal Lisbon 2026, built on 1inch Aqua + SwapVM.</span>
+  <div class="wrap">
+    <p class="foot-motto">One balance. Several markets. Risk kept within the line.</p>
+    <div class="foot-row">
+      <div class="foot-brand">
+        <span class="mark">
+          <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true">
+            <defs>
+              <clipPath id="ft"><rect width="32" height="16" /></clipPath>
+              <clipPath id="fb"><rect y="16" width="32" height="16" /></clipPath>
+            </defs>
+            <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
+              <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ft)" />
+              <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#fb)" />
+              <line x1="2" y1="16" x2="30" y2="16" />
+            </g>
+          </svg>
+        </span>
+        <span>Doca, ETHGlobal Lisbon 2026. Built on 1inch Aqua + SwapVM.</span>
+      </div>
+      <div class="foot-side">
+        <nav class="foot-links" aria-label="Footer">
+          <a href="http://100.64.0.1:5273">Launch app</a>
+          <a href="https://github.com/ottodevs/doca">GitHub</a>
+        </nav>
+        <div class="theme-toggle" role="group" aria-label="Color theme">
+          <button type="button" data-theme-choice="day" aria-pressed="false">Day</button>
+          <button type="button" data-theme-choice="night" aria-pressed="false">Night</button>
+        </div>
+      </div>
     </div>
-    <nav class="foot-links">
-      <a href="http://100.64.0.1:5273">Launch app</a>
-      <a href="https://github.com/ottodevs/doca">GitHub</a>
-    </nav>
   </div>
 </footer>
 
-<script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -502,307 +607,38 @@
   applyRM();
   rmQuery.addEventListener("change", applyRM);
 
-  /* ---------- theme ---------- */
+  /* ---------- theme (footer toggle; initial theme set in <head>) ---------- */
   var THEME_KEY = "doca-theme-choice";
-  var sysQuery = window.matchMedia("(prefers-color-scheme: dark)");
   var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-theme-choice]"));
-
-  function resolve(choice) {
-    if (choice === "system") return sysQuery.matches ? "night": "day";
-    return choice;
+  function currentChoice() {
+    var c = localStorage.getItem(THEME_KEY) || "day";
+    if (c === "system") c = window.matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day";
+    return c;
   }
   function applyTheme(choice) {
-    document.documentElement.setAttribute("data-theme", resolve(choice));
+    document.documentElement.setAttribute("data-theme", choice);
     buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-theme-choice") === choice)); });
   }
-  function setChoice(choice) {
-    localStorage.setItem(THEME_KEY, choice);
-    applyTheme(choice);
-  }
-  var storedChoice = localStorage.getItem(THEME_KEY) || "day";
-  applyTheme(storedChoice);
+  applyTheme(currentChoice());
   buttons.forEach(function (b) {
-    b.addEventListener("click", function () { setChoice(b.getAttribute("data-theme-choice")); });
-  });
-  sysQuery.addEventListener("change", function () {
-    if ((localStorage.getItem(THEME_KEY) || "day") === "system") applyTheme("system");
+    b.addEventListener("click", function () {
+      localStorage.setItem(THEME_KEY, b.getAttribute("data-theme-choice"));
+      applyTheme(b.getAttribute("data-theme-choice"));
+    });
   });
 
-  /* ---------- header border on scroll ---------- */
+  /* ---------- header hairline once the page scrolls ---------- */
   var head = document.getElementById("siteHead");
-  var lastY = -1;
-  function onScrollHeader() {
-    var y = window.scrollY;
-    if (y === lastY) return;
-    lastY = y;
-    head.classList.toggle("scrolled", y > 8);
-  }
-  onScrollHeader();
-
-  /* ---------- helpers ---------- */
-  function cssVar(name) {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-  }
-  function sizeCanvas(canvas) {
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    var rect = canvas.parentElement.getBoundingClientRect();
-    var w = Math.max(1, Math.round(rect.width));
-    var h = Math.max(1, Math.round(rect.height));
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = w + "px";
-    canvas.style.height = h + "px";
-    var ctx = canvas.getContext("2d");
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    return { ctx: ctx, w: w, h: h };
-  }
-  function wavyTop(ctx, w, y, amp, phase) {
-    ctx.moveTo(0, y + Math.sin(phase) * amp);
-    var step = 14;
-    for (var x = 0; x <= w; x += step) {
-      ctx.lineTo(x, y + Math.sin(x * 0.045 + phase) * amp);
-    }
-    ctx.lineTo(w, y + Math.sin(w * 0.045 + phase) * amp);
-  }
-  function waterGradient(ctx, h, top, rgb) {
-    var g = ctx.createLinearGradient(0, top, 0, h);
-    g.addColorStop(0, "rgba(" + rgb + ", 0.55)");
-    g.addColorStop(1, "rgba(" + rgb + ", 0.18)");
-    return g;
+  var sentinel = document.getElementById("headSentinel");
+  if (head && sentinel && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      head.classList.toggle("scrolled", !entries[0].isIntersecting);
+    }).observe(sentinel);
   }
 
-  var reduced = document.documentElement.classList.contains("rm");
-  gsap.registerPlugin(ScrollTrigger);
-
-  /* ---------- hero ambient water (very light, decorative) ---------- */
-  (function heroWater() {
-    var canvas = document.getElementById("heroWater");
-    if (!canvas) return;
-    var dims = sizeCanvas(canvas);
-    var phase = 0;
-    function draw() {
-      var ctx = dims.ctx, w = dims.w, h = dims.h;
-      ctx.clearRect(0, 0, w, h);
-      var rgb = cssVar("--water-fill");
-      var y = h * 0.62;
-      ctx.beginPath();
-      wavyTop(ctx, w, y, 6, phase);
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
-      ctx.fillStyle = waterGradient(ctx, h, y, rgb);
-      ctx.fill();
-    }
-    draw();
-    if (!reduced) {
-      gsap.ticker.add(function () {
-        phase += 0.012;
-        draw();
-      });
-    }
-    window.addEventListener("resize", function () {
-      dims = sizeCanvas(canvas);
-      draw();
-    });
-  })();
-
-  /* ---------- problem: draining wallet vs flat promise ---------- */
-  (function problemScene() {
-    var canvas = document.getElementById("problemCanvas");
-    var tagPromise = document.getElementById("tagPromise");
-    var tagWallet = document.getElementById("tagWallet");
-    if (!canvas) return;
-    var dims = sizeCanvas(canvas);
-    var lastProgress = 0;
-
-    function draw(progress) {
-      var ctx = dims.ctx, w = dims.w, h = dims.h;
-      ctx.clearRect(0, 0, w, h);
-
-      var promiseFrac = 0.22;
-      var walletFrac = 0.22 + progress * 0.58;
-      var promiseY = h * promiseFrac;
-      var walletY = h * walletFrac;
-
-      // danger gap between the two lines
-      if (walletY > promiseY + 6) {
-        ctx.fillStyle = "rgba(" + cssVar("--water-fill") + ", " + (0.05 + progress * 0.06) + ")";
-        ctx.fillRect(0, promiseY, w, walletY - promiseY);
-      }
-
-      // wallet water fill (draining)
-      ctx.beginPath();
-      wavyTop(ctx, w, walletY, 5, progress * 8);
-      ctx.lineTo(w, h);
-      ctx.lineTo(0, h);
-      ctx.closePath();
-      ctx.fillStyle = waterGradient(ctx, h, walletY, cssVar("--water-fill-2"));
-      ctx.fill();
-
-      // promise dashed line (stays flat)
-      ctx.save();
-      ctx.setLineDash([6, 6]);
-      ctx.strokeStyle = cssVar("--accent");
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, promiseY);
-      ctx.lineTo(w, promiseY);
-      ctx.stroke();
-      ctx.restore();
-
-      if (tagPromise) { tagPromise.style.top = (promiseY - 22) + "px"; tagPromise.style.left = "14px"; tagPromise.style.color = "var(--accent)"; tagPromise.style.opacity = 1; }
-      if (tagWallet) { tagWallet.style.top = Math.min(h - 22, walletY + 10) + "px"; tagWallet.style.left = "14px"; tagWallet.style.color = "var(--support)"; tagWallet.style.opacity = 1; }
-      lastProgress = progress;
-    }
-
-    if (reduced) {
-      draw(0.72);
-    } else {
-      draw(0);
-      ScrollTrigger.create({
-        trigger: "#problem",
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: function (self) { draw(self.progress); },
-      });
-    }
-    window.addEventListener("resize", function () {
-      dims = sizeCanvas(canvas);
-      draw(lastProgress);
-    });
-  })();
-
-  /* ---------- invariant: word-by-word reveal ---------- */
-  (function invariantScene() {
-    var words = document.querySelectorAll("#invariant.w");
-    var caption = document.querySelector(".invariant-caption");
-    if (!words.length || reduced) return;
-    var tl = gsap.timeline({
-      scrollTrigger: { trigger: "#invariant", start: "top top", end: "bottom bottom", scrub: true },
-    });
-    tl.to(words, { opacity: 1, stagger: 0.06, ease: "none", duration: words.length * 0.06 })
-     .to(caption, { opacity: 1, y: 0, ease: "none", duration: 0.4 }, ">-0.1");
-  })();
-
-  /* ---------- harbormaster: dock -> reship ---------- */
-  (function harborScene() {
-    var canvas = document.getElementById("harborCanvas");
-    var stateLabel = document.getElementById("harborState");
-    var punch = document.getElementById("harborPunch");
-    if (!canvas) return;
-    var dims = sizeCanvas(canvas);
-    var lastProgress = 0;
-
-    function vesselY(p) {
-      if (p < 0.35) return 0.40 + Math.sin(p * 14) * 0.015;
-      if (p < 0.55) return gsap.utils.interpolate(0.40, 0.66, (p - 0.35) / 0.2);
-      if (p < 0.64) return 0.66 + Math.sin((p - 0.55) * 40) * 0.01;
-      return gsap.utils.interpolate(0.66, 0.38, Math.min(1, (p - 0.64) / 0.36));
-    }
-    function loadLineY(p) {
-      if (p < 0.64) return 0.55;
-      return gsap.utils.interpolate(0.55, 0.50, Math.min(1, (p - 0.64) / 0.36));
-    }
-    function stateFor(p) {
-      if (p < 0.35) return { text: "safe", color: "var(--support)" };
-      if (p < 0.64) return { text: "docking…", color: "var(--warn)" };
-      return { text: "re-shipped", color: "var(--positive)" };
-    }
-
-    function draw(p) {
-      var ctx = dims.ctx, w = dims.w, h = dims.h;
-      ctx.clearRect(0, 0, w, h);
-
-      // ambient deep water base
-      ctx.fillStyle = "rgba(" + cssVar("--water-fill") + ", 0.08)";
-      ctx.fillRect(0, h * 0.78, w, h * 0.22);
-
-      var lineY = h * loadLineY(p);
-      ctx.save();
-      ctx.setLineDash([7, 7]);
-      ctx.strokeStyle = cssVar("--line-strong");
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.moveTo(0, lineY);
-      ctx.lineTo(w, lineY);
-      ctx.stroke();
-      ctx.restore();
-
-      var vy = h * vesselY(p);
-      var vx = w * (0.28 + p * 0.16);
-      var vw = Math.min(w * 0.22, 120);
-      var vh = vw * 0.5;
-      var below = vy > lineY;
-      var color = below ? cssVar("--warn"): (p > 0.66 ? cssVar("--positive"): cssVar("--accent"));
-
-      // intervention pulse
-      if (p > 0.55 && p < 0.68) {
-        var pulseP = (p - 0.55) / 0.13;
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, 1 - pulseP);
-        ctx.strokeStyle = cssVar("--warn");
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(vx, vy, vw * (0.5 + pulseP * 0.9), 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // vessel: rounded pontoon capsule
-      ctx.save();
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      var rx = vw / 2, ry = vh / 2;
-      ctx.moveTo(vx - rx + ry, vy - ry);
-      ctx.lineTo(vx + rx - ry, vy - ry);
-      ctx.arc(vx + rx - ry, vy, ry, -Math.PI / 2, Math.PI / 2);
-      ctx.lineTo(vx - rx + ry, vy + ry);
-      ctx.arc(vx - rx + ry, vy, ry, Math.PI / 2, -Math.PI / 2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-
-      if (stateLabel) {
-        var st = stateFor(p);
-        stateLabel.textContent = st.text;
-        stateLabel.style.color = st.color;
-        stateLabel.style.left = (vx - vw / 2) + "px";
-        stateLabel.style.top = (vy + vh / 2 + 10) + "px";
-        stateLabel.style.opacity = 1;
-      }
-      lastProgress = p;
-    }
-
-    if (reduced) {
-      draw(0.9);
-      if (punch) { punch.style.opacity = 1; punch.style.transform = "none"; }
-    } else {
-      draw(0);
-      ScrollTrigger.create({
-        trigger: "#harbormaster",
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: function (self) {
-          draw(self.progress);
-          if (punch) {
-            var pp = Math.max(0, Math.min(1, (self.progress - 0.75) / 0.25));
-            gsap.set(punch, { opacity: pp, y: 10 - pp * 10 });
-          }
-        },
-      });
-    }
-    window.addEventListener("resize", function () {
-      dims = sizeCanvas(canvas);
-      draw(lastProgress);
-    });
-  })();
-
-  /* ---------- numbers / credit horizon: reveal on view ---------- */
-  (function revealOnView() {
-    var els = document.querySelectorAll("[data-reveal]");
-    if (!els.length || reduced) return;
+  /* ---------- reveal on view ---------- */
+  var els = document.querySelectorAll("[data-reveal]");
+  if (els.length && "IntersectionObserver" in window) {
     var io = new IntersectionObserver(
       function (entries) {
         entries.forEach(function (entry) {
@@ -812,28 +648,12 @@
           }
         });
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     );
     els.forEach(function (el) { io.observe(el); });
-  })();
-
-  /* ---------- top waterline progress ---------- */
-  (function progressBar() {
-    var fill = document.getElementById("wpFill");
-    if (!fill) return;
-    ScrollTrigger.create({
-      trigger: document.documentElement,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: function (self) {
-        fill.style.width = (self.progress * 100) + "%";
-        onScrollHeader();
-      },
-    });
-  })();
-
-  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+  } else {
+    els.forEach(function (el) { el.classList.add("in-view"); });
+  }
 })();
 </script>
 </body>
