@@ -5,7 +5,7 @@ import {
     feeFromPercent, percentFromFee, fmtWeth, fmtUsdc, shortHash, KIND_LABEL, friendlyError,
     freeWallet, assertFitsWallet, usdcForWethAtSpot, wethForUsdcAtSpot,
     tradeAgainst, fetchForkSpot, readTakerWallet, resetTakerNonce,
-    hasInjectedWallet, connectWallet, seedConnectedWallet, session,
+    hasInjectedWallet, connectWallet, seedConnectedWallet, session, provider,
     type DraftStrategy, type LiveStrategy, type StrategyKind, type Wallet, type TradeSide,
 } from "./lib/lp-desk";
 import { fetchWethUsdcSpot } from "./lib/uniswap-price";
@@ -70,6 +70,9 @@ function parseDraft(form: FormState, id: string): DraftStrategy {
 
 export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewChange: (v: ViewId) => void }) {
     const [wallet, setWallet] = useState<Wallet | null>(null);
+    // Same no-node detection the harbor view uses: without a network the desk has nothing to trade.
+    const [nodeDown, setNodeDown] = useState(false);
+    useEffect(() => { provider.getBlockNumber().catch(() => setNodeDown(true)); }, []);
     const [form, setForm] = useState<FormState>(DEFAULT_FORM);
     const [ratioLocked, setRatioLocked] = useState(true);
     const [drafts, setDrafts] = useState<DraftStrategy[]>([]);
@@ -574,14 +577,21 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 <p>The professional view of the same harbor: positions, fills and value, marked to the live market.</p>
             </div>
 
-            <PnlChart
+            {nodeDown && (
+                <div className="card" style={{ maxWidth: 560, margin: "24px auto", textAlign: "center", padding: "32px 28px" }}>
+                    <p style={{ margin: 0 }}>The desk trades against a practice network, and this hosted preview is not connected to one.</p>
+                    <p className="muted" style={{ marginTop: 10 }}>Switch to the Harbor tab for the guided tour, or run the practice fork locally to use the desk for real.</p>
+                </div>
+            )}
+
+            {!nodeDown && <PnlChart
                 ticks={ticks}
                 bases={bases}
                 live={live}
                 spot={spot}
                 forkSpot={forkSpot}
                 priceError={priceError}
-            />
+            />}
 
             <section className="card">
                 <div className="row">

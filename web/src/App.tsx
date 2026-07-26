@@ -394,7 +394,12 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                 say(`connected ${addr.slice(0, 6)}…${addr.slice(-4)}: your wallet is now the maker`, "info");
             }
         } catch (e: any) {
-            say(`wallet connect failed: ${String(e?.shortMessage ?? e?.message ?? e).slice(0, 70)}`, "warn");
+            const msg = String(e?.shortMessage ?? e?.message ?? e);
+            if (/practice (fork|network)/i.test(msg)) {
+                say("connected wallets stay view-only here: this preview runs on a practice network, not real funds", "info");
+            } else {
+                say(`wallet connect failed: ${msg.slice(0, 70)}`, "warn");
+            }
         }
     };
 
