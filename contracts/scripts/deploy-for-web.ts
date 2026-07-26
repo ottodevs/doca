@@ -51,6 +51,7 @@ async function main() {
         BASE.aqua, BASE.weth, await deployer.getAddress(), "AquaSwapVM", "1.0.0",
     ]);
     const app: any = await deployContract("DocaApp", [BASE.aqua]);
+    const aquaAmm: any = await deployContract("AquaAMM", [BASE.aqua]);
     const skew: any = await deployContract("InventorySkewProvider", [BASE.aqua, await router.getAddress()]);
 
     // Seed real tokens on the fork: WETH by wrapping, USDC by writing the balance slot.
@@ -72,6 +73,7 @@ async function main() {
         aqua: BASE.aqua,
         router: await router.getAddress(),
         docaApp: await app.getAddress(),
+        aquaAmm: await aquaAmm.getAddress(),
         skewProvider: await skew.getAddress(),
         weth: BASE.weth,
         usdc: BASE.usdc,

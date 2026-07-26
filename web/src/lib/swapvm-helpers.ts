@@ -215,9 +215,16 @@ class TakerTraitsLib {
     } else if (typeof args.threshold === 'string' && args.threshold.startsWith('0x')) {
       // It's already hex bytes
       thresholdBytes = ethers.getBytes(args.threshold);
-    } else {
+    } else if (
+      typeof args.threshold === 'bigint'
+      || typeof args.threshold === 'number'
+      || (typeof args.threshold === 'string' && !args.threshold.startsWith('0x'))
+    ) {
       // It's a BigNumberish (number, bigint, or decimal string) - convert to 32 bytes
       thresholdBytes = ethers.getBytes(ethers.zeroPadValue(ethers.toBeHex(args.threshold), 32));
+    } else {
+      // Uint8Array / other BytesLike
+      thresholdBytes = ethers.getBytes(args.threshold);
     }
 
     // Deadline is packed as 5 bytes (uint40) only when non-zero
