@@ -254,6 +254,19 @@
   .arch-col .role { margin: 12px 0 0; color: var(--muted); font-size: 15px; max-width: 30ch; }
   .arch-note { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 15px; max-width: 68ch; }
 
+  /* ================= harbor screenshot ================= */
+  .harbor-shot { text-align: center; }
+  .harbor-shot h2 { font-size: clamp(26px, 3.6vw, 38px); }
+  .lede.center { margin: 16px auto 0; }
+  .shot-frame {
+    margin: 48px auto 0; max-width: 980px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-panel); box-shadow: var(--elev); padding: 10px;
+    transform: rotate(-0.6deg); transition: transform 0.5s var(--ease-tidal);
+  }
+  .shot-frame:hover { transform: rotate(0deg); }
+  .shot-frame img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  @media (prefers-reduced-motion: reduce) { .shot-frame { transition: none; } }
+
   /* ================= for agents ================= */
   .agents-mark { display: inline-flex; color: var(--accent); margin-bottom: 14px; }
   .agents-mark svg { width: 26px; height: 26px; }
@@ -511,6 +524,18 @@
       <span class="provenance" data-reveal style="--d:3">43 of 86 attempted fills reverted, unmanaged · contracts/scripts/amplification-experiment.ts</span>
       <p class="proof-retained" data-reveal style="--d:3">And +29% inventory retained under identical flow, against the same wallet left unmanaged.</p>
       <span class="provenance" data-reveal style="--d:3">30 fills, paired control · contracts/scripts/waterline-scenario.ts</span>
+    </div>
+  </section>
+
+  <!-- 3b · the harbor, live -->
+  <section class="harbor-shot section-pad" id="harbor">
+    <div class="wrap">
+      <h2 data-reveal>The harbor, live.</h2>
+      <p class="lede center" data-reveal style="--d:1">Not a mockup. This is the app running against a Base fork, three strategies shipped, each riding its own load line.</p>
+      <div class="shot-frame" data-reveal style="--d:2">
+        <img src="assets/app-harbor.png" width="1440" height="900" loading="lazy" decoding="async"
+             alt="Doca app screen showing one wallet working three strategies at once: wallet capacity, budget remaining and promises kept at 100%, with three strategy cards below each carrying its own auto-dock line." />
+      </div>
     </div>
   </section>
 
