@@ -24,6 +24,8 @@ writeFileSync(idx, readFileSync(idx, "utf8").replaceAll("http://100.64.0.1:5273"
 cpSync("web/dist", `${out}/app`, { recursive: true });
 cpSync("deck", `${out}/deck`, { recursive: true });
 cpSync("assets/brand", `${out}/brand`, { recursive: true });
+// deck/ references these via a relative ../assets/diagrams path, so mirror that layout.
+cpSync("assets/diagrams", `${out}/assets/diagrams`, { recursive: true });
 if (existsSync("docs/brand.html")) cpSync("docs/brand.html", `${out}/brand/index.html`);
 // Directory routes (/dossier/, /agents/) instead of .html files: Pages' own
 // .html-stripping redirect would otherwise bounce /dossier.html -> /dossier forever.

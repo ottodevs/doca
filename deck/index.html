@@ -65,6 +65,7 @@
   ul.plain { list-style: none; display: grid; gap: 1.8vh; font-size: 3vh; }
   ul.plain li::before { content: "— "; color: var(--accent); }
   ul.plain li { color: var(--muted); } ul.plain li strong { color: var(--text); font-weight: 620; }
+  .diagram { max-width: 46vw; max-height: 26vh; border: 1px solid var(--line); border-radius: 16px; align-self: center; }
 </style>
 </head>
 <body>
@@ -106,6 +107,7 @@
     <div class="box"><h3>Harbormaster</h3><p>An <strong>autopilot</strong> that docks any strategy crossing its line and re-ships against the wallet's current balance. The whitepaper's advice, automated in this demo; with a connected wallet it prompts you to sign.</p></div>
     <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend without withdrawing.</p></div>
   </div>
+  <img class="diagram" src="../assets/diagrams/06-diagram-execution-boundary.png" alt="Execution boundary: on-chain pricing, quotes and state on one side, off-chain monitoring, dock, resize and re-ship on the other" />
 </section>
 
 <!-- 5 · demo cue -->
