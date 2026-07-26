@@ -303,7 +303,7 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
                             ? ` · ${priceHours}h history`
                             : ""}
                     {balanceTicks ? ` · ${balanceTicks} inventory ticks` : ""}
-                    {priceError ? ` · ${priceError}` : ""}
+                    {priceError ? ` · live mark unavailable` : ""}
                 </div>
             </div>
 
