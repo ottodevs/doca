@@ -257,8 +257,39 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
 .state.sinking .state-dot { background: var(--danger); }
 @media (prefers-reduced-motion: no-preference) { .state.sinking .state-dot { animation: pulse 1.2s ease-in-out infinite; } }
 
-/* ---------- vessels ---------- */
-.vessels { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 6px 0 4px; }
+/* ---------- harbor map (wallet -> routes -> hull cards -> harbormaster) ---------- */
+.harbor-map {
+  border: 1px solid var(--line-strong); border-radius: var(--radius-l); background: var(--surface);
+  padding: 20px 22px 22px; margin-bottom: 16px; box-shadow: var(--shadow);
+}
+.harbor-map-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.harbor-map-head strong { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.harbor-map-head span { color: var(--muted); font-size: 13px; }
+.harbor-map-body { display: grid; grid-template-columns: 180px 1fr 280px; column-gap: 40px; align-items: stretch; }
+
+/* wallet node: a single card that stretches to the hull stack's full height */
+.wallet-node {
+  position: relative; overflow: visible; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; text-align: center; padding: 18px 14px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-m); background: var(--surface-solid);
+}
+.wallet-node .mark { color: var(--accent); margin-bottom: 2px; }
+.wallet-node strong { font-size: 13.5px; font-weight: 600; }
+.wallet-node em { font-style: normal; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+.wallet-node > span { color: var(--muted); font-size: 11px; }
+.wallet-avail { color: var(--positive) !important; font-size: 12px !important; font-weight: 600; }
+.wallet-route { position: absolute; top: 50%; right: -20px; width: 20px; height: 0; border-top: 2px dashed var(--line-strong); }
+.wallet-route::before {
+  content: ""; position: absolute; right: -4px; top: -4px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--accent);
+}
+
+/* hull stack + the dashed trunk connecting it to the wallet node */
+.hulls { display: flex; flex-direction: column; gap: 12px; position: relative; margin: 0 4px; }
+.hulls::before {
+  content: ""; position: absolute; left: -20px; top: 79px; bottom: 79px;
+  border-left: 2px dashed var(--line-strong);
+}
 .hull {
   position: relative; overflow: hidden; border-radius: var(--radius-m);
   border: 1px solid var(--line); background: var(--surface-solid);
@@ -273,6 +304,7 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
   transition: height 0.9s var(--ease-tidal);
 }
 @media (prefers-reduced-motion: no-preference) { .water { animation: bob 3.6s ease-in-out infinite; } }
+.hull-boat { position: absolute; top: -8px; left: 50%; width: 26px; height: 12px; margin-left: -13px; color: var(--surface-solid); opacity: 0.9; }
 .loadline { position: absolute; left: 0; right: 0; z-index: 1; display: flex; align-items: center; gap: 7px; pointer-events: none; padding: 0 12px 0 14px; }
 .loadline label { font-size: 10px; color: color-mix(in srgb, var(--ink) 55%, transparent); font-weight: 500; white-space: nowrap; }
 .loadline i { flex: 1; border-top: 2px dashed color-mix(in srgb, var(--ink) 30%, transparent); }
@@ -287,31 +319,76 @@ button.danger:hover:not(:disabled) { background: color-mix(in srgb, var(--danger
 .hull-foot { display: flex; justify-content: space-between; align-items: flex-end; }
 .hull-foot em { display: block; font-style: normal; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
 .hull-foot span { color: var(--muted); font-size: 10.5px; }
-.feebadge { margin-top: 8px; text-align: center; font-size: 12px; color: var(--muted); transition: color 0.3s ease; }
-.hull-metrics { display: flex; justify-content: center; gap: 10px; margin-top: 3px; font-size: 10.5px; color: var(--faint); }
+.hull-metrics { display: flex; justify-content: center; gap: 10px; margin-top: 6px; font-size: 10.5px; color: var(--faint); }
+
+/* status chip: AFLOAT / WATCH LINE / DOCKING */
+.chip {
+  display: inline-flex; align-items: center; font-size: 10.5px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--positive); padding: 3px 8px; border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--positive) 12%, transparent);
+}
+.chip.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.chip.sinking { color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, transparent); }
+
+/* numbered berth badge, top-left of each hull card */
+.hull-badge {
+  position: absolute; top: -8px; left: -8px; z-index: 3; display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%; font-size: 11.5px; font-weight: 700;
+  color: var(--accent-ink); background: var(--positive); box-shadow: 0 0 0 3px var(--ground);
+}
+.hull-badge.warn { background: var(--warn); }
+.hull-badge.sinking { background: var(--danger); }
+
+/* branch tick + junction dot from the trunk to each hull card */
+.vessel { position: relative; }
+.vessel::before {
+  content: ""; position: absolute; left: -20px; top: 50%; width: 20px; height: 0;
+  border-top: 2px dashed var(--line-strong);
+}
+.vessel::after {
+  content: ""; position: absolute; left: -24px; top: 50%; margin-top: -4px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--accent);
+}
+.vessel.warn::before, .vessel.sinking::before { border-top-color: var(--warn); }
+.vessel.warn::after, .vessel.sinking::after { background: var(--warn); }
 .vessel.warn .water { background: linear-gradient(180deg, color-mix(in srgb, var(--warn) 32%, transparent), color-mix(in srgb, var(--warn) 50%, transparent)); border-top-color: color-mix(in srgb, var(--warn) 65%, transparent); }
-.vessel.warn .feebadge { color: var(--warn); }
 .vessel.sinking .hull { border-color: color-mix(in srgb, var(--danger) 55%, transparent); }
 @media (prefers-reduced-motion: no-preference) { .vessel.sinking .hull { animation: alarm 1.4s ease-in-out infinite; } }
 .vessel.sinking .water { background: linear-gradient(180deg, color-mix(in srgb, var(--danger) 32%, transparent), color-mix(in srgb, var(--danger) 50%, transparent)); border-top-color: color-mix(in srgb, var(--danger) 65%, transparent); }
-.vessel.sinking .feebadge { color: var(--danger); font-weight: 600; }
 
-/* ---------- harbormaster ---------- */
-.harbor { display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: var(--radius-m); padding: 13px 16px; margin-top: 14px; background: var(--surface); }
-.beacon { width: 10px; height: 10px; border-radius: 50%; background: var(--faint); flex: none; transition: background 0.3s ease; }
-.beacon.on { background: var(--accent); }
-@media (prefers-reduced-motion: no-preference) { .beacon.on { animation: pulse 2.2s ease-in-out infinite; } }
-.harbor-txt { flex: 1; min-width: 0; }
-.harbor-txt strong { display: block; font-size: 13.5px; font-weight: 600; }
-.harbor-txt strong .role { font-style: normal; color: var(--faint); font-weight: 500; font-size: 12px; }
-.harbor-txt span { color: var(--muted); font-size: 12px; }
-.harbor .count { color: var(--faint); font-size: 12px; white-space: nowrap; }
+/* ---------- harbormaster panel ---------- */
+.harbormaster { display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--line); border-radius: var(--radius-m); padding: 16px 18px; background: var(--surface-solid); }
+.hm-head { display: flex; align-items: center; gap: 8px; color: var(--faint); }
+.hm-head svg { width: 15px; height: 15px; flex: none; }
+.hm-head span { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.hm-state { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: 16px; font-weight: 600; color: var(--accent); }
+.hm-state.warn { color: var(--warn); }
+.hm-detail { margin: -6px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.5; }
+.hm-metric { display: flex; flex-direction: column; gap: 5px; padding-top: 10px; border-top: 1px solid var(--line); }
+.hm-metric > span:first-child { color: var(--faint); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+.hm-metric > strong { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.hm-metric-row { display: flex; align-items: baseline; gap: 6px; }
+.hm-metric-row strong { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.hm-metric-row em { font-style: normal; color: var(--muted); font-size: 12px; }
+.hm-bar { height: 6px; border-radius: var(--radius-pill); background: var(--line); overflow: hidden; }
+.hm-bar > div { height: 100%; border-radius: var(--radius-pill); background: var(--accent); transition: width 0.6s var(--ease-tidal); }
+.hm-sub { color: var(--muted); font-size: 11.5px; }
+.hm-band {
+  padding: 10px 12px; border-radius: var(--radius-s); font-size: 12.5px; line-height: 1.5;
+  border: 1px solid color-mix(in srgb, var(--positive) 40%, transparent);
+  background: color-mix(in srgb, var(--positive) 10%, transparent); color: var(--ink);
+}
+.hm-band.warn { border-color: color-mix(in srgb, var(--warn) 45%, transparent); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.hm-toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.hm-toggle span { color: var(--faint); font-size: 12px; }
 .switch { position: relative; width: 40px; height: 22px; flex: none; cursor: pointer; }
 .switch input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .switch i { position: absolute; inset: 0; border-radius: var(--radius-pill); background: var(--line); border: 1px solid var(--line-strong); transition: background 0.25s ease; }
 .switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: all 0.25s ease; }
 .switch input:checked + i { background: color-mix(in srgb, var(--accent) 25%, transparent); border-color: var(--accent); }
 .switch input:checked + i::after { left: 20px; background: var(--accent); }
+
+.controls-card { padding-top: 18px; }
 
 /* ---------- practice controls (quiet disclosure for simulated actions) ---------- */
 .practice { margin-top: 16px; }
@@ -602,6 +679,14 @@ footer { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px;
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
 
+/* Below this the wallet/hulls/harbormaster columns no longer have room for routes. */
+@media (max-width: 920px) {
+  .harbor-map-body { grid-template-columns: 1fr; row-gap: 18px; }
+  .wallet-route { display: none; }
+  .hulls { margin: 0; }
+  .hulls::before, .vessel::before, .vessel::after { display: none; }
+}
+
 @media (max-width: 780px) {
   .page { padding: 20px 14px 70px; }
   header.app-header { grid-template-columns: 1fr; justify-items: start; gap: 12px; }
@@ -617,7 +702,7 @@ footer { margin-top: 34px; border-top: 1px solid var(--line); padding-top: 14px;
   .balances { gap: 26px; }
   .balances strong { font-size: 30px; }
   .actions button { flex: 1 1 auto; }
-  .harbor { flex-wrap: wrap; }
+  .harbor-map { padding: 16px 16px 18px; }
 }
 
 /* ---------- legacy token aliases (LP Desk compatibility) ---------- */

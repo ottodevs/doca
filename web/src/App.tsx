@@ -134,33 +134,50 @@ function Waterline({ stage }: { stage: number }) {
     );
 }
 
-const CHIP: Record<string, string> = { ok: "safe", warn: "tight", sinking: "docking" };
+const CHIP: Record<string, string> = { ok: "afloat", warn: "watch line", sinking: "docking" };
+
+// Shared by the hull card, the route overlay and the Harbormaster panel so all three
+// agree on when a strategy counts as trouble.
+function vesselState(s: Strategy): "ok" | "warn" | "sinking" {
+    const consumed = 100 - (Number(s.remaining) / Number(FRAC)) * 100;
+    return s.remaining <= WATERLINE ? "sinking" : consumed > 60 ? "warn" : "ok";
+}
+
+// A small hull silhouette that rides the waterline crossing the card.
+function HullBoat() {
+    return (
+        <svg className="hull-boat" viewBox="0 0 30 14" aria-hidden>
+            <path d="M2 7 H28 L23 12.5 H7 Z M14 7 V1.5 L20.5 5.5 Z" fill="currentColor" />
+        </svg>
+    );
+}
 
 function Vessel({ s, idx }: { s: Strategy; idx: number }) {
     const consumed = 100 - (Number(s.remaining) / Number(FRAC)) * 100;
     const lineAt = 100 - (Number(WATERLINE) / Number(FRAC)) * 100;
-    const state = s.remaining <= WATERLINE ? "sinking" : consumed > 60 ? "warn" : "ok";
+    const state = vesselState(s);
+    const waterPct = Math.min(Math.max(consumed, 2), 100);
     return (
         <div className={`vessel ${state}`} title={s.hash}>
+            <span className={`hull-badge ${state}`}>{idx + 1}</span>
             <div className="hull">
-                <div className="water" style={{ height: `${Math.min(Math.max(consumed, 2), 100)}%` }} />
+                <div className="water" style={{ height: `${waterPct}%` }}>
+                    <HullBoat />
+                </div>
                 <div className="loadline" style={{ bottom: `${lineAt}%` }}>
                     <label>auto-dock line</label><i /><b />
                 </div>
                 <div className="hull-head">
                     <strong>Strategy {idx + 1}</strong>
-                    <span className={`state ${state}`}><i className="state-dot" />{CHIP[state]}</span>
                 </div>
                 <div className="hull-foot">
-                    <div><em>{fmtWeth(s.wethLeft)}</em><span>WETH aboard</span></div>
-                    <div style={{ textAlign: "right" }}><em>{fmtPct(s.remaining)}%</em><span>budget remaining</span></div>
+                    <div><em>{fmtWeth(s.promisedWeth)}</em><span>Quoted liquidity</span></div>
+                    <span className={`chip ${state}`}>{CHIP[state]}</span>
                 </div>
             </div>
-            <div className="feebadge">
-                {state === "sinking" ? "below the line, docking next" : `${fmtFee(s.surchargeBps)}% surcharge`}
-            </div>
             <div className="hull-metrics">
-                <span>Current surcharge {fmtFee(s.surchargeBps)}%</span>
+                <span>{fmtWeth(s.wethLeft)} WETH aboard</span>
+                <span>{fmtFee(s.surchargeBps)}% surcharge</span>
                 <span>Dock line {DOCK_LINE_PCT}%</span>
             </div>
         </div>
@@ -450,6 +467,17 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
     const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
 
+    // Harbor map derivatives: how much of the wallet sits uncommitted, budget headroom,
+    // and the blended surcharge the Harbormaster panel quotes across live strategies.
+    const walletAvailPct = wallet && wallet.weth > 0n
+        ? Math.max(0, Math.min(100, 100 - (Number(totalBudgetWeth) / Number(wallet.weth)) * 100))
+        : 100;
+    const budgetPct = totalBudgetWeth > 0n ? Math.max(0, Math.min(100, (Number(budgetLeftWeth) / Number(totalBudgetWeth)) * 100)) : 100;
+    const avgSurchargeBps = strategies.length > 0
+        ? strategies.reduce((a, s) => a + s.surchargeBps, 0n) / BigInt(strategies.length)
+        : 0n;
+    const anyAlert = strategies.some((s) => vesselState(s) !== "ok");
+
     const easedWeth = useEased(wallet ? Number(wallet.weth) / 1e18 : 0);
     const easedUsdc = useEased(wallet ? Number(wallet.usdc) / 1e6 : 0);
 
@@ -620,28 +648,76 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                         </div>
                     )}
 
-                    <section className="card">
-                        <div className="vessels">
-                            {strategies.map((s, i) => <Vessel key={s.hash} s={s} idx={i} />)}
-                        </div>
-
-                        <div className="harbor">
-                            <span className={`beacon ${agentOn ? "on" : ""}`} />
-                            <div className="harbor-txt">
-                                <strong>Harbormaster <em className="role">· keeper</em></strong>
-                                <span>
-                                    {agentOn
-                                        ? `watching ${strategies.length} strategies, docking anything below its line and re-shipping against real balances`
-                                        : "off, nobody is watching your promises"}
-                                </span>
+                    <section className="harbor-map">
+                        <header className="harbor-map-head">
+                            <strong>Harbor map</strong>
+                            <span>Your wallet, routed to each strategy in play.</span>
+                        </header>
+                        <div className="harbor-map-body">
+                            <div className="wallet-node">
+                                <span className="wallet-route" aria-hidden />
+                                <Mark size={26} />
+                                <strong>Your wallet</strong>
+                                <em>{easedWeth.toFixed(2)} WETH</em>
+                                <span>Capacity</span>
+                                <b className="wallet-avail">{walletAvailPct.toFixed(0)}% available</b>
                             </div>
-                            <span className="count">{rebalances} intervention{rebalances === 1 ? "" : "s"}</span>
-                            <label className="switch">
-                                <input type="checkbox" checked={agentOn} onChange={(e) => setAgentOn(e.target.checked)} />
-                                <i />
-                            </label>
-                        </div>
 
+                            <div className={`hulls ${anyAlert ? "alert" : ""}`}>
+                                {strategies.map((s, i) => <Vessel key={s.hash} s={s} idx={i} />)}
+                            </div>
+
+                            <aside className="harbormaster">
+                                <div className="hm-head">
+                                    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                        <path d="M10 2 2 6l8 4 8-4Z" />
+                                        <path d="M4 8v6c0 1.5 2.7 3 6 3s6-1.5 6-3V8" />
+                                    </svg>
+                                    <span>Harbormaster</span>
+                                </div>
+                                <p className={`hm-state ${anyAlert ? "warn" : ""}`}>
+                                    {!agentOn
+                                        ? "Off — nobody is watching your promises"
+                                        : anyAlert
+                                            ? "Intervention in progress"
+                                            : `Watching ${strategies.length} strateg${strategies.length === 1 ? "y" : "ies"}`}
+                                </p>
+                                {event && <p className="hm-detail">{event.detail}</p>}
+
+                                <div className="hm-metric">
+                                    <span>Budget remaining</span>
+                                    <div className="hm-metric-row">
+                                        <strong>{fmt2(budgetLeftWeth)} WETH</strong>
+                                        <em>of {fmt2(totalBudgetWeth)} WETH</em>
+                                    </div>
+                                    <div className="hm-bar"><div style={{ width: `${budgetPct}%` }} /></div>
+                                    <span className="hm-sub">{budgetPct.toFixed(0)}% remaining</span>
+                                </div>
+
+                                <div className="hm-metric">
+                                    <span>Current surcharge</span>
+                                    <strong>{fmtFee(avgSurchargeBps)}%</strong>
+                                    <span className="hm-sub">Across active strategies</span>
+                                </div>
+
+                                <div className={`hm-band ${anyAlert ? "warn" : "calm"}`}>
+                                    {anyAlert
+                                        ? "Waters are rough. The Harbormaster is docking and resizing."
+                                        : "Seas are calm. All strategies within their lines."}
+                                </div>
+
+                                <div className="hm-toggle">
+                                    <span>{rebalances} intervention{rebalances === 1 ? "" : "s"}</span>
+                                    <label className="switch">
+                                        <input type="checkbox" checked={agentOn} onChange={(e) => setAgentOn(e.target.checked)} />
+                                        <i />
+                                    </label>
+                                </div>
+                            </aside>
+                        </div>
+                    </section>
+
+                    <section className="card controls-card">
                         <details className="practice">
                             <summary>
                                 <span className="practice-caret" aria-hidden>▸</span>
