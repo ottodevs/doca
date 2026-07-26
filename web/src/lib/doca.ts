@@ -43,9 +43,10 @@ export const d = deployment;
 
 // In a browser the node lives on whatever host served the page, so the app works over localhost
 // and over the tailnet without reconfiguring. Scripts fall back to the deployed value.
-const rpcUrl = typeof window !== "undefined"
-    ? `http://${window.location.hostname}:8545`
-    : deployment.rpcUrl;
+// VITE_RPC_URL pins a public endpoint for hosted builds; otherwise the node lives on whatever
+// host served the page, so the app works over localhost and over the tailnet unchanged.
+const rpcUrl = import.meta.env.VITE_RPC_URL
+    || (typeof window !== "undefined" ? `http://${window.location.hostname}:8545` : deployment.rpcUrl);
 
 export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
     staticNetwork: true,
