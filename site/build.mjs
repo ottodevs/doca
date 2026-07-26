@@ -15,6 +15,10 @@ mkdirSync(out, { recursive: true });
 execSync("bun run build", { cwd: "web", stdio: "inherit" });
 
 cpSync("landing", out, { recursive: true });
+// Public build points at the unified /app route instead of the tailnet dev URL.
+import { readFileSync } from "fs";
+const idx = `${out}/index.html`;
+writeFileSync(idx, readFileSync(idx, "utf8").replaceAll("http://100.64.0.1:5273", "/app"));
 cpSync("web/dist", `${out}/app`, { recursive: true });
 cpSync("deck", `${out}/deck`, { recursive: true });
 cpSync("assets/brand", `${out}/brand`, { recursive: true });

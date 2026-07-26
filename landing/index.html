@@ -3,282 +3,773 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Doca Finance — keep your wallet, put it to work</title>
-<meta name="description" content="Keep your wallet. Put it to work anyway. Non-custodial market making on 1inch Aqua — budgets and an autonomous Harbormaster keep every promise honorable." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%233dd6f5' stroke-width='2.8'/%3E%3Cline x1='1' y1='16' x2='31' y2='16' stroke='%233dd6f5' stroke-width='2.8'/%3E%3C/svg%3E" />
+<meta name="color-scheme" content="light dark" />
+<title>Doca — keep your wallet, put it to work</title>
+<meta name="description" content="Keep your wallet. Put it to work anyway. Non-custodial market making on 1inch Aqua: budgets keep every promise honest, and an autonomous Harbormaster keeps them honest while you sleep." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CclipPath id='t'%3E%3Crect width='32' height='16'/%3E%3C/clipPath%3E%3CclipPath id='b'%3E%3Crect y='16' width='32' height='16'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg fill='none' stroke='%231f5fd6' stroke-width='2.6' stroke-linejoin='round'%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23t)'/%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23b)' opacity='.45'/%3E%3Cline x1='2' y1='16' x2='30' y2='16'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preload" href="vendor/fonts/fraunces-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="vendor/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 <style>
-  @font-face {
-    font-family: "Inter Variable";
-    src: url("./inter.woff2") format("woff2-variations");
-    font-weight: 100 900;
-    font-display: swap;
+  /* ================= fonts ================= */
+  @font-face { font-family: "Fraunces"; src: url("vendor/fonts/fraunces-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("vendor/fonts/fraunces-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Fraunces"; src: url("vendor/fonts/fraunces-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("vendor/fonts/schibsted-grotesk-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("vendor/fonts/schibsted-grotesk-latin-600-normal.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Schibsted Grotesk"; src: url("vendor/fonts/schibsted-grotesk-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+
+  /* ================= tokens (BRAND.md) ================= */
+ :root {
+    --font-display: "Fraunces", ui-serif, Georgia, serif;
+    --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --container: 1120px;
+    --ease-tidal: cubic-bezier(0.22, 1, 0.36, 1);
+    --radius-panel: 18px;
+    --radius-pill: 999px;
   }
-  :root {
-    --bg: #05080d;
-    --card: rgba(255, 255, 255, 0.024);
-    --card-solid: #0c1219;
-    --line: rgba(148, 190, 233, 0.12);
-    --line-strong: rgba(148, 190, 233, 0.22);
-    --text: #e8eef5;
-    --muted: #7e8ea0;
-    --faint: #55647a;
-    --accent: #3dd6f5;
-    --accent-deep: #1a7fb8;
-    --good: #34d399;
-    --warn: #fbbf24;
-    --bad: #f87171;
+ :root,:root[data-theme="day"] {
+    color-scheme: light;
+    --ground: #f7f3ea;
+    --surface: #ffffff;
+    --surface-a: rgba(255, 255, 255, 0.6);
+    --paper: #efe9dc;
+    --ink: #1c2733;
+    --accent: #1f5fd6;
+    --accent-ink: #fbfaf6;
+    --support: #2aa198;
+    --warn: #c97b2d;
+    --danger: #c0392b;
+    --positive: #1e8a5e;
+    --line: rgba(28, 39, 51, 0.13);
+    --line-strong: rgba(28, 39, 51, 0.24);
+    --muted: rgba(28, 39, 51, 0.64);
+    --faint: rgba(28, 39, 51, 0.42);
+    --elev: 0 22px 54px -30px rgba(28, 39, 51, 0.32), 0 2px 10px -6px rgba(28, 39, 51, 0.14);
+    --water-fill: 31, 95, 214;
+    --water-fill-2: 42, 161, 152;
+  }
+ :root[data-theme="night"] {
     color-scheme: dark;
+    --ground: #0d1626;
+    --surface: #141f33;
+    --surface-a: rgba(20, 31, 51, 0.6);
+    --paper: #101b2d;
+    --ink: #e9eef7;
+    --accent: #5b9cf5;
+    --accent-ink: #0d1626;
+    --support: #37c2b4;
+    --warn: #e8b34b;
+    --danger: #e18271;
+    --positive: #4fd1a6;
+    --line: rgba(233, 238, 247, 0.14);
+    --line-strong: rgba(233, 238, 247, 0.26);
+    --muted: rgba(233, 238, 247, 0.66);
+    --faint: rgba(233, 238, 247, 0.44);
+    --elev: 0 0 0 1px var(--line-strong);
+    --water-fill: 91, 156, 245;
+    --water-fill-2: 55, 194, 180;
   }
+
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: auto; }
+  html, body { overflow-x: hidden; max-width: 100%; }
   body {
     margin: 0;
-    background:
-      radial-gradient(1100px 480px at 70% -10%, rgba(31, 118, 170, 0.16), transparent 60%),
-      radial-gradient(900px 500px at 0% 110%, rgba(20, 60, 110, 0.18), transparent 55%),
-      var(--bg);
-    background-attachment: fixed;
-    color: var(--text);
-    font-family: "Inter Variable", ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
+    transition: background 0.4s var(--ease-tidal), color 0.4s var(--ease-tidal);
   }
   a { color: inherit; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-  section { padding: 88px 0; }
-  .kicker {
-    color: var(--accent); font-size: 12.5px; text-transform: uppercase;
-    letter-spacing: 0.14em; font-weight: 650; margin: 0 0 14px;
-  }
+  img, svg, canvas { max-width: 100%; display: block; }
+ .wrap { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  em, i.emph { font-style: italic; line-height: 1.15; padding-bottom: 0.08em; display: inline-block; }
 
-  /* ---------- hero ---------- */
-  .hero { padding: 15vh 0 8vh; text-align: center; }
-  .brand { display: flex; align-items: center; justify-content: center; gap: 16px; }
-  .mark { color: var(--accent); flex: none; filter: drop-shadow(0 0 14px rgba(61, 214, 245, 0.4)); }
-  h1 { margin: 0; font-size: clamp(40px, 7vw, 68px); font-weight: 680; letter-spacing: -0.03em; }
-  .tagline {
-    margin: 22px auto 0; font-size: clamp(19px, 2.6vw, 26px); font-weight: 560;
-    letter-spacing: -0.01em; max-width: 640px; color: var(--text);
-  }
-  .lede { margin: 16px auto 0; max-width: 600px; color: var(--muted); font-size: 16.5px; }
-  .cta { display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap; }
-  .btn {
-    font: inherit; font-size: 15.5px; font-weight: 620; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 8px; border-radius: 11px;
-    padding: 13px 24px; transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
-  }
-  .btn:active { transform: translateY(1px); }
-  .btn.primary {
-    border: 0; color: #04121c;
-    background: linear-gradient(120deg, #47e0ff, #2fb8e8 55%, #35d7c5);
-    box-shadow: 0 10px 30px -12px rgba(61, 214, 245, 0.55);
-  }
-  .btn.primary:hover { background: linear-gradient(120deg, #5ce6ff, #3cc4f2 55%, #40e2d0); }
-  .btn.ghost { color: var(--text); border: 1px solid var(--line-strong); background: rgba(255, 255, 255, 0.03); }
-  .btn.ghost:hover { background: rgba(255, 255, 255, 0.07); border-color: var(--line-strong); }
+  /* ================= mark ================= */
+ .mark { flex: none; color: var(--accent); }
+ .mark.refl { opacity: 0.4; }
+ .brand-lockup { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+ .brand-lockup.mark svg { transition: transform 0.5s var(--ease-tidal); transform-origin: 50% 100%; }
+ .brand-lockup:hover.mark svg,.brand-lockup:focus-visible.mark svg { animation: bob 1.8s var(--ease-tidal) infinite; }
+ .brand-lockup span { font-family: var(--font-display); font-weight: 600; font-size: 18px; letter-spacing: -0.01em; }
+  @keyframes bob { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-3px) rotate(-2deg); } }
 
-  /* ---------- wave divider (CSS-only, vanilla) ---------- */
-  .wave { position: relative; height: 56px; margin: 10px 0 0; overflow: hidden; }
-  .wave i {
-    position: absolute; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0 10 Q 25 -5 50 10 T 100 10' stroke='%233dd6f5' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
-    background-repeat: repeat-x;
-    background-size: 140px 44px;
-    background-position: 0 center;
-    opacity: 0.5;
-    animation: wave-flow 7s linear infinite;
-  }
-  .wave i.b {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20'%3E%3Cpath d='M0 10 Q 25 -5 50 10 T 100 10' stroke='%2334d399' stroke-width='1.4' fill='none'/%3E%3C/svg%3E");
-    background-size: 180px 30px;
-    background-position: 0 60%;
-    opacity: 0.3;
-    animation-name: wave-flow-rev;
-    animation-duration: 11s;
-  }
-  @keyframes wave-flow { from { background-position-x: 0; } to { background-position-x: -140px; } }
-  @keyframes wave-flow-rev { from { background-position-x: 0; } to { background-position-x: 180px; } }
+  /* ================= waterline progress ================= */
+ .waterline-progress { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: var(--line); z-index: 90; }
+ .waterline-progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--support), var(--accent)); }
 
-  /* ---------- how it works ---------- */
-  .section-head { text-align: center; margin-bottom: 44px; }
-  .section-head h2 { margin: 0; font-size: clamp(26px, 4vw, 36px); font-weight: 660; letter-spacing: -0.02em; }
-  .journey { display: flex; gap: 0; align-items: stretch; }
-  .jstep {
-    flex: 1; min-width: 0; padding: 0 18px; position: relative;
-    display: flex; flex-direction: column; gap: 12px;
+  /* ================= header ================= */
+ .site-head {
+    position: fixed; top: 3px; left: 0; right: 0; z-index: 80;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 24px; backdrop-filter: blur(14px) saturate(140%);
+    background: color-mix(in srgb, var(--ground) 72%, transparent);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s var(--ease-tidal), background 0.4s var(--ease-tidal);
   }
-  .jstep + .jstep::before {
-    content: ""; position: absolute; left: 0; top: 15px; width: 18px; height: 1px;
-    background: var(--line-strong); transform: translateX(-18px);
+ .site-head.scrolled { border-bottom-color: var(--line); }
+ .theme-toggle { display: inline-flex; gap: 2px; padding: 3px; border-radius: var(--radius-pill); background: var(--paper); border: 1px solid var(--line); }
+ .theme-toggle button {
+    font: inherit; font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+    border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    padding: 6px 13px; border-radius: var(--radius-pill); transition: background 0.25s var(--ease-tidal), color 0.25s var(--ease-tidal);
   }
-  .jstep .num {
-    width: 30px; height: 30px; border-radius: 50%; flex: none;
-    display: grid; place-items: center; font-size: 13px; font-weight: 650;
-    border: 1.5px solid var(--accent-deep); color: var(--accent);
-    background: rgba(61, 214, 245, 0.08);
-  }
-  .jstep h3 { margin: 0; font-size: 15.5px; font-weight: 640; letter-spacing: -0.01em; }
-  .jstep p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+ .theme-toggle button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--elev); }
+ .theme-toggle button:hover { color: var(--ink); }
 
-  /* ---------- invariant ---------- */
-  .invariant {
-    border: 1px solid var(--line); background: var(--card); border-radius: 20px;
-    padding: 56px 40px; text-align: center;
+  /* ================= buttons ================= */
+ .btn {
+    font: inherit; font-family: var(--font-body); font-size: 15.5px; font-weight: 600; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px; border-radius: var(--radius-pill);
+    padding: 13px 26px; white-space: nowrap;
+    transition: transform 0.18s var(--ease-tidal), background 0.25s var(--ease-tidal), border-color 0.25s var(--ease-tidal), box-shadow 0.25s var(--ease-tidal);
   }
-  .invariant p {
-    margin: 0; font-size: clamp(26px, 4.4vw, 42px); font-weight: 660;
-    letter-spacing: -0.025em; line-height: 1.3;
-  }
-  .invariant .promise { color: var(--accent); }
-  .invariant .budget { color: var(--good); }
-  .invariant small {
-    display: block; margin-top: 18px; color: var(--faint); font-size: 13px;
-    font-weight: 500; letter-spacing: 0.01em;
-  }
+ .btn:active { transform: translateY(1px) scale(0.98); }
+ .btn.primary { border: 0; color: var(--accent-ink); background: var(--accent); box-shadow: 0 14px 32px -14px rgba(var(--water-fill), 0.55); }
+ .btn.primary:hover { box-shadow: 0 18px 38px -14px rgba(var(--water-fill), 0.68); }
+ .btn.ghost { color: var(--ink); border: 1px solid var(--line-strong); background: transparent; }
+ .btn.ghost:hover { background: var(--paper); }
 
-  /* ---------- numbers ---------- */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .stat {
-    border: 1px solid var(--line); border-left: 3px solid var(--good);
-    background: var(--card-solid); border-radius: 14px; padding: 26px 22px;
-  }
-  .stat strong {
-    display: block; font-size: clamp(30px, 4vw, 40px); font-weight: 680;
-    letter-spacing: -0.03em; color: var(--good);
-  }
-  .stat span { display: block; margin-top: 8px; color: var(--muted); font-size: 13.5px; }
-  .stat em { color: var(--faint); font-style: normal; }
+  /* ================= layout helpers ================= */
+  section { position: relative; }
+ .section-pad { padding: 108px 0; }
+ .lede { color: var(--muted); font-size: 17px; max-width: 46ch; }
 
-  /* ---------- footer ---------- */
-  footer { border-top: 1px solid var(--line); padding: 32px 0 56px; }
-  .foot-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  }
-  .foot-brand { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 13px; }
-  .foot-brand .mark { width: 20px; height: 20px; filter: none; }
-  footer a { color: var(--muted); text-decoration: none; font-size: 13px; }
-  footer a:hover { color: var(--accent); }
+  /* ================= hero ================= */
+ .hero { padding: 168px 0 96px; text-align: center; overflow: hidden; }
+ .hero.brand-lockup { justify-content: center; margin-bottom: 30px; }
+ .hero.brand-lockup.mark svg { width: 46px; height: 46px; }
+ .hero.brand-lockup span { font-size: 20px; }
+ .hero h1 { font-size: clamp(34px, 6vw, 60px); line-height: 1.08; max-width: 15ch; margin: 0 auto; }
+ .hero.lede { margin: 22px auto 0; font-size: clamp(16px, 1.9vw, 18.5px); }
+ .hero.cta { display: flex; gap: 14px; justify-content: center; margin-top: 38px; flex-wrap: wrap; }
+ .hero-water { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; pointer-events: none; opacity: 0.55; }
 
+  /* ================= stage sections (pinned/scrubbed) ================= */
+  html:not(.rm).stage-wrap { height: 230vh; }
+  html.rm.stage-wrap { height: auto; padding: 88px 0; }
+ .stage-wrap { position: relative; }
+ .stage {
+    position: sticky; top: 0; height: 100dvh; min-height: 560px;
+    display: flex; align-items: center; overflow: hidden;
+  }
+  html.rm.stage { position: static; height: auto; min-height: 0; padding-block: 8px; }
+
+ .stage-grid { width: 100%; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; }
+ .stage-grid.reverse { grid-template-columns: 0.95fr 1.05fr; }
+ .stage-grid.reverse.stage-visual { order: 2; }
+ .stage-visual { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-panel); background: var(--paper); overflow: hidden; box-shadow: var(--elev); }
+ .stage-visual canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+ .stage-tag { position: absolute; font-size: 13px; font-weight: 600; color: var(--ink); opacity: 0; transition: opacity 0.3s var(--ease-tidal); pointer-events: none; }
+  html.rm.stage-tag { opacity: 1 !important; }
+ .stage-copy h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; }
+ .stage-copy p { color: var(--muted); font-size: 16.5px; max-width: 42ch; margin: 16px 0 0; }
+ .stat-line { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 15px; color: var(--ink); }
+ .stat-line a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+ .provenance { display: block; margin-top: 6px; font-size: 12.5px; color: var(--faint); font-family: var(--font-body); }
+
+  /* invariant: full-width typographic reveal, no split */
+ .invariant-stage { justify-content: center; text-align: center; }
+ .invariant-copy { width: 100%; max-width: 900px; margin: 0 auto; }
+ .invariant-line { font-family: var(--font-display); font-weight: 600; font-size: clamp(28px, 5.4vw, 52px); line-height: 1.28; letter-spacing: -0.015em; margin: 0; }
+ .invariant-line.w { display: inline-block; opacity: 0.14; }
+  html.rm.invariant-line.w { opacity: 1; }
+ .invariant-line.promise { color: var(--accent); }
+ .invariant-line.budget { color: var(--positive); }
+ .invariant-caption { max-width: 56ch; margin: 30px auto 0; color: var(--muted); font-size: 15px; opacity: 0; transform: translateY(8px); }
+  html.rm.invariant-caption { opacity: 1; transform: none; }
+
+  /* harbormaster: full-bleed canvas with overlay copy */
+ .harbor-stage { justify-content: flex-start; }
+ .harbor-canvas-wrap { position: absolute; inset: 0; }
+ .harbor-canvas-wrap canvas { width: 100%; height: 100%; }
+ .harbor-copy { position: relative; z-index: 2; max-width: 480px; padding: 32px; margin-left: 4%; background: color-mix(in srgb, var(--ground) 74%, transparent); backdrop-filter: blur(10px); border-radius: var(--radius-panel); box-shadow: var(--elev); }
+  html.rm.harbor-copy { margin-left: 0; }
+ .harbor-copy h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.15; }
+ .harbor-copy p { color: var(--muted); font-size: 16px; margin: 14px 0 0; max-width: 40ch; }
+ .harbor-punch { font-family: var(--font-display); font-weight: 600; font-size: clamp(19px, 2.4vw, 24px); margin-top: 20px; opacity: 0; transform: translateY(10px); }
+  html.rm.harbor-punch { opacity: 1; transform: none; }
+ .harbor-state { position: absolute; font-size: 14px; font-weight: 600; opacity: 0; transition: opacity 0.35s var(--ease-tidal), color 0.35s var(--ease-tidal); pointer-events: none; }
+  html.rm.harbor-state { display: none; }
+
+  /* ================= numbers ================= */
+ .numbers.wrap > h2 { font-size: clamp(24px, 3.4vw, 32px); max-width: 20ch; margin-bottom: 44px; }
+ .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+ .stat-block {
+    background: var(--surface); border-radius: var(--radius-panel); padding: 34px 30px; box-shadow: var(--elev);
+    opacity: 0; transform: translateY(18px); transition: opacity 0.7s var(--ease-tidal), transform 0.7s var(--ease-tidal);
+  }
+ .stat-block.in-view { opacity: 1; transform: translateY(0); }
+  html.rm.stat-block { opacity: 1; transform: none; }
+ .stat-num { font-family: var(--font-display); font-weight: 700; font-size: clamp(38px, 5.4vw, 58px); line-height: 1; color: var(--accent); }
+ .stat-num.ghost { font-size: 0.42em; font-weight: 600; color: var(--faint); font-family: var(--font-body); margin-right: 10px; vertical-align: middle; }
+ .stat-block p.desc { margin: 14px 0 0; color: var(--ink); font-size: 15.5px; max-width: 34ch; }
+ .stat-block.provenance { margin-top: 14px; }
+
+  /* ================= credit horizon ================= */
+ .credit-horizon.panel {
+    max-width: 660px; margin: 0 auto; text-align: center; background: var(--paper);
+    border: 1px solid var(--line); border-radius: var(--radius-panel); padding: 52px 40px;
+    opacity: 0; transform: translateY(18px); transition: opacity 0.7s var(--ease-tidal), transform 0.7s var(--ease-tidal);
+  }
+ .credit-horizon.panel.in-view { opacity: 1; transform: translateY(0); }
+  html.rm.credit-horizon.panel { opacity: 1; transform: none; }
+ .credit-horizon.panel.label { font-size: 13.5px; font-weight: 600; color: var(--support); margin: 0 0 12px; }
+ .credit-horizon.panel h2 { font-size: clamp(23px, 3vw, 30px); }
+ .credit-horizon.panel p { color: var(--muted); font-size: 16px; max-width: 46ch; margin: 16px auto 0; }
+
+  /* ================= footer ================= */
+ .site-foot { border-top: 1px solid var(--line); padding: 40px 0 56px; }
+ .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+ .foot-brand { display: flex; align-items: center; gap: 10px; }
+ .foot-brand.mark svg { width: 20px; height: 20px; }
+ .foot-brand span { color: var(--faint); font-size: 13.5px; }
+ .foot-links { display: flex; gap: 24px; }
+ .foot-links a { font-size: 14px; font-weight: 600; text-decoration: none; color: var(--ink); }
+ .foot-links a:hover { color: var(--accent); }
+
+  /* ================= responsive ================= */
+  @media (max-width: 860px) {
+   .stage-grid,.stage-grid.reverse { grid-template-columns: 1fr; gap: 28px; }
+   .stage-grid.reverse.stage-visual { order: 0; }
+   .stage-visual { aspect-ratio: 16 / 10; }
+   .stage { flex-direction: column; justify-content: center; padding: 24px 0; }
+   .harbor-copy { margin: 0 20px; max-width: none; }
+   .stat-grid { grid-template-columns: 1fr; }
+   .foot-row { flex-direction: column; align-items: flex-start; }
+  }
   @media (max-width: 760px) {
-    section { padding: 56px 0; }
-    .hero { padding: 12vh 0 6vh; }
-    .journey { flex-direction: column; gap: 22px; }
-    .jstep { padding: 0; }
-    .jstep + .jstep::before { display: none; }
-    .stats { grid-template-columns: 1fr; }
-    .invariant { padding: 40px 22px; }
-    .foot-row { flex-direction: column; align-items: flex-start; }
+   .section-pad { padding: 72px 0; }
+   .hero { padding: 132px 0 64px; }
+    html:not(.rm).stage-wrap { height: 195vh; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .wave i { animation: none; }
+   .brand-lockup:hover.mark svg,.brand-lockup:focus-visible.mark svg { animation: none; }
   }
 </style>
 </head>
 <body>
 
-<!-- 1 · hero -->
-<section class="hero">
-  <div class="wrap">
-    <div class="brand">
-      <svg class="mark" width="56" height="56" viewBox="0 0 32 32"><defs><clipPath id="lt"><rect x="0" y="0" width="32" height="16"/></clipPath><clipPath id="lb"><rect x="0" y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#lt)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#lb)" opacity="0.45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
-      <h1>Doca</h1>
-    </div>
-    <p class="tagline">Keep your wallet. Put it to work anyway.</p>
-    <p class="lede">Non-custodial market making on 1inch Aqua: your balance stays in your wallet and gets promised to several strategies at once — budgets and an autonomous Harbormaster keep every promise honorable.</p>
-    <div class="cta">
-      <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
-      <a class="btn ghost" href="https://github.com/ottodevs/doca">GitHub</a>
-    </div>
-  </div>
-  <div class="wave" aria-hidden="true"><i></i><i class="b"></i></div>
-</section>
+<div class="waterline-progress" aria-hidden="true"><span id="wpFill"></span></div>
 
-<!-- 2 · how it works -->
-<section id="how">
-  <div class="wrap">
-    <div class="section-head">
-      <div class="kicker">How it works</div>
-      <h2>The journey is the UI</h2>
-    </div>
-    <div class="journey">
-      <div class="jstep">
-        <div class="num">1</div>
-        <h3>Wallet</h3>
-        <p>Recognition — idle balances, plus one attributed fact.</p>
-      </div>
-      <div class="jstep">
-        <div class="num">2</div>
-        <h3>Put to work</h3>
-        <p>Safe leverage. Presets are one human decision: price rules, not a deposit.</p>
-      </div>
-      <div class="jstep">
-        <div class="num">3</div>
-        <h3>Live market</h3>
-        <p>Watching it work — water rises, surcharge wakes on the drained side only.</p>
-      </div>
-      <div class="jstep">
-        <div class="num">4</div>
-        <h3>Protected</h3>
-        <p>The punch. Storm, then docked → re-shipped. The invariant stays green.</p>
-      </div>
-      <div class="jstep">
-        <div class="num">5</div>
-        <h3>Walk away</h3>
-        <p>The receipt: markets, fills, protections — 0 deposits, 0 to unwind.</p>
-      </div>
-    </div>
+<header class="site-head" id="siteHead">
+  <a class="brand-lockup" href="#top" aria-label="Doca, back to top">
+    <span class="mark">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <defs>
+          <clipPath id="ct"><rect width="32" height="16" /></clipPath>
+          <clipPath id="cb"><rect y="16" width="32" height="16" /></clipPath>
+        </defs>
+        <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
+          <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ct)" />
+          <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#cb)" />
+          <line x1="2" y1="16" x2="30" y2="16" />
+        </g>
+      </svg>
+    </span>
+    <span>Doca</span>
+  </a>
+  <div class="theme-toggle" role="group" aria-label="Color theme">
+    <button type="button" data-theme-choice="day" aria-pressed="false">Day</button>
+    <button type="button" data-theme-choice="night" aria-pressed="false">Night</button>
+    <button type="button" data-theme-choice="system" aria-pressed="false">Auto</button>
   </div>
-</section>
+</header>
 
-<!-- 3 · the invariant -->
-<section>
-  <div class="wrap">
-    <div class="invariant">
-      <p>A <span class="promise">promise</span> may exceed your wallet.<br/>A <span class="budget">budget</span> may not.</p>
-      <small>InventorySkewProvider behind SwapVM's stock opcode — flat while a budget is healthy, quadratic as it drains. The Harbormaster docks and re-ships before the wallet ever comes up short.</small>
-    </div>
-  </div>
-</section>
+<main id="top">
 
-<!-- 4 · measured -->
-<section>
-  <div class="wrap">
-    <div class="section-head">
-      <div class="kicker">Measured, with a paired control</div>
-      <h2>What the budgets buy you</h2>
+  <!-- 1 · hero -->
+  <section class="hero" id="hero">
+    <div class="wrap">
+      <a class="brand-lockup" href="#top" tabindex="-1" aria-hidden="true">
+        <span class="mark">
+          <svg width="46" height="46" viewBox="0 0 32 32" aria-hidden="true">
+            <defs>
+              <clipPath id="ht"><rect width="32" height="16" /></clipPath>
+              <clipPath id="hb"><rect y="16" width="32" height="16" /></clipPath>
+            </defs>
+            <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
+              <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ht)" />
+              <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#hb)" />
+              <line x1="2" y1="16" x2="30" y2="16" />
+            </g>
+          </svg>
+        </span>
+        <span>Doca</span>
+      </a>
+      <h1>Keep your wallet.<br />Put it to work anyway.</h1>
+      <p class="lede">Non-custodial market making on 1inch Aqua: your balance stays put and backs several strategies at once, without ever leaving it.</p>
+      <div class="cta">
+        <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
+        <a class="btn ghost" href="https://github.com/ottodevs/doca">GitHub</a>
+      </div>
     </div>
-    <div class="stats">
-      <div class="stat">
-        <strong>+29%</strong>
-        <span>inventory retained <em>vs. same flow, unmanaged</em></span>
-      </div>
-      <div class="stat">
-        <strong>+1.99%</strong>
-        <span>realized price <em>on 30 fills, paired comparison</em></span>
-      </div>
-      <div class="stat">
-        <strong>0 <em>vs 43</em></strong>
-        <span>unhonorable fills at 4× amplification, unmanaged</span>
-      </div>
-    </div>
-  </div>
-</section>
+    <canvas class="hero-water" id="heroWater" aria-hidden="true"></canvas>
+  </section>
 
-<!-- 5 · footer -->
-<footer>
-  <div class="wrap">
-    <div class="foot-row">
-      <div class="foot-brand">
-        <svg class="mark" width="20" height="20" viewBox="0 0 32 32"><defs><clipPath id="lt"><rect x="0" y="0" width="32" height="16"/></clipPath><clipPath id="lb"><rect x="0" y="16" width="32" height="16"/></clipPath></defs><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#lt)"/><path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#lb)" opacity="0.45"/><line x1="2" y1="16" x2="30" y2="16"/></g></svg>
-        <span>Doca — ETHGlobal Lisbon 2026 · built on 1inch Aqua + SwapVM</span>
+  <!-- 2 · the problem -->
+  <section class="stage-wrap" id="problem">
+    <div class="stage">
+      <div class="wrap stage-grid">
+        <div class="stage-visual">
+          <canvas id="problemCanvas"></canvas>
+          <span class="stage-tag" id="tagPromise">promised</span>
+          <span class="stage-tag" id="tagWallet">wallet</span>
+        </div>
+        <div class="stage-copy">
+          <h2>A promise doesn't check what's in your wallet.</h2>
+          <p>Aqua lets a maker promise more liquidity than they hold, on purpose. Nothing checks the balance until a taker actually tries to fill.</p>
+          <p>When flow turns one-way, the wallet drains while every strategy's advertised book stays exactly where it started.</p>
+          <div class="stat-line">
+            85% of concentrated liquidity sat idle through H1 2026, worth an estimated $1.6B, by
+            <a href="https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away" target="_blank" rel="noopener">1inch's own commissioned research</a>.
+          </div>
+        </div>
       </div>
-      <a href="https://github.com/ottodevs/doca">github.com/ottodevs/doca</a>
     </div>
+  </section>
+
+  <!-- 3 · the invariant -->
+  <section class="stage-wrap" id="invariant">
+    <div class="stage invariant-stage">
+      <div class="wrap invariant-copy">
+        <p class="invariant-line" id="invLine1">
+          <span class="w">A</span> <span class="w promise">promise</span> <span class="w">may</span> <span class="w">exceed</span> <span class="w">your</span> <span class="w">wallet.</span>
+        </p>
+        <p class="invariant-line" id="invLine2">
+          <span class="w">A</span> <span class="w budget">budget</span> <span class="w">may</span> <span class="w">not.</span>
+        </p>
+        <p class="invariant-caption">InventorySkewProvider plugs into SwapVM's stock fee opcode: flat while a strategy's budget is healthy, quadratic as it drains. The Harbormaster docks and re-ships before the wallet ever comes up short.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · the harbormaster -->
+  <section class="stage-wrap" id="harbormaster">
+    <div class="stage harbor-stage">
+      <div class="harbor-canvas-wrap">
+        <canvas id="harborCanvas"></canvas>
+        <span class="harbor-state" id="harborState"></span>
+      </div>
+      <div class="wrap">
+        <div class="harbor-copy">
+          <h2>It watches so you don't.</h2>
+          <p>An agent watches every strategy you've shipped. When one drops under its load line, it docks the promise and re-ships it against the balance your wallet actually holds.</p>
+          <p class="harbor-punch" id="harborPunch">Wallet balance changed. Your quotes repaired themselves.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · numbers -->
+  <section class="numbers section-pad" id="numbers">
+    <div class="wrap">
+      <h2>What the budgets buy you, measured with a paired control.</h2>
+      <div class="stat-grid">
+        <div class="stat-block" data-reveal>
+          <p class="stat-num"><span class="ghost">half →</span>zero</p>
+          <p class="desc">Under 4× leverage, half of an unmanaged maker's quotes failed. With Doca: zero.</p>
+          <span class="provenance">43 of 86 attempted fills reverted, unmanaged · contracts/scripts/amplification-experiment.ts</span>
+        </div>
+        <div class="stat-block" data-reveal>
+          <p class="stat-num">+29%</p>
+          <p class="desc">Inventory retained under identical flow, against the same wallet left unmanaged.</p>
+          <span class="provenance">30 fills, paired control · contracts/scripts/waterline-scenario.ts</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · credit horizon -->
+  <section class="credit-horizon section-pad" id="credit-horizon">
+    <div class="wrap">
+      <div class="panel" data-reveal>
+        <p class="label">Coming next</p>
+        <h2>The same budget, applied to credit.</h2>
+        <p>A budget that's known, live, and never overcommitted is also what lending needs to trust a position without custody. We're extending the primitive there next.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 7 · close -->
+<footer class="site-foot">
+  <div class="wrap foot-row">
+    <div class="foot-brand">
+      <span class="mark">
+        <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true">
+          <defs>
+            <clipPath id="ft"><rect width="32" height="16" /></clipPath>
+            <clipPath id="fb"><rect y="16" width="32" height="16" /></clipPath>
+          </defs>
+          <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round">
+            <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#ft)" />
+            <path class="refl" d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clip-path="url(#fb)" />
+            <line x1="2" y1="16" x2="30" y2="16" />
+          </g>
+        </svg>
+      </span>
+      <span>Doca — ETHGlobal Lisbon 2026, built on 1inch Aqua + SwapVM.</span>
+    </div>
+    <nav class="foot-links">
+      <a href="http://100.64.0.1:5273">Launch app</a>
+      <a href="https://github.com/ottodevs/doca">GitHub</a>
+    </nav>
   </div>
 </footer>
 
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- reduced motion ---------- */
+  var rmQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function applyRM() { document.documentElement.classList.toggle("rm", rmQuery.matches); }
+  applyRM();
+  rmQuery.addEventListener("change", applyRM);
+
+  /* ---------- theme ---------- */
+  var THEME_KEY = "doca-theme-choice";
+  var sysQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  var buttons = Array.prototype.slice.call(document.querySelectorAll("[data-theme-choice]"));
+
+  function resolve(choice) {
+    if (choice === "system") return sysQuery.matches ? "night": "day";
+    return choice;
+  }
+  function applyTheme(choice) {
+    document.documentElement.setAttribute("data-theme", resolve(choice));
+    buttons.forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-theme-choice") === choice)); });
+  }
+  function setChoice(choice) {
+    localStorage.setItem(THEME_KEY, choice);
+    applyTheme(choice);
+  }
+  var storedChoice = localStorage.getItem(THEME_KEY) || "day";
+  applyTheme(storedChoice);
+  buttons.forEach(function (b) {
+    b.addEventListener("click", function () { setChoice(b.getAttribute("data-theme-choice")); });
+  });
+  sysQuery.addEventListener("change", function () {
+    if ((localStorage.getItem(THEME_KEY) || "day") === "system") applyTheme("system");
+  });
+
+  /* ---------- header border on scroll ---------- */
+  var head = document.getElementById("siteHead");
+  var lastY = -1;
+  function onScrollHeader() {
+    var y = window.scrollY;
+    if (y === lastY) return;
+    lastY = y;
+    head.classList.toggle("scrolled", y > 8);
+  }
+  onScrollHeader();
+
+  /* ---------- helpers ---------- */
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+  function sizeCanvas(canvas) {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var w = Math.max(1, Math.round(rect.width));
+    var h = Math.max(1, Math.round(rect.height));
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return { ctx: ctx, w: w, h: h };
+  }
+  function wavyTop(ctx, w, y, amp, phase) {
+    ctx.moveTo(0, y + Math.sin(phase) * amp);
+    var step = 14;
+    for (var x = 0; x <= w; x += step) {
+      ctx.lineTo(x, y + Math.sin(x * 0.045 + phase) * amp);
+    }
+    ctx.lineTo(w, y + Math.sin(w * 0.045 + phase) * amp);
+  }
+  function waterGradient(ctx, h, top, rgb) {
+    var g = ctx.createLinearGradient(0, top, 0, h);
+    g.addColorStop(0, "rgba(" + rgb + ", 0.55)");
+    g.addColorStop(1, "rgba(" + rgb + ", 0.18)");
+    return g;
+  }
+
+  var reduced = document.documentElement.classList.contains("rm");
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- hero ambient water (very light, decorative) ---------- */
+  (function heroWater() {
+    var canvas = document.getElementById("heroWater");
+    if (!canvas) return;
+    var dims = sizeCanvas(canvas);
+    var phase = 0;
+    function draw() {
+      var ctx = dims.ctx, w = dims.w, h = dims.h;
+      ctx.clearRect(0, 0, w, h);
+      var rgb = cssVar("--water-fill");
+      var y = h * 0.62;
+      ctx.beginPath();
+      wavyTop(ctx, w, y, 6, phase);
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = waterGradient(ctx, h, y, rgb);
+      ctx.fill();
+    }
+    draw();
+    if (!reduced) {
+      gsap.ticker.add(function () {
+        phase += 0.012;
+        draw();
+      });
+    }
+    window.addEventListener("resize", function () {
+      dims = sizeCanvas(canvas);
+      draw();
+    });
+  })();
+
+  /* ---------- problem: draining wallet vs flat promise ---------- */
+  (function problemScene() {
+    var canvas = document.getElementById("problemCanvas");
+    var tagPromise = document.getElementById("tagPromise");
+    var tagWallet = document.getElementById("tagWallet");
+    if (!canvas) return;
+    var dims = sizeCanvas(canvas);
+    var lastProgress = 0;
+
+    function draw(progress) {
+      var ctx = dims.ctx, w = dims.w, h = dims.h;
+      ctx.clearRect(0, 0, w, h);
+
+      var promiseFrac = 0.22;
+      var walletFrac = 0.22 + progress * 0.58;
+      var promiseY = h * promiseFrac;
+      var walletY = h * walletFrac;
+
+      // danger gap between the two lines
+      if (walletY > promiseY + 6) {
+        ctx.fillStyle = "rgba(" + cssVar("--water-fill") + ", " + (0.05 + progress * 0.06) + ")";
+        ctx.fillRect(0, promiseY, w, walletY - promiseY);
+      }
+
+      // wallet water fill (draining)
+      ctx.beginPath();
+      wavyTop(ctx, w, walletY, 5, progress * 8);
+      ctx.lineTo(w, h);
+      ctx.lineTo(0, h);
+      ctx.closePath();
+      ctx.fillStyle = waterGradient(ctx, h, walletY, cssVar("--water-fill-2"));
+      ctx.fill();
+
+      // promise dashed line (stays flat)
+      ctx.save();
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = cssVar("--accent");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, promiseY);
+      ctx.lineTo(w, promiseY);
+      ctx.stroke();
+      ctx.restore();
+
+      if (tagPromise) { tagPromise.style.top = (promiseY - 22) + "px"; tagPromise.style.left = "14px"; tagPromise.style.color = "var(--accent)"; tagPromise.style.opacity = 1; }
+      if (tagWallet) { tagWallet.style.top = Math.min(h - 22, walletY + 10) + "px"; tagWallet.style.left = "14px"; tagWallet.style.color = "var(--support)"; tagWallet.style.opacity = 1; }
+      lastProgress = progress;
+    }
+
+    if (reduced) {
+      draw(0.72);
+    } else {
+      draw(0);
+      ScrollTrigger.create({
+        trigger: "#problem",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: function (self) { draw(self.progress); },
+      });
+    }
+    window.addEventListener("resize", function () {
+      dims = sizeCanvas(canvas);
+      draw(lastProgress);
+    });
+  })();
+
+  /* ---------- invariant: word-by-word reveal ---------- */
+  (function invariantScene() {
+    var words = document.querySelectorAll("#invariant.w");
+    var caption = document.querySelector(".invariant-caption");
+    if (!words.length || reduced) return;
+    var tl = gsap.timeline({
+      scrollTrigger: { trigger: "#invariant", start: "top top", end: "bottom bottom", scrub: true },
+    });
+    tl.to(words, { opacity: 1, stagger: 0.06, ease: "none", duration: words.length * 0.06 })
+     .to(caption, { opacity: 1, y: 0, ease: "none", duration: 0.4 }, ">-0.1");
+  })();
+
+  /* ---------- harbormaster: dock -> reship ---------- */
+  (function harborScene() {
+    var canvas = document.getElementById("harborCanvas");
+    var stateLabel = document.getElementById("harborState");
+    var punch = document.getElementById("harborPunch");
+    if (!canvas) return;
+    var dims = sizeCanvas(canvas);
+    var lastProgress = 0;
+
+    function vesselY(p) {
+      if (p < 0.35) return 0.40 + Math.sin(p * 14) * 0.015;
+      if (p < 0.55) return gsap.utils.interpolate(0.40, 0.66, (p - 0.35) / 0.2);
+      if (p < 0.64) return 0.66 + Math.sin((p - 0.55) * 40) * 0.01;
+      return gsap.utils.interpolate(0.66, 0.38, Math.min(1, (p - 0.64) / 0.36));
+    }
+    function loadLineY(p) {
+      if (p < 0.64) return 0.55;
+      return gsap.utils.interpolate(0.55, 0.50, Math.min(1, (p - 0.64) / 0.36));
+    }
+    function stateFor(p) {
+      if (p < 0.35) return { text: "safe", color: "var(--support)" };
+      if (p < 0.64) return { text: "docking…", color: "var(--warn)" };
+      return { text: "re-shipped", color: "var(--positive)" };
+    }
+
+    function draw(p) {
+      var ctx = dims.ctx, w = dims.w, h = dims.h;
+      ctx.clearRect(0, 0, w, h);
+
+      // ambient deep water base
+      ctx.fillStyle = "rgba(" + cssVar("--water-fill") + ", 0.08)";
+      ctx.fillRect(0, h * 0.78, w, h * 0.22);
+
+      var lineY = h * loadLineY(p);
+      ctx.save();
+      ctx.setLineDash([7, 7]);
+      ctx.strokeStyle = cssVar("--line-strong");
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(0, lineY);
+      ctx.lineTo(w, lineY);
+      ctx.stroke();
+      ctx.restore();
+
+      var vy = h * vesselY(p);
+      var vx = w * (0.28 + p * 0.16);
+      var vw = Math.min(w * 0.22, 120);
+      var vh = vw * 0.5;
+      var below = vy > lineY;
+      var color = below ? cssVar("--warn"): (p > 0.66 ? cssVar("--positive"): cssVar("--accent"));
+
+      // intervention pulse
+      if (p > 0.55 && p < 0.68) {
+        var pulseP = (p - 0.55) / 0.13;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - pulseP);
+        ctx.strokeStyle = cssVar("--warn");
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(vx, vy, vw * (0.5 + pulseP * 0.9), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // vessel: rounded pontoon capsule
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      var rx = vw / 2, ry = vh / 2;
+      ctx.moveTo(vx - rx + ry, vy - ry);
+      ctx.lineTo(vx + rx - ry, vy - ry);
+      ctx.arc(vx + rx - ry, vy, ry, -Math.PI / 2, Math.PI / 2);
+      ctx.lineTo(vx - rx + ry, vy + ry);
+      ctx.arc(vx - rx + ry, vy, ry, Math.PI / 2, -Math.PI / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      if (stateLabel) {
+        var st = stateFor(p);
+        stateLabel.textContent = st.text;
+        stateLabel.style.color = st.color;
+        stateLabel.style.left = (vx - vw / 2) + "px";
+        stateLabel.style.top = (vy + vh / 2 + 10) + "px";
+        stateLabel.style.opacity = 1;
+      }
+      lastProgress = p;
+    }
+
+    if (reduced) {
+      draw(0.9);
+      if (punch) { punch.style.opacity = 1; punch.style.transform = "none"; }
+    } else {
+      draw(0);
+      ScrollTrigger.create({
+        trigger: "#harbormaster",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: function (self) {
+          draw(self.progress);
+          if (punch) {
+            var pp = Math.max(0, Math.min(1, (self.progress - 0.75) / 0.25));
+            gsap.set(punch, { opacity: pp, y: 10 - pp * 10 });
+          }
+        },
+      });
+    }
+    window.addEventListener("resize", function () {
+      dims = sizeCanvas(canvas);
+      draw(lastProgress);
+    });
+  })();
+
+  /* ---------- numbers / credit horizon: reveal on view ---------- */
+  (function revealOnView() {
+    var els = document.querySelectorAll("[data-reveal]");
+    if (!els.length || reduced) return;
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("in-view");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  /* ---------- top waterline progress ---------- */
+  (function progressBar() {
+    var fill = document.getElementById("wpFill");
+    if (!fill) return;
+    ScrollTrigger.create({
+      trigger: document.documentElement,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: true,
+      onUpdate: function (self) {
+        fill.style.width = (self.progress * 100) + "%";
+        onScrollHeader();
+      },
+    });
+  })();
+
+  window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+})();
+</script>
 </body>
 </html>

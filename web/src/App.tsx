@@ -12,6 +12,7 @@ const SPEND = 250_000_000_000_000_000n; // 0.25 WETH
 
 type Entry = { at: string; text: string; kind: "info" | "agent" | "warn" | "fill" };
 
+// Stage labels drive only the waterline's aria-label; no numbered chrome is rendered.
 const STEPS = [
     { n: 1, label: "Wallet" },
     { n: 2, label: "Put to work" },
@@ -21,6 +22,65 @@ const STEPS = [
 ];
 
 const ICON: Record<Entry["kind"], string> = { info: "·", agent: "●", warn: "▲", fill: "⇄" };
+
+type ThemeMode = "day" | "night" | "system";
+const THEME_KEY = "doca-theme";
+
+// Day is the brand default. "system" clears the override and lets prefers-color-scheme decide.
+function useTheme(): [ThemeMode, (m: ThemeMode) => void] {
+    const [mode, setMode] = useState<ThemeMode>(() => {
+        const saved = typeof localStorage !== "undefined" ? localStorage.getItem(THEME_KEY) : null;
+        return saved === "day" || saved === "night" || saved === "system" ? saved : "day";
+    });
+    useEffect(() => {
+        localStorage.setItem(THEME_KEY, mode);
+        const root = document.documentElement;
+        if (mode === "system") root.removeAttribute("data-theme");
+        else root.setAttribute("data-theme", mode);
+    }, [mode]);
+    return [mode, setMode];
+}
+
+const THEME_OPTS: { id: ThemeMode; label: string }[] = [
+    { id: "day", label: "Day" },
+    { id: "night", label: "Night" },
+    { id: "system", label: "Auto" },
+];
+
+function ThemeToggle({ mode, onChange }: { mode: ThemeMode; onChange: (m: ThemeMode) => void }) {
+    return (
+        <div className="theme-toggle" role="group" aria-label="Theme">
+            {THEME_OPTS.map((o) => (
+                <button
+                    key={o.id}
+                    type="button"
+                    className={o.id === mode ? "on" : ""}
+                    aria-pressed={o.id === mode}
+                    title={o.label}
+                    onClick={() => onChange(o.id)}
+                >
+                    {o.id === "day" && (
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+                            <circle cx="10" cy="10" r="4" />
+                            <path d="M10 1.5v2.4M10 16.1v2.4M18.5 10h-2.4M3.9 10H1.5M15.9 4.1l-1.7 1.7M5.8 14.2l-1.7 1.7M15.9 15.9l-1.7-1.7M5.8 5.8 4.1 4.1" />
+                        </svg>
+                    )}
+                    {o.id === "night" && (
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z" />
+                        </svg>
+                    )}
+                    {o.id === "system" && (
+                        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                            <circle cx="10" cy="10" r="7" />
+                            <path d="M10 3a7 7 0 0 1 0 14Z" fill="currentColor" stroke="none" />
+                        </svg>
+                    )}
+                </button>
+            ))}
+        </div>
+    );
+}
 
 // The Doca mark: a D half-submerged at the waterline.
 function Mark({ size = 30 }: { size?: number }) {
@@ -63,20 +123,29 @@ function useEased(target: number): number {
     return shown;
 }
 
-function Rail({ stage }: { stage: number }) {
+// Progress as a thin waterline along the top of the content, not a numbered rail.
+function Waterline({ stage }: { stage: number }) {
+    const pct = Math.min(100, Math.max(0, ((stage - 1) / (STEPS.length - 1)) * 100));
+    const label = STEPS.find((s) => s.n === stage)?.label ?? STEPS[STEPS.length - 1]!.label;
     return (
-        <nav className="rail">
-            {STEPS.map((s) => (
-                <div key={s.n} className={`step ${s.n < stage ? "done" : ""} ${s.n === stage ? "now" : ""}`}>
-                    <span className="num">{s.n < stage ? "✓" : s.n}</span>
-                    <span className="lbl">{s.label}</span>
-                </div>
-            ))}
-        </nav>
+        <div
+            className="waterline"
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={STEPS.length}
+            aria-valuenow={stage}
+            aria-label={`Progress: ${label}`}
+        >
+            <div className="waterline-fill" style={{ width: `${pct}%` }}>
+                <svg className="waterline-tip" viewBox="0 0 28 14" aria-hidden>
+                    <path d="M0 7 Q4 1 8 7 T16 7 T24 7 T28 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                </svg>
+            </div>
+        </div>
     );
 }
 
-const CHIP: Record<string, string> = { ok: "SAFE", warn: "TIGHT", sinking: "DOCKING" };
+const CHIP: Record<string, string> = { ok: "safe", warn: "tight", sinking: "docking" };
 
 function Vessel({ s, idx }: { s: Strategy; idx: number }) {
     const consumed = 100 - (Number(s.remaining) / Number(FRAC)) * 100;
@@ -91,7 +160,7 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
                 </div>
                 <div className="hull-head">
                     <strong>Strategy {idx + 1}</strong>
-                    <span className={`chip ${state}`}>{CHIP[state]}</span>
+                    <span className={`state ${state}`}><i className="state-dot" />{CHIP[state]}</span>
                 </div>
                 <div className="hull-foot">
                     <div><em>{fmtWeth(s.wethLeft)}</em><span>WETH aboard</span></div>
@@ -99,13 +168,14 @@ function Vessel({ s, idx }: { s: Strategy; idx: number }) {
                 </div>
             </div>
             <div className="feebadge">
-                {state === "sinking" ? "below the line — docking next" : `${fmtFee(s.surchargeBps)}% surcharge`}
+                {state === "sinking" ? "below the line, docking next" : `${fmtFee(s.surchargeBps)}% surcharge`}
             </div>
         </div>
     );
 }
 
 export default function App() {
+    const [theme, setTheme] = useTheme();
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [strategies, setStrategies] = useState<Strategy[]>([]);
     const [preset, setPreset] = useState<Preset>(PRESETS[1]!);
@@ -322,36 +392,45 @@ export default function App() {
                         <p className="tagline">Keep your wallet. Put it to work anyway.</p>
                     </div>
                 </div>
-                <div className="chain">
-                    <span><span className="dot" />Base fork · block {block ? block.toLocaleString() : d.forkBlock.toLocaleString()}</span><br />
-                    <code>Aqua {d.aqua.slice(0, 10)}… · canonical registry</code><br />
-                    {account
-                        ? <span className="acct">⛵ {account.slice(0, 6)}…{account.slice(-4)}</span>
-                        : hasInjectedWallet()
-                            ? <button className="connect" onClick={onConnect}>Connect wallet</button>
-                            : <span className="acct dim">demo signer</span>}
+                <div className="header-right">
+                    <ThemeToggle mode={theme} onChange={setTheme} />
+                    <div className="chain">
+                        <span><span className="dot" />Base fork · block {block ? block.toLocaleString() : d.forkBlock.toLocaleString()}</span><br />
+                        <code>Aqua {d.aqua.slice(0, 10)}… · canonical registry</code><br />
+                        {account
+                            ? <span className="acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
+                            : hasInjectedWallet()
+                                ? <button className="connect" onClick={onConnect}>Connect wallet</button>
+                                : <span className="acct dim"><i className="state-dot" />demo signer</span>}
+                    </div>
                 </div>
             </header>
 
-            <Rail stage={working ? Math.max(stage, 2) : stage} />
+            <Waterline stage={working ? Math.max(stage, 2) : stage} />
 
             {!wallet && <p className="muted">reading your wallet…</p>}
 
             {wallet && !working && (
                 <>
                     {stage === 5 && receipt && (
-                        <div className="receipt">
-                            <div><strong>{receipt.markets}</strong><span>markets served</span></div>
-                            <div><strong>{receipt.fills}</strong><span>fills settled</span></div>
-                            <div><strong>{receipt.protections}</strong><span>protections</span></div>
-                            <div><strong>0</strong><span>deposits · positions to unwind</span></div>
+                        <div className="stats">
+                            <div className="stat-hero">
+                                <span>Fills settled</span>
+                                <strong>{receipt.fills}</strong>
+                                <em>across {receipt.markets} market{receipt.markets === 1 ? "" : "s"}, nothing left unresolved</em>
+                            </div>
+                            <div className="stat-strip">
+                                <div><span>Markets served</span><strong>{receipt.markets}</strong></div>
+                                <div><span>Protections</span><strong>{receipt.protections}</strong></div>
+                                <div><span>Deposits to unwind</span><strong>0</strong></div>
+                            </div>
                         </div>
                     )}
                     <div className="narr">
                         <h2>{stage === 5 ? "Back to a plain wallet" : "This wallet is idle"}</h2>
                         <p>
                             {stage === 5
-                                ? "Everything docked in one click. Your balance was liquid the entire time — it just also worked."
+                                ? "Everything docked in one click. Your balance stayed liquid the whole time, and it also earned."
                                 : "Put the same balance to work in several places at once, without depositing it anywhere."}
                         </p>
                     </div>
@@ -363,9 +442,14 @@ export default function App() {
                         <p className="muted">
                             Nothing leaves this wallet. You are signing price rules, not a deposit.
                         </p>
+                        <p className="leadline">
+                            Under 4× leverage, half of an unmanaged maker's quotes failed.
+                            With Doca: <strong>zero</strong>.
+                        </p>
+                        <p className="supportline">+29% inventory retained under identical flow.</p>
                         <p className="factline">
                             1inch-commissioned research, July 2026: 85% of concentrated liquidity sat idle
-                            in H1 — $1.6B of it in wallets managed by hand.
+                            in H1, $1.6B of it in wallets managed by hand.
                         </p>
 
                         <div className="presets">
@@ -396,30 +480,32 @@ export default function App() {
                     <div className="narr">
                         <h2>One balance, quoting in {strategies.length} markets</h2>
                         <p>
-                            Nothing deposited, spend any time — the Harbormaster keeps every promise honest.
+                            Nothing deposited, spend any time: the Harbormaster keeps every promise honest.
                         </p>
                     </div>
 
-                    <section className="tiles">
-                        <div className="tile hero">
+                    <section className="stats">
+                        <div className="stat-hero">
                             <span>Market coverage</span>
                             <strong>{fmtWeth(promisedWeth)} WETH</strong>
-                            <em>SLAC {amplification.toFixed(2)}× — amplified from one wallet</em>
+                            <em>SLAC {amplification.toFixed(2)}× amplified from one wallet</em>
                         </div>
-                        <div className="tile">
-                            <span>In your wallet</span>
-                            <strong>{easedWeth.toFixed(4)} WETH</strong>
-                            <em>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC</em>
-                        </div>
-                        <div className="tile">
-                            <span>Budget left</span>
-                            <strong>{fmtWeth(budgetLeftWeth)} WETH</strong>
-                            <em>{honorable ? "never more than you hold" : "over budget"}</em>
-                        </div>
-                        <div className={`tile thesis ${honorable ? "good" : "bad"}`}>
-                            <span>Promises kept</span>
-                            <strong>{honorable ? "100%" : "at risk"}</strong>
-                            <em>{rebalances} protection{rebalances === 1 ? "" : "s"} by the Harbormaster</em>
+                        <div className="stat-strip">
+                            <div>
+                                <span>In your wallet</span>
+                                <strong>{easedWeth.toFixed(4)} WETH</strong>
+                                <em>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })} USDC</em>
+                            </div>
+                            <div>
+                                <span>Budget left</span>
+                                <strong>{fmtWeth(budgetLeftWeth)} WETH</strong>
+                                <em>{honorable ? "within wallet" : "over budget"}</em>
+                            </div>
+                            <div className={honorable ? "good" : "bad"}>
+                                <span>Promises kept</span>
+                                <strong><i className="state-dot" />{honorable ? "100%" : "at risk"}</strong>
+                                <em>{rebalances} protection{rebalances === 1 ? "" : "s"} by the Harbormaster</em>
+                            </div>
                         </div>
                     </section>
 
@@ -441,8 +527,8 @@ export default function App() {
                                 <strong>Harbormaster <em className="role">· autopilot</em></strong>
                                 <span>
                                     {agentOn
-                                        ? `watching ${strategies.length} strategies — docks anything below its line, re-ships against real balances`
-                                        : "off — nobody is watching your promises"}
+                                        ? `watching ${strategies.length} strategies, docking anything below its line and re-shipping against real balances`
+                                        : "off, nobody is watching your promises"}
                                 </span>
                             </div>
                             <span className="count">{rebalances} intervention{rebalances === 1 ? "" : "s"}</span>
@@ -459,6 +545,14 @@ export default function App() {
                         </div>
                         {busy && <p className="busy">{busy}</p>}
                     </section>
+
+                    <div className="horizon">
+                        <span>Credit, next</span>
+                        <p>
+                            The same budgets that keep quotes honest can back credit offers: lender promises,
+                            borrower collateral, Dutch-auction liquidation on SwapVM.
+                        </p>
+                    </div>
                 </>
             )}
 
