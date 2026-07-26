@@ -642,7 +642,7 @@ export default function App() {
                         <div className="harbor">
                             <span className={`beacon ${agentOn ? "on" : ""}`} />
                             <div className="harbor-txt">
-                                <strong>Harbormaster <em className="role">· autopilot</em></strong>
+                                <strong>Harbormaster <em className="role">· keeper</em></strong>
                                 <span>
                                     {agentOn
                                         ? `watching ${strategies.length} strategies, docking anything below its line and re-shipping against real balances`
