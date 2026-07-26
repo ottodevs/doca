@@ -465,6 +465,10 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     // Total risk budget allocated across every strategy (full budgets, not what remains).
     const totalBudgetWeth = strategies.reduce((a, s) => a + s.budgetWeth, 0n);
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
+    // WETH leg only: Strategy doesn't currently carry a per-strategy budgetUsdc, so this
+    // can't check the USDC leg. Label below is scoped to match (says "WETH leg", not "wallet")
+    // until budgetUsdc is tracked at ship/re-ship time — see re-ship in the harbormaster effect,
+    // which already computes a per-strategy USDC amount but never stores it on the strategy.
     const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
 
     // Harbor map derivatives: how much of the wallet sits uncommitted, budget headroom,
@@ -637,7 +641,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                             <div className={honorable ? "good" : "bad"}>
                                 <span>Allocated risk budget</span>
                                 <strong><i className="state-dot" />{fmt2(totalBudgetWeth)} WETH</strong>
-                                <em>{honorable ? "within wallet" : "over budget"} · {rebalances} protection{rebalances === 1 ? "" : "s"}</em>
+                                <em>{honorable ? "WETH leg within wallet" : "WETH leg over budget"} · {rebalances} protection{rebalances === 1 ? "" : "s"}</em>
                             </div>
                         </div>
                     </section>
