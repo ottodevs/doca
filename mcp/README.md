@@ -68,8 +68,9 @@ live.
 
 ### `doca_health`
 The invariant check: sum the WETH committed (`rawBalances`) across the given strategies and compare
-against the maker's actual wallet balance. `honorable: true` means every promise could be honored
-simultaneously: the entire point of Doca's budget primitive, since nothing is ever deposited into
+against the maker's actual wallet balance. `honorable: true` means the wallet holds enough WETH to
+cover every checked commitment at once. The check is scoped to the WETH leg today; two-sided
+accounting is on the roadmap alongside the BudgetGuard instruction. Nothing is ever deposited into
 Aqua up front.
 
 ```json
