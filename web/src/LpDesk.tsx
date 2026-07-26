@@ -14,6 +14,7 @@ import {
     type PositionBasisLive, type PositionHistoryTick,
 } from "./lib/pnl";
 import PnlChart from "./PnlChart";
+import { Mark, TabNav, type ViewId } from "./nav";
 
 type FormState = {
     kind: StrategyKind;
@@ -63,7 +64,7 @@ function parseDraft(form: FormState, id: string): DraftStrategy {
     return draft;
 }
 
-export default function LpDesk() {
+export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewChange: (v: ViewId) => void }) {
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [form, setForm] = useState<FormState>(DEFAULT_FORM);
     const [ratioLocked, setRatioLocked] = useState(true);
@@ -457,17 +458,19 @@ export default function LpDesk() {
 
     return (
         <div className="page desk">
-            <header>
+            <header className="app-header">
                 <div className="brand">
-                    <div>
-                        <h1>LP Desk</h1>
-                        <p className="tagline">Run several liquidity strategies from one wallet</p>
-                    </div>
+                    <Mark />
+                    <h1>Doca</h1>
                 </div>
-                <div className="chain">
-                    <span className="dot" /> Base fork · chain {d.chainId}
-                    <br />
-                    <code>{d.maker.slice(0, 10)}…</code>
+
+                <TabNav view={view} onChange={onViewChange} />
+
+                <div className="header-right">
+                    <div className="header-group">
+                        <span className="pill-seg"><span className="dot" />Base fork · chain {d.chainId}</span>
+                        <span className="pill-seg"><code>{d.maker.slice(0, 10)}…</code></span>
+                    </div>
                 </div>
             </header>
 

@@ -6,6 +6,7 @@ import {
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
 import { fetchWethUsdcSpot, type SpotPrice } from "./lib/uniswap-price";
+import { Mark, TabNav, type ViewId } from "./nav";
 
 const WATERLINE = 1_000n;         // must match the curve the provider was configured with
 const FILL_SIZE = 500_000_000n;   // 500 USDC per market fill
@@ -84,23 +85,6 @@ function ThemeToggle({ mode, onChange }: { mode: ThemeMode; onChange: (m: ThemeM
                 </button>
             ))}
         </div>
-    );
-}
-
-// The Doca mark: a D half-submerged at the waterline.
-function Mark({ size = 30 }: { size?: number }) {
-    return (
-        <svg className="mark" width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-            <defs>
-                <clipPath id="mt"><rect x="0" y="0" width="32" height="16" /></clipPath>
-                <clipPath id="mb"><rect x="0" y="16" width="32" height="16" /></clipPath>
-            </defs>
-            <g fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinejoin="round">
-                <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clipPath="url(#mt)" />
-                <path d="M11 7 H15 A9 9 0 0 1 15 25 H11 Z" clipPath="url(#mb)" opacity="0.45" />
-                <line x1="2" y1="16" x2="30" y2="16" />
-            </g>
-        </svg>
     );
 }
 
@@ -235,7 +219,7 @@ function Onboarding({ onClose }: { onClose: () => void }) {
     );
 }
 
-export default function App() {
+export default function App({ view, onViewChange }: { view: ViewId; onViewChange: (v: ViewId) => void }) {
     const [theme, setTheme] = useTheme();
     const [wallet, setWallet] = useState<Wallet | null>(null);
     const [strategies, setStrategies] = useState<Strategy[]>([]);
@@ -481,45 +465,47 @@ export default function App() {
                 </div>
             )}
             {onboardOpen && <Onboarding onClose={closeOnboarding} />}
-            <header>
+            <header className="app-header">
                 <div className="brand">
                     <Mark />
-                    <div>
-                        <h1>Doca</h1>
-                        <p className="tagline">Keep your wallet. Put it to work anyway.</p>
-                    </div>
+                    <h1>Doca</h1>
                 </div>
+
+                <TabNav view={view} onChange={onViewChange} />
+
                 <div className="header-right">
-                    <button
-                        type="button"
-                        className="help-btn"
-                        title="Replay the intro"
-                        aria-label="Replay the intro"
-                        onClick={() => setOnboardOpen(true)}
-                    >
-                        ?
-                    </button>
-                    <ThemeToggle mode={theme} onChange={setTheme} />
-                    <div className="chain">
+                    <div className="header-group">
                         <span
-                            className="pill"
+                            className="pill-seg"
                             title={`Base fork, block ${block ? block.toLocaleString() : d.forkBlock.toLocaleString()} · Aqua ${d.aqua.slice(0, 10)}… · canonical registry`}
                         >
                             <span className="dot" />Practice waters
                         </span>
                         {mark && (
                             <span
-                                className="pill"
+                                className="pill-seg"
                                 title="Live Base mainnet WETH/USDC price from the Uniswap Trading API. The Harbormaster marks its decisions against the real market, not the practice fork."
                             >
-                                <span className="dot" />${mark.usdcPerWeth.toFixed(0)} · Uniswap live
+                                ${mark.usdcPerWeth.toFixed(0)} · Uniswap live
                             </span>
                         )}
                         {account
-                            ? <span className="acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
+                            ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                             : hasInjectedWallet()
-                                ? <button className="connect" onClick={onConnect}>Connect wallet</button>
-                                : <span className="acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
+                                ? <button className="pill-seg connect" onClick={onConnect}>Connect wallet</button>
+                                : <span className="pill-seg acct dim" title="Demo signer: a local development key. On a public chain, this becomes your connected wallet."><i className="state-dot" />Preview wallet</span>}
+                    </div>
+                    <div className="header-aux">
+                        <button
+                            type="button"
+                            className="help-btn"
+                            title="Replay the intro"
+                            aria-label="Replay the intro"
+                            onClick={() => setOnboardOpen(true)}
+                        >
+                            ?
+                        </button>
+                        <ThemeToggle mode={theme} onChange={setTheme} />
                     </div>
                 </div>
             </header>
