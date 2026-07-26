@@ -223,6 +223,17 @@
  .credit-horizon.panel h2 { font-size: clamp(23px, 3vw, 30px); }
  .credit-horizon.panel p { color: var(--muted); font-size: 16px; max-width: 46ch; margin: 16px auto 0; }
 
+  /* ================= faq ================= */
+ .faq.section-pad h2 { font-size: clamp(24px, 3.4vw, 32px); max-width: 26ch; margin: 0 0 36px; }
+ .faq-list { display: flex; flex-direction: column; gap: 12px; max-width: 760px; }
+ .faq-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-panel); padding: 0 26px; box-shadow: var(--elev); transition: border-color 0.25s var(--ease-tidal); }
+ .faq-item[open] { border-color: var(--line-strong); }
+ .faq-item summary { cursor: pointer; list-style: none; padding: 20px 0; font-family: var(--font-display); font-weight: 600; font-size: 17px; line-height: 1.3; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+ .faq-item summary::-webkit-details-marker { display: none; }
+ .faq-item summary::after { content: "+"; font-family: var(--font-body); font-weight: 400; font-size: 22px; line-height: 1; color: var(--muted); transition: transform 0.3s var(--ease-tidal); flex: none; }
+ .faq-item[open] summary::after { transform: rotate(45deg); }
+ .faq-item p.a { color: var(--muted); font-size: 15.5px; line-height: 1.6; max-width: 64ch; margin: 0 0 22px; }
+
   /* ================= footer ================= */
  .site-foot { border-top: 1px solid var(--line); padding: 40px 0 56px; }
  .foot-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
@@ -397,9 +408,50 @@
     </div>
   </section>
 
+  <!-- 7 · faq -->
+  <section class="faq section-pad" id="faq">
+    <div class="wrap">
+      <h2>Questions judges ask</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>What is Doca?</summary>
+          <p class="a">Doca is a budget layer for 1inch Aqua. Aqua lets one wallet back several trading strategies at once by shipping promises instead of deposits — a promise can outrun what you actually hold, by design. Doca adds the missing check: every strategy carries a budget that can't exceed your real balance, so every quote you publish stays honorable.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is my money locked?</summary>
+          <p class="a">No. Nothing is ever deposited. Aqua only moves tokens straight out of your wallet during a fill, and you can spend from that same wallet at any time, mid-flight. There's nothing to withdraw, because there was never a custody step to begin with.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What happens if my wallet balance changes?</summary>
+          <p class="a">The Harbormaster notices. It watches every strategy you've shipped, and when one's budget runs low it docks the promise and re-ships it against what your wallet actually holds now — the same fix Aqua's own whitepaper recommends doing by hand, done automatically, in the block where it matters.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is this a business or a public good?</summary>
+          <p class="a">The mechanism is open by design — a budget primitive any Aqua maker should have, not something we intend to gate. What we build on top of it is where a product could live, but that's a direction, not a claim: tonight this is a hackathon build, not a company.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is it only for 1inch Aqua?</summary>
+          <p class="a">Aqua-native today, by design: the fee provider plugs into SwapVM's own opcode, and every settling transaction runs through 1inch's official, unmodified contracts. The idea underneath — a budget that can never exceed what you actually hold — isn't Aqua-specific, and credit is the clearest place it generalizes next. That's an honest horizon, not a shipped feature.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What about lending?</summary>
+          <p class="a">A budget already behaves like a line of credit: permission to spend against a real balance, with value pulled out when risk rises. Lending on Aqua would split into two honest halves — a non-custodial lender side using exactly this primitive, and an overcollateralized borrower side settled through escrow. We've sketched the mechanism; we haven't built it.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is it live on mainnet?</summary>
+          <p class="a">The contracts are 1inch's real, canonical deployments — the same Aqua registry and SwapVM router live on Base. What you're using tonight is a preview on a mirrored fork of that network, so every transfer is a real ERC-20 movement against real token contracts, without spending real funds.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can agents integrate?</summary>
+          <p class="a">An agent-facing surface — metered, pay-per-call access to budget and skew state — is on the horizon, not built. The Harbormaster itself is already an agent; opening that interface to others is the next step, not tonight's.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
 </main>
 
-<!-- 7 · close -->
+<!-- 8 · close -->
 <footer class="site-foot">
   <div class="wrap foot-row">
     <div class="foot-brand">
