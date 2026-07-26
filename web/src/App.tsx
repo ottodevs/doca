@@ -380,6 +380,11 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     }, []);
 
     const onConnect = async () => {
+        // Without a reachable practice network there is nothing a wallet could act on.
+        if (nodeDown) {
+            say("connected wallets stay view-only here: this preview has no practice network behind it", "info");
+            return;
+        }
         try {
             const addr = await connectWallet();
             setAccount(addr);
@@ -395,7 +400,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
             }
         } catch (e: any) {
             const msg = String(e?.shortMessage ?? e?.message ?? e);
-            if (/practice (fork|network)/i.test(msg)) {
+            if (/practice (fork|network)/i.test(msg) || /failed to fetch|network error|timeout/i.test(msg)) {
                 say("connected wallets stay view-only here: this preview runs on a practice network, not real funds", "info");
             } else {
                 say(`wallet connect failed: ${msg.slice(0, 70)}`, "warn");

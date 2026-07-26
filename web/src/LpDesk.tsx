@@ -551,7 +551,9 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                         >
                             <span className="dot" />Practice waters
                         </span>
-                        {account
+                        {nodeDown
+                            ? <span className="pill-seg acct dim" title="This hosted preview has no practice network, so wallets stay view-only."><i className="state-dot" />View only</span>
+                            : account
                             ? <span className="pill-seg acct"><i className="state-dot" />{account.slice(0, 6)}…{account.slice(-4)}</span>
                             : hasInjectedWallet()
                                 ? <button type="button" className="pill-seg connect" onClick={onConnect} disabled={busy}>Connect wallet</button>
