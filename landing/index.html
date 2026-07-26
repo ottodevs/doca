@@ -7,17 +7,17 @@
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Doca" />
 <meta property="og:title" content="Doca — Keep your wallet. Put it to work anyway." />
-<meta property="og:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, and every quote it publishes can be honoured." />
+<meta property="og:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, each sized to what the wallet actually holds." />
 <meta property="og:url" content="https://doca-finance.pages.dev/" />
 <meta property="og:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Doca — Keep your wallet. Put it to work anyway." />
-<meta name="twitter:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, and every quote it publishes can be honoured." />
+<meta name="twitter:description" content="A budget layer for 1inch Aqua: one balance backs several strategies at once, each sized to what the wallet actually holds." />
 <meta name="twitter:image" content="https://doca-finance.pages.dev/brand/og-image.png" />
 <title>Doca — keep your wallet, put it to work</title>
-<meta name="description" content="Keep your wallet. Put it to work anyway. Non-custodial market making on 1inch Aqua: budgets keep every promise honest, and an autonomous Harbormaster keeps them honest while you sleep." />
+<meta name="description" content="Keep your wallet. Put it to work anyway. Non-custodial market making on 1inch Aqua: budgets sized to what the wallet holds, and a Harbormaster that watches and resizes them." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3CclipPath id='t'%3E%3Crect width='32' height='16'/%3E%3C/clipPath%3E%3CclipPath id='b'%3E%3Crect y='16' width='32' height='16'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg fill='none' stroke='%231f5fd6' stroke-width='2.6' stroke-linejoin='round'%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23t)'/%3E%3Cpath d='M11 7 H15 A9 9 0 0 1 15 25 H11 Z' clip-path='url(%23b)' opacity='.45'/%3E%3Cline x1='2' y1='16' x2='30' y2='16'/%3E%3C/g%3E%3C/svg%3E" />
 <link rel="preload" href="vendor/fonts/fraunces-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="vendor/fonts/schibsted-grotesk-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -327,7 +327,7 @@
         <span>Doca</span>
       </a>
       <h1>Keep your wallet.<br />Put it to work anyway.</h1>
-      <p class="lede">Non-custodial market making on 1inch Aqua: one balance, several strategies at once, and it never leaves your wallet.</p>
+      <p class="lede">Non-custodial market making on 1inch Aqua: one balance, several strategies at once. No upfront deposit — tokens move only when a trade settles.</p>
       <div class="cta">
         <a class="btn primary" href="http://100.64.0.1:5273">Launch app</a>
         <a class="btn ghost" href="https://github.com/ottodevs/doca">GitHub</a>
@@ -350,8 +350,9 @@
           <p>Aqua lets a maker promise more liquidity than they hold, on purpose. Nothing checks the balance until a taker actually tries to fill.</p>
           <p>When flow turns one-way, the wallet drains while every strategy's advertised book stays exactly where it started.</p>
           <div class="stat-line">
-            85% of concentrated liquidity sat idle through H1 2026, worth an estimated $1.6B, by
-            <a href="https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away" target="_blank" rel="noopener">1inch's own commissioned research</a>.
+            Adjacent evidence: 85% of tracked concentrated liquidity — $1.6B of $1.84B analyzed — sat
+            underutilized through H1 2026, most of it in individually managed positions on Uniswap v3, by
+            <a href="https://www.coindesk.com/web3/2026/07/18/here-is-why-a-massive-usd1-6-billion-in-crypto-liquidity-is-sitting-idle-and-wasting-away" target="_blank" rel="noopener">1inch-commissioned Dune research</a>.
           </div>
         </div>
       </div>
@@ -383,8 +384,8 @@
       <div class="wrap">
         <div class="harbor-copy">
           <h2>It watches so you don't.</h2>
-          <p>An agent watches every strategy you've shipped. When one drops under its load line, it docks the promise and re-ships it against the balance your wallet actually holds.</p>
-          <p class="harbor-punch" id="harborPunch">Wallet balance changed. Your quotes repaired themselves.</p>
+          <p>The Harbormaster watches every strategy you've shipped. When one drops under its load line, it docks the promise and re-ships it against the balance your wallet actually holds.</p>
+          <p class="harbor-punch" id="harborPunch">Wallet balance changed. Your strategy detected the change and prepared a safe reallocation.</p>
         </div>
       </div>
     </div>
@@ -427,15 +428,15 @@
       <div class="faq-list">
         <details class="faq-item">
           <summary>What is Doca?</summary>
-          <p class="a">Doca is a budget layer for 1inch Aqua. Aqua lets one wallet back several trading strategies at once by shipping promises instead of deposits — a promise can outrun what you actually hold, by design. Doca adds the missing check: every strategy carries a budget that can't exceed your real balance, so every quote you publish stays honorable.</p>
+          <p class="a">Doca is a budget layer for 1inch Aqua. Aqua lets one wallet back several trading strategies at once by shipping promises instead of deposits — a promise can outrun what you actually hold, by design. Doca adds the missing check: every strategy carries a budget of what it is allowed to consume, sized against what the wallet really holds, and Doca repairs allocations off-chain before underfunding turns into persistent failed quotes.</p>
         </details>
         <details class="faq-item">
           <summary>Is my money locked?</summary>
-          <p class="a">No. Nothing is ever deposited. Aqua only moves tokens straight out of your wallet during a fill, and you can spend from that same wallet at any time, mid-flight. There's nothing to withdraw, because there was never a custody step to begin with.</p>
+          <p class="a">No. Nothing is ever deposited. Aqua only moves tokens straight out of your wallet during a fill, and you can spend from that same wallet without withdrawing anything first — Doca detects the balance change and resizes your strategies around it. There's nothing to withdraw, because there was never a custody step to begin with.</p>
         </details>
         <details class="faq-item">
           <summary>What happens if my wallet balance changes?</summary>
-          <p class="a">The Harbormaster notices. It watches every strategy you've shipped, and when one's budget runs low it docks the promise and re-ships it against what your wallet actually holds now — the same fix Aqua's own whitepaper recommends doing by hand, done automatically, in the block where it matters.</p>
+          <p class="a">The Harbormaster notices. It watches every strategy you've shipped, and when one's budget runs low it docks the promise and re-ships it against what your wallet actually holds now — the same fix Aqua's own whitepaper recommends doing by hand. In this demo a local signer lets it act on its own, on camera; with your own connected wallet, today it prompts you to sign, the same as any other transaction.</p>
         </details>
         <details class="faq-item">
           <summary>Is this a business or a public good?</summary>
