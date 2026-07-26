@@ -465,11 +465,10 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     // Total risk budget allocated across every strategy (full budgets, not what remains).
     const totalBudgetWeth = strategies.reduce((a, s) => a + s.budgetWeth, 0n);
     const amplification = wallet && wallet.weth > 0n ? Number(promisedWeth) / Number(wallet.weth) : 0;
-    // WETH leg only: Strategy doesn't currently carry a per-strategy budgetUsdc, so this
-    // can't check the USDC leg. Label below is scoped to match (says "WETH leg", not "wallet")
-    // until budgetUsdc is tracked at ship/re-ship time; see re-ship in the harbormaster effect,
-    // which already computes a per-strategy USDC amount but never stores it on the strategy.
-    const honorable = wallet ? budgetLeftWeth <= wallet.weth : true;
+    // Health is the worse of the two legs: a strategy budgets both tokens at ship time, so an
+    // oversubscribed USDC side must read as over budget even while the WETH side is covered.
+    const budgetLeftUsdc = strategies.reduce((a, s) => a + (s.budgetUsdc * s.remainingUsdc) / FRAC, 0n);
+    const honorable = wallet ? budgetLeftWeth <= wallet.weth && budgetLeftUsdc <= wallet.usdc : true;
 
     // Harbor map derivatives: how much of the wallet sits uncommitted, budget headroom,
     // and the blended surcharge the Harbormaster panel quotes across live strategies.
@@ -641,7 +640,7 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                             <div className={honorable ? "good" : "bad"}>
                                 <span>Allocated risk budget</span>
                                 <strong><i className="state-dot" />{fmt2(totalBudgetWeth)} WETH</strong>
-                                <em>{honorable ? "WETH leg within wallet" : "WETH leg over budget"} · {rebalances} protection{rebalances === 1 ? "" : "s"}</em>
+                                <em>{honorable ? "Both legs within wallet" : "A leg over budget"} · {rebalances} protection{rebalances === 1 ? "" : "s"}</em>
                             </div>
                         </div>
                     </section>
@@ -726,20 +725,15 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                     </section>
 
                     <section className="card controls-card">
-                        <details className="practice">
-                            <summary>
-                                <span className="practice-caret" aria-hidden>▸</span>
-                                Practice controls
-                            </summary>
-                            <div className="practice-body">
-                                <button onClick={onFlow} disabled={!!busy}>Simulate market flow</button>
-                            </div>
-                        </details>
-
                         <div className="actions">
+                            <button onClick={onFlow} disabled={!!busy}>Stress the position</button>
                             <button onClick={onSpend} disabled={!!busy}>Spend 0.25 WETH</button>
                             <button className="ghost" onClick={onStop} disabled={!!busy}>Dock everything</button>
                         </div>
+                        <p className="actions-note">
+                            Stress runs simulated taker flow against your live quotes: the drained side gets
+                            more expensive, and past the load line the Harbormaster steps in.
+                        </p>
                         {busy && <p className="busy">{busy}</p>}
                     </section>
 
