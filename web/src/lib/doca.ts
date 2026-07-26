@@ -4,13 +4,15 @@
 // skew provider; writes are ship, dock, and a taker fill used to simulate market flow in the demo.
 import { ethers } from "ethers";
 import deployment from "../deployment.json";
+import {
+    provider, makerSigner, takerSigner, session, getMaker, onMakerChange,
+    hasInjectedWallet, connectWallet, seedConnectedWallet,
+    type Session,
+} from "./fork-session";
 import { TakerTraitsLib } from "./swapvm-helpers";
 
-// Well-known anvil development keys. Demo only: on a public chain this is a wallet connector.
-const KEYS = {
-    maker: "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d",
-    taker: "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a",
-};
+export { provider, makerSigner, takerSigner, session, hasInjectedWallet, connectWallet, seedConnectedWallet };
+export type { Session };
 
 export const BPS = 1_000_000_000n;
 export const FRAC = 10_000n;
@@ -36,103 +38,24 @@ const ERC20_ABI = [
     "function balanceOf(address) view returns (uint256)",
     "function transfer(address,uint256) returns (bool)",
     "function approve(address,uint256) returns (bool)",
-    "function deposit() payable", // WETH only; used when seeding a connected wallet on the fork
+    "function deposit() payable",
 ];
 
 export const d = deployment;
 
-// In a browser the node lives on whatever host served the page, so the app works over localhost
-// and over the tailnet without reconfiguring. Scripts fall back to the deployed value.
-// VITE_RPC_URL pins a public endpoint for hosted builds; otherwise the node lives on whatever
-// host served the page, so the app works over localhost and over the tailnet unchanged.
-const rpcUrl = import.meta.env.VITE_RPC_URL
-    || (typeof window !== "undefined" ? `http://${window.location.hostname}:8545` : deployment.rpcUrl);
-
-export const provider = new ethers.JsonRpcProvider(rpcUrl, deployment.chainId, {
-    staticNetwork: true,
-});
-
-// The fork inherits real Base account nonces, so let NonceManager own sequencing instead of
-// relying on per-block caches: several of these actions fire back to back.
-export const makerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.maker, provider));
-export const takerSigner = new ethers.NonceManager(new ethers.Wallet(KEYS.taker, provider));
-
-// The maker side is swappable: demo mode signs with the dev key, wallet mode with the user's
-// own wallet (EIP-1193). The taker stays on the dev key. It plays the market, not the user.
-export type Session = { mode: "demo" | "wallet"; maker: string };
-export const session: Session = { mode: "demo", maker: deployment.maker };
-
-let maker: ethers.Signer = makerSigner;
-
-let aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, maker);
+let aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, getMaker());
 const router = new ethers.Contract(deployment.router, ROUTER_ABI, takerSigner);
 const app = new ethers.Contract(deployment.docaApp, APP_ABI, provider);
-let skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, maker);
-let weth = new ethers.Contract(deployment.weth, ERC20_ABI, maker);
-let usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, maker);
+let skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, getMaker());
+let weth = new ethers.Contract(deployment.weth, ERC20_ABI, getMaker());
+let usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, getMaker());
 
-function rebind(signer: ethers.Signer) {
-    maker = signer;
-    aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, maker);
-    skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, maker);
-    weth = new ethers.Contract(deployment.weth, ERC20_ABI, maker);
-    usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, maker);
-}
-
-export function hasInjectedWallet(): boolean {
-    return typeof window !== "undefined" && !!(window as any).ethereum;
-}
-
-/// Connects the user's own wallet and makes it the maker. Demo state is per-address on-chain,
-/// so switching accounts simply starts a fresh book.
-export async function connectWallet(): Promise<string> {
-    const injected = (window as any).ethereum;
-    if (!injected) throw new Error("no injected wallet");
-    const browser = new ethers.BrowserProvider(injected);
-    const signer = await browser.getSigner();
-    const addr = await signer.getAddress();
-    // The wallet must sit on the practice network before it can act as maker; on any
-    // other chain these contract addresses hold different (or no) code and every call
-    // would come back undecodable. Ask for a switch once, otherwise stay in demo mode.
-    const net = await browser.getNetwork();
-    if (Number(net.chainId) !== Number(deployment.chainId)) {
-        try {
-            await injected.request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: "0x" + Number(deployment.chainId).toString(16) }],
-            });
-        } catch {
-            throw new Error(`wallet is on chain ${net.chainId}; switch it to the practice network (chain ${deployment.chainId}) to act as maker`);
-        }
-    }
-    // The practice fork shares Base's chain id, so a chain-id match alone can still be the
-    // real network. Before letting the wallet sign anything, prove the injected provider sees
-    // the fork's own chain state: the fork's latest block hash exists nowhere else.
-    const forkTip = await provider.getBlock("latest");
-    const seen = await new ethers.BrowserProvider(injected).getBlock(forkTip!.number).catch(() => null);
-    if (!seen || seen.hash !== forkTip!.hash) {
-        throw new Error("this wallet is connected to the real network, not the practice fork; wallet mode stays disabled to keep real funds out of the demo");
-    }
-    rebind(signer);
-    session.mode = "wallet";
-    session.maker = addr;
-    return addr;
-}
-
-/// Demo-network helper: on an anvil fork we can hand the connected wallet real WETH/USDC and the
-/// approvals it needs. Fails loudly anywhere else. This is a fork-only convenience.
-export async function seedConnectedWallet(): Promise<void> {
-    const client: string = await provider.send("web3_clientVersion", []);
-    if (!client.toLowerCase().includes("anvil")) throw new Error("seeding only works on the anvil fork");
-    const addr = session.maker;
-    await provider.send("anvil_setBalance", [addr, "0x21E19E0C9BAB2400000"]); // 10,000 ETH of gas money
-    const usdcSlot = ethers.keccak256(
-        ethers.AbiCoder.defaultAbiCoder().encode(["address", "uint256"], [addr, 9n]));
-    await provider.send("anvil_setStorageAt", [deployment.usdc, usdcSlot, ethers.toBeHex(8_000_000_000n, 32)]);
-    await (await (weth as any).deposit({ value: ethers.parseEther("2") })).wait();
-    await (await weth.approve(deployment.aqua, ethers.MaxUint256)).wait();
-    await (await usdc.approve(deployment.aqua, ethers.MaxUint256)).wait();
-}
+onMakerChange((signer) => {
+    aqua = new ethers.Contract(deployment.aqua, AQUA_ABI, signer);
+    skew = new ethers.Contract(deployment.skewProvider, SKEW_ABI, signer);
+    weth = new ethers.Contract(deployment.weth, ERC20_ABI, signer);
+    usdc = new ethers.Contract(deployment.usdc, ERC20_ABI, signer);
+});
 
 export type Order = { maker: string; traits: bigint; data: string };
 export type Strategy = {

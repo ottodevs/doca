@@ -5,11 +5,14 @@
 // Position = deposit × spot before ship; carry-forward Aqua inventory × same L1 spot after
 // Price axis keeps the full Uniswap hour history so the chart still has shape on a fresh ship.
 import type { LiveStrategy } from "./lp-desk";
-import { d } from "./lp-desk";
+import { d, session } from "./lp-desk";
 
 export const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const STORAGE_KEY = `doca-pnl-v2-${d.maker}-${d.router}`.toLowerCase();
 const HOUR_MS = 3_600_000;
+
+function storageKey() {
+    return `doca-pnl-v2-${session.maker}-${d.router}`.toLowerCase();
+}
 
 export type PositionBasis = {
     hash: string;
@@ -82,7 +85,7 @@ function fromStored(b: PositionBasis): PositionBasisLive {
 export function loadPersistedBases(): PositionBasisLive[] {
     if (typeof window === "undefined") return [];
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(storageKey());
         if (!raw) return [];
         const parsed = JSON.parse(raw) as Stored & { samples?: unknown };
         return (parsed.bases ?? []).map(fromStored);
@@ -93,7 +96,7 @@ export function loadPersistedBases(): PositionBasisLive[] {
 
 export function persistBases(bases: PositionBasisLive[]) {
     if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ bases: bases.map(toStored) }));
+    localStorage.setItem(storageKey(), JSON.stringify({ bases: bases.map(toStored) }));
 }
 
 export function basisFromLive(s: LiveStrategy): PositionBasisLive {

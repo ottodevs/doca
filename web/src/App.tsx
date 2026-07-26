@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
     d, provider, readWallet, readStrategy, start, dock, marketFill, spendWeth, shipStrategy, resetNonces,
-    hasInjectedWallet, connectWallet, seedConnectedWallet,
+    hasInjectedWallet, connectWallet, seedConnectedWallet, session,
     PRESETS, fmtWeth, fmtPct, fmtFee, FRAC,
     type Preset, type Strategy, type Wallet,
 } from "./lib/doca";
@@ -367,7 +367,9 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
     const [event, setEvent] = useState<{ title: string; detail: string } | null>(null);
     const [storm, setStorm] = useState(false);
     const [receipt, setReceipt] = useState<{ markets: number; fills: number; protections: number } | null>(null);
-    const [account, setAccount] = useState<string | null>(null);
+    const [account, setAccount] = useState<string | null>(
+        () => (session.mode === "wallet" ? session.maker : null),
+    );
     const [onboardOpen, setOnboardOpen] = useState(() =>
         typeof localStorage !== "undefined" ? localStorage.getItem(ONBOARD_KEY) !== "true" : false);
     const saltRef = useRef(1);
