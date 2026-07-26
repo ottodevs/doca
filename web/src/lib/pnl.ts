@@ -7,7 +7,7 @@ import type { LiveStrategy } from "./lp-desk";
 import { d } from "./lp-desk";
 
 export const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const STORAGE_KEY = `plimsoll-pnl-v2-${d.maker}-${d.router}`.toLowerCase();
+const STORAGE_KEY = `doca-pnl-v2-${d.maker}-${d.router}`.toLowerCase();
 
 export type PositionBasis = {
     hash: string;

@@ -533,7 +533,7 @@ export async function loadShippedFromChain(): Promise<LiveStrategy[]> {
             }
             byHash.set(hash.toLowerCase(), live);
         } catch {
-            /* skip undecodable strategies (e.g. Plimsoll demo skew programs) */
+            /* skip undecodable strategies (e.g. Doca demo skew programs) */
         }
     }
 
