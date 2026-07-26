@@ -359,7 +359,7 @@ export default function App() {
                     const m = markRef.current;
                     setEvent({
                         title: "Harbormaster protected your wallet",
-                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; your quotes repaired themselves.`
+                        detail: `Strategy ${fresh.indexOf(sinking) + 1} crossed its dock line → docked → re-shipped with a ${fmtWeth(budgetWeth)} WETH budget. Wallet changed; the strategy detected it and re-shipped a safe reallocation.`
                             + (m ? ` Market reference at re-ship: $${m.usdcPerWeth.toFixed(2)}/WETH, live Base via the Uniswap Trading API.` : ""),
                     });
                     say(`re-promised with a ${fmtWeth(budgetWeth)} WETH budget — what is really free`, "agent");
@@ -548,7 +548,7 @@ export default function App() {
                             <div><strong>{easedUsdc.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong><span>USDC</span></div>
                         </div>
                         <p className="muted">
-                            No upfront deposit. Tokens move only when a trade settles — you are signing price rules.
+                            No upfront deposit. Tokens move only when a trade settles. You are signing price rules.
                         </p>
                         <p className="leadline">
                             Under 4× leverage, half of an unmanaged maker's quotes failed.
@@ -557,7 +557,7 @@ export default function App() {
                         <p className="supportline">+29% inventory retained under identical flow.</p>
                         <p className="factline">
                             Adjacent evidence, 1inch-commissioned Dune research, July 2026: 85% of tracked
-                            concentrated liquidity — $1.6B of $1.84B analyzed — sat underutilized in H1, mostly
+                            concentrated liquidity ($1.6B of $1.84B analyzed) sat underutilized in H1, mostly
                             individually managed positions.
                         </p>
 
@@ -589,7 +589,7 @@ export default function App() {
                     <div className="narr">
                         <h2>One balance, working in {strategies.length} markets</h2>
                         <p>
-                            Nothing deposited. Spend without withdrawing — Doca detects the change and resizes
+                            Nothing deposited. Spend without withdrawing: Doca detects the change and resizes
                             your strategies, the Harbormaster keeping each one inside its budget.
                         </p>
                     </div>
