@@ -1,14 +1,23 @@
-# SwapVM Template
+# Doca — contracts
 
-A template project for building and deploying custom swap strategies using 1inch's SwapVM and Aqua protocol.
+Doca's on-chain half, built on [1inch's SwapVM and Aqua protocol](https://1inch.com/aqua). This
+directory started as the official `swap-vm-template` scaffold; the Prerequisites, Installation and
+Deployment sections below still describe that scaffold and apply as-is. Doca's own contracts sit on
+top of it.
 
 ## Overview
 
-This project provides a complete implementation of:
-- **AquaAMM**: A concentrated liquidity AMM strategy for SwapVM
-- **MockTaker**: A test contract for simulating swap operations
-- **Deployment scripts**: Automated deployment and verification
-- **Test suite**: Comprehensive tests for swap functionality
+- **`InventorySkewProvider`** (`contracts/InventorySkewProvider.sol`) — the on-chain half of Doca's
+  budget invariant. An `IProtocolFeeProvider` plugged into SwapVM's stock
+  `AquaDynamicProtocolFeeAmountIn` opcode: it prices inventory depletion per strategy, flat while a
+  budget is healthy and rising quadratically as it drains.
+- **`DocaApp`** (`contracts/DocaApp.sol`) — builds the Aqua-backed SwapVM program for a strategy,
+  wiring the skew provider into the fee instruction ahead of the concentrated-liquidity curve.
+- **`AquaAMM`**: the official `swap-vm-template` concentrated-liquidity AMM strategy, kept
+  unmodified and used as the paired control in the measurement scripts.
+- **`MockTaker`**: a test contract for simulating swap operations.
+- **Deployment scripts** and **test suite**: covering both the template's own AquaAMM tests and
+  Doca's `InventorySkewProvider`/`DocaApp` tests.
 
 ## Prerequisites
 
