@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none" aria-label="Doca — Keep your wallet. Put it to work anyway.">
+  <rect width="1200" height="630" fill="#0d1626"/>
+  <path d="M0 462H1200V630H0Z" fill="#5b9cf5" opacity=".035"/>
+  <path d="M0 462H1200" stroke="#5b9cf5" stroke-width="2" opacity=".7"/>
+  <g stroke="#5b9cf5" stroke-linejoin="round">
+    <path d="M112 111H196C259 111 298 154 298 217S259 323 196 323H112V111Z" stroke-width="28"/>
+    <path d="M126 232H318" stroke-width="7" stroke-linecap="round"/>
+    <g opacity=".45">
+      <path d="M112 351H196C230 351 258 338 275 316" stroke-width="21" stroke-linecap="round"/>
+      <path d="M148 377H232" stroke-width="7" stroke-linecap="round"/>
+    </g>
+  </g>
+  <text x="350" y="303" fill="#e9eef7" font-family="Georgia, serif" font-size="190" font-weight="700" letter-spacing="-8">oca</text>
+  <text x="112" y="535" fill="#e9eef7" font-family="Georgia, serif" font-size="48" letter-spacing="-.5">Keep your wallet. Put it to work anyway.</text>
+  <circle cx="1080" cy="118" r="5" fill="#e8b34b"/>
+  <circle cx="1102" cy="118" r="5" fill="#5b9cf5" opacity=".65"/>
+</svg>

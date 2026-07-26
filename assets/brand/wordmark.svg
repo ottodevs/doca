@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 80" fill="none" aria-label="Doca">
+  <g stroke="currentColor" stroke-linejoin="round">
+    <path d="M12 8H29C45.5 8 56 19.5 56 36S45.5 64 29 64H12V8Z" stroke-width="8"/>
+    <path d="M16 40H60" stroke-width="2.5" stroke-linecap="round"/>
+    <g opacity=".45">
+      <path d="M12 70H29C38 70 45 66.5 49.5 61" stroke-width="6" stroke-linecap="round"/>
+      <path d="M20 76H39" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+  </g>
+  <path d="M91 25C76.5 25 68 34.5 68 47S76.5 69 91 69 114 59.5 114 47 105.5 25 91 25ZM91 33C100 33 105.5 38.5 105.5 47S100 61 91 61 76.5 55.5 76.5 47 82 33 91 33Z" fill="currentColor"/>
+  <path d="M143 25C128 25 119 34.5 119 47S128 69 143 69C151 69 157.5 66 162 61L156.5 55C153 58.8 148.7 61 143.5 61 134 61 127.5 55.5 127.5 47S134 33 143.5 33C148.7 33 153 35.2 156.5 39L162 33C157.5 28 151 25 143 25Z" fill="currentColor"/>
+  <path d="M190 25C181.5 25 174.5 27.8 169 32.5L174 39C178.7 35.2 183.5 33 189 33 197.5 33 202 37 202 44V45H189C174.5 45 166 49.3 166 57.5 166 64.5 172.5 69 182 69 190.5 69 197 66.2 202 61.5V68H210.5V44C210.5 31.5 202.5 25 190 25ZM202 52V54C198.2 59 192.5 61.5 185 61.5 178.5 61.5 174.5 59.7 174.5 56.5 174.5 53.5 178.5 52 189 52H202Z" fill="currentColor"/>
+</svg>
