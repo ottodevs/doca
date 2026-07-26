@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Doca Finance — ETHGlobal Lisbon 2026</title>
+<title>Doca — ETHGlobal Lisbon 2026</title>
 <style>
   @font-face {
     font-family: "Inter Variable";
@@ -76,13 +76,13 @@
     <h1>Doca</h1>
   </div>
   <h2>Keep your wallet.<br/>Put it to work anyway.</h2>
-  <p class="sub">Non-custodial market making on 1inch Aqua — with budgets that keep every promise honest.</p>
+  <p class="sub">Non-custodial market making on 1inch Aqua — budgets sized to the wallet's actual balance.</p>
 </section>
 
 <!-- 2 · problem -->
 <section class="slide">
-  <div class="kicker">The problem — 1inch's own numbers, one week old</div>
-  <div class="big">85% <small>of concentrated liquidity sat idle in H1 2026 — $1.6B of it in wallets managed by hand<br/>(1inch-commissioned research, July 18)</small></div>
+  <div class="kicker">Adjacent evidence — 1inch's own numbers, one week old</div>
+  <div class="big">85% <small>of tracked concentrated liquidity underutilized in H1 2026 — $1.6B of $1.84B analyzed, mostly individually managed positions<br/>(1inch-commissioned Dune research, July 18)</small></div>
   <p class="sub">Aqua fixes custody: promises instead of deposits, one balance behind many strategies. But promises can exceed the wallet <em>by design</em> — and when flow turns directional, quotes go phantom.</p>
 </section>
 
@@ -103,8 +103,8 @@
   <h2>A <span style="color:var(--accent)">promise</span> may exceed your wallet.<br/>A <span style="color:var(--good)">budget</span> may not.</h2>
   <div class="cols">
     <div class="box"><h3>On-chain</h3><p><strong>InventorySkewProvider</strong> behind SwapVM's stock opcode 30: fee flat while a budget is healthy, quadratic as it drains. Directional — takers get paid to rebalance you.</p></div>
-    <div class="box"><h3>Harbormaster</h3><p>An <strong>autopilot</strong> that docks any strategy crossing its line and re-ships against what the wallet really holds. The whitepaper's advice, automated.</p></div>
-    <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend any time.</p></div>
+    <div class="box"><h3>Harbormaster</h3><p>An <strong>autopilot</strong> that docks any strategy crossing its line and re-ships against the wallet's current balance. The whitepaper's advice, automated in this demo; with a connected wallet it prompts you to sign.</p></div>
+    <div class="box"><h3>Product</h3><p>A five-step journey: <strong>wallet → put to work → live market → protected → walk away</strong>. Nothing deposited, spend without withdrawing.</p></div>
   </div>
 </section>
 
@@ -151,7 +151,7 @@
   </div>
 </section>
 
-<div class="foot"><span>Doca Finance — ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
+<div class="foot"><span>Doca — ETHGlobal Lisbon 2026</span><span class="num" id="pg"></span></div>
 
 <script>
   const slides = [...document.querySelectorAll('.slide')];
