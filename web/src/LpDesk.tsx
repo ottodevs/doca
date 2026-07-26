@@ -5,9 +5,10 @@ import {
     feeFromPercent, percentFromFee, fmtWeth, fmtUsdc, shortHash, KIND_LABEL, friendlyError,
     freeWallet, assertFitsWallet, usdcForWethAtSpot, wethForUsdcAtSpot,
     tradeAgainst, fetchForkSpot, readTakerWallet, resetTakerNonce,
-    hasInjectedWallet, connectWallet, seedConnectedWallet, session,
+    hasInjectedWallet, connectWallet, seedConnectedWallet, session, onMakerChange,
     type DraftStrategy, type LiveStrategy, type StrategyKind, type Wallet, type TradeSide,
 } from "./lib/lp-desk";
+import { useThirdwebMaker } from "./lib/use-thirdweb-maker";
 import { fetchWethUsdcSpot } from "./lib/uniswap-price";
 import {
     basisFromLive, dropBasis, loadPersistedBases, persistBases, reconcileBases,
@@ -94,6 +95,11 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
     const seededFormRef = useRef(false);
     const confirmDockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    // Thirdweb sign-in becomes the maker from this view too (shared hook with the journey).
+    useThirdwebMaker((ev) => {
+        if (ev.kind === "error") setError(`sign-in failed: ${ev.message}`);
+    });
+
     useEffect(() => {
         return () => {
             if (confirmDockTimerRef.current) clearTimeout(confirmDockTimerRef.current);
@@ -105,6 +111,13 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
         setWallet(maker);
         setTakerWallet(taker);
     }, []);
+
+    // Any maker change (sign-in, sign-out, injected connect in the other view) syncs the
+    // wallet chip and balances here.
+    useEffect(() => onMakerChange((_signer, ses) => {
+        setAccount(ses.mode === "wallet" ? ses.maker : null);
+        void refreshWallet();
+    }), [refreshWallet]);
 
     const liveRef = useRef(live);
     liveRef.current = live;
@@ -161,10 +174,6 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
 
     const refreshForkSpot = useCallback(async (strategies?: LiveStrategy[]) => {
         const liveNow = strategies ?? liveRef.current;
-        if (liveNow.length === 0) {
-            setForkSpot(null);
-            return null;
-        }
         try {
             const f = await fetchForkSpot(liveNow);
             setForkSpot(f.usdcPerWeth);
@@ -200,19 +209,22 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
         }
     }, [refreshForkSpot]);
 
-    // Seed balanced amounts + concentrate band once we know spot.
+    // Seed balanced amounts + concentrate band as soon as any spot is known. The live Uniswap
+    // mark is preferred; the fork pool's own spot is the always-available fallback, so the form
+    // is ready to ship in one click even when the live quote is unreachable.
+    const bestSpot = spot ?? forkSpot;
     useEffect(() => {
-        if (spot == null || seededFormRef.current) return;
+        if (bestSpot == null || seededFormRef.current) return;
         seededFormRef.current = true;
         const wethAmt = 0.25;
         setForm((f) => ({
             ...f,
             weth: String(wethAmt),
-            usdc: usdcForWethAtSpot(wethAmt, spot),
-            priceMin: f.priceMin || String(Math.round(spot * 0.8)),
-            priceMax: f.priceMax || String(Math.round(spot * 1.2)),
+            usdc: usdcForWethAtSpot(wethAmt, bestSpot),
+            priceMin: f.priceMin || String(Math.round(bestSpot * 0.8)),
+            priceMax: f.priceMax || String(Math.round(bestSpot * 1.2)),
         }));
-    }, [spot]);
+    }, [bestSpot]);
 
     useEffect(() => {
         let cancelled = false;
@@ -241,9 +253,9 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 basesRef.current = nextBases;
                 setBases(nextBases);
                 persistBases(nextBases);
+                await refreshForkSpot(fromChain);
                 if (fromChain.length) {
                     setTradeHash((h) => h || fromChain[0]!.hash);
-                    await refreshForkSpot(fromChain);
                     if (spotNow) await recordPositionTick(fromChain, nextBases, spotNow.usdcPerWeth);
                 }
             } catch (e: any) {
@@ -279,14 +291,14 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
     const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
         setForm((f) => {
             const next = { ...f, [key]: value };
-            if (!ratioLocked || spot == null) return next;
+            if (!ratioLocked || bestSpot == null) return next;
             if (key === "weth") {
                 const w = Number(value);
-                if (Number.isFinite(w) && w > 0) next.usdc = usdcForWethAtSpot(w, spot);
+                if (Number.isFinite(w) && w > 0) next.usdc = usdcForWethAtSpot(w, bestSpot);
             }
             if (key === "usdc") {
                 const u = Number(value);
-                if (Number.isFinite(u) && u > 0) next.weth = wethForUsdcAtSpot(u, spot);
+                if (Number.isFinite(u) && u > 0) next.weth = wethForUsdcAtSpot(u, bestSpot);
             }
             return next;
         });
@@ -572,7 +584,14 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
             <div className="narr desk-narr">
                 <h2>LP Desk</h2>
                 <p>The professional view of the same harbor: positions, fills and value, marked to the live market.</p>
+                <p className={`desk-mode ${account ? "wallet" : "demo"}`}>
+                    {account
+                        ? <><i className="state-dot" /> Wallet mode: <strong>{account.slice(0, 6)}…{account.slice(-4)}</strong> signs every ship and dock.</>
+                        : <><i className="state-dot" /> Demo mode: the preview signer acts for you and amounts come prefilled. Sign in or connect to trade as yourself.</>}
+                </p>
             </div>
+
+            {error && <p className="desk-error desk-error-sticky">{error}</p>}
 
             <PnlChart
                 ticks={ticks}
@@ -841,7 +860,6 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 </div>
             </section>
 
-            {error && <p className="desk-error">{error}</p>}
             {busy && <p className="busy">Working</p>}
 
             <footer>

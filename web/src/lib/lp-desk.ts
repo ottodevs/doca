@@ -11,7 +11,7 @@ import {
 import { TakerTraitsLib } from "./swapvm-helpers";
 
 export {
-    provider, makerSigner, takerSigner, session,
+    provider, makerSigner, takerSigner, session, onMakerChange,
     hasInjectedWallet, connectWallet, seedConnectedWallet,
 };
 
@@ -345,9 +345,27 @@ export function resetTakerNonce() {
  * Fork-implied USDC per WETH from Aqua strategy reserves (XYC mid).
  * Prefers a router quote of a small WETH sell when liquidity allows.
  */
+// Canonical Uniswap v3 WETH/USDC 0.05% pool on Base. The practice fork mirrors Base mainnet,
+// so this pool's spot is always readable on-chain, with or without live strategies. token0 is
+// WETH (0x4200…0006 < 0x8335…2913), so sqrtPriceX96 prices USDC per WETH directly.
+const BASE_WETH_USDC_V3_POOL = "0xd0b53D9277642d899DF5C87A3966A349A798F224";
+
+async function fetchPoolSpot(): Promise<{ usdcPerWeth: number }> {
+    const pool = new ethers.Contract(
+        BASE_WETH_USDC_V3_POOL,
+        ["function slot0() view returns (uint160 sqrtPriceX96, int24, uint16, uint16, uint16, uint8, bool)"],
+        provider,
+    );
+    const [sqrtPriceX96] = await pool.slot0();
+    const ratio = Number(sqrtPriceX96) / 2 ** 96;
+    const usdcPerWeth = ratio * ratio * 1e12; // token1/token0 scaled by 10^(18-6)
+    if (!Number.isFinite(usdcPerWeth) || usdcPerWeth <= 0) throw new Error("Pool spot unavailable");
+    return { usdcPerWeth };
+}
+
 export async function fetchForkSpot(live: LiveStrategy[]): Promise<{ usdcPerWeth: number }> {
     const withLiq = live.filter((s) => s.wethLeft > 0n && s.usdcLeft > 0n);
-    if (withLiq.length === 0) throw new Error("No strategy with both WETH and USDC left");
+    if (withLiq.length === 0) return fetchPoolSpot();
 
     // Reserve mid across all live liquidity.
     let wethSum = 0n;
