@@ -46,9 +46,11 @@ function cssVar(name: string, fallback: string): string {
 /** Read the chart's theme colors fresh on every render (tokens can flip with data-theme). */
 function chartColors() {
     return {
-        grid: cssVar("--line", "#363b63"),
-        axis: cssVar("--line", "#363b63"),
-        pos: cssVar("--positive", "#1e8a5e"),
+        grid: cssVar("--line", "#e6e0d2"),
+        axis: cssVar("--line", "#e6e0d2"),
+        // Position is the primary series: cobalt, the brand accent. HOLD is the reference
+        // line: ink at low opacity. Gain/loss coloring lives on the PNL figure text (.good/.bad).
+        pos: cssVar("--accent", "#1f5fd6"),
         hold: cssVar("--muted", "#63738a"),
     };
 }
@@ -281,7 +283,17 @@ export default function PnlChart({ ticks, bases, live, spot, forkSpot, priceErro
     return (
         <section className="pnl-beefy">
             <div className="pnl-beefy-card-header">
-                <h2 className="pnl-beefy-title">Position Performance</h2>
+                <div className="pnl-beefy-heading">
+                    <h2 className="pnl-beefy-title">Position Performance</h2>
+                    {spot != null && (
+                        <span
+                            className="mark-badge"
+                            title="Live Base mainnet WETH/USDC price from the Uniswap Trading API. Positions here are marked to the real market, not the practice fork."
+                        >
+                            Marked against live Base mainnet · Uniswap Trading API
+                        </span>
+                    )}
+                </div>
                 <div className="pnl-beefy-spot muted">
                     {spot != null ? `Base $${spot.toFixed(2)}` : "Base -"}
                     {forkSpot != null ? ` · Fork $${forkSpot.toFixed(2)}` : ""}

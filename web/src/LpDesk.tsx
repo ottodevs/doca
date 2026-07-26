@@ -477,10 +477,20 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 <div className="header-right">
                     <div className="header-group">
                         <span className="pill-seg"><span className="dot" />Base fork · chain {d.chainId}</span>
-                        <span className="pill-seg"><code>{d.maker.slice(0, 10)}…</code></span>
+                        <span
+                            className="pill-seg acct dim"
+                            title="Demo signer: a local development key funded on the practice fork. On a public chain, this becomes your connected wallet."
+                        >
+                            <i className="state-dot" />Demo maker · <code>{shortHash(d.maker)}</code>
+                        </span>
                     </div>
                 </div>
             </header>
+
+            <div className="narr desk-narr">
+                <h2>LP Desk</h2>
+                <p>The professional view of the same harbor: positions, fills and value, marked to the live market.</p>
+            </div>
 
             <PnlChart
                 ticks={ticks}
@@ -663,7 +673,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                 {drafts.length === 0 ? (
                     <p className="muted">No drafts yet. Add one or more strategies above.</p>
                 ) : (
-                    <table className="desk-table">
+                    <div className="desk-table-wrap"><table className="desk-table">
                         <thead>
                             <tr>
                                 <th>Kind</th>
@@ -695,7 +705,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table></div>
                 )}
             </section>
 
@@ -713,7 +723,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                             : "No active strategies on-chain. Ship one above."}
                     </p>
                 ) : (
-                    <table className="desk-table">
+                    <div className="desk-table-wrap"><table className="desk-table">
                         <thead>
                             <tr>
                                 <th>Kind</th>
@@ -745,7 +755,7 @@ export default function LpDesk({ view, onViewChange }: { view: ViewId; onViewCha
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table></div>
                 )}
             </section>
 

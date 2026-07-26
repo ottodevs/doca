@@ -718,6 +718,9 @@ export default function App({ view, onViewChange }: { view: ViewId; onViewChange
                                         <i />
                                     </label>
                                 </div>
+                                <button type="button" className="hm-link" onClick={() => onViewChange("desk")}>
+                                    View on the desk →
+                                </button>
                             </aside>
                         </div>
                     </section>
